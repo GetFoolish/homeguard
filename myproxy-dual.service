@@ -1,6 +1,6 @@
 [Unit]
 Description=MyProxy Dual-Mode Network Gateway
-Documentation=https://github.com/yourusername/myProxy
+Documentation=https://github.com/vandanchopra/homeguard
 Requires=docker.service
 After=docker.service network-online.target
 Wants=network-online.target
@@ -11,6 +11,9 @@ RemainAfterExit=true
 User=root
 Group=root
 WorkingDirectory=/home/raspberrypi/myProxy
+
+# Pre-start: Configure bridge mode if needed
+ExecStartPre=/bin/bash -c 'if [[ -f /etc/myproxy/mode.conf ]]; then source /etc/myproxy/mode.conf; if [[ "$MYPROXY_MODE" == "bridge" ]]; then /home/raspberrypi/myProxy/scripts/configure-bridge-mode.sh; fi; fi'
 
 # Start MyProxy containers
 ExecStart=/usr/bin/docker-compose -f docker-compose.pi.yml up -d
