@@ -56,8 +56,12 @@ async def create_tables():
             await conn.run_sync(Base.metadata.create_all, checkfirst=True)
         logger.info("Database tables created successfully")
     except Exception as e:
-        logger.error(f"Failed to create database tables: {e}")
-        raise
+        # Handle "table already exists" as success - this is expected during restarts
+        if "already exists" in str(e).lower():
+            logger.info("Database tables already exist - continuing")
+        else:
+            logger.error(f"Failed to create database tables: {e}")
+            raise
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:

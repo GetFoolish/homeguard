@@ -10,10 +10,7 @@ services:
       context: .
     container_name: myproxy-gateway
     restart: always
-    ports:
-      - "80:8080"    # HTTP on standard port  
-      - "8080:8080"  # Admin access
-      - "8888:8888"  # HTTP proxy
+    # ports: # Not needed in host network mode - services bind directly to host ports
     volumes:
       - myproxy-data:/app/data
       - /etc/timezone:/etc/timezone:ro
@@ -49,8 +46,8 @@ services:
       - NET_RAW  
       - SYS_MODULE
     privileged: true
-    sysctls:
-      - net.ipv4.ip_forward=1
+    # sysctls: # Not compatible with host network mode
+    #   - net.ipv4.ip_forward=1
     # Host networking for direct interface access and iptables
     network_mode: host
     
