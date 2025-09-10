@@ -18,18 +18,15 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.PI_SSH_KEY }}
     
-    - name: Add Pi to known hosts
-      run: |
-        ssh-keyscan -H 192.168.4.100 >> ~/.ssh/known_hosts
-    
     - name: Test SSH connection
       run: |
-        ssh -o ConnectTimeout=10 raspberrypi@192.168.4.100 'echo "SSH connection successful"'
+        ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 raspberrypi@192.168.4.100 'echo "SSH connection successful"'
     
     - name: Deploy to Raspberry Pi
       run: |
         # Copy project files to Pi
         rsync -avz --delete \
+          -e "ssh -o StrictHostKeyChecking=no" \
           --exclude '.git' \
           --exclude '.github' \
           --exclude '__pycache__' \
@@ -40,7 +37,7 @@ jobs:
           ./ raspberrypi@192.168.4.100:myProxy/
         
         # Run deployment script on Pi
-        ssh raspberrypi@192.168.4.100 'cd myProxy && chmod +x scripts/deploy.sh && ./scripts/deploy.sh'
+        ssh -o StrictHostKeyChecking=no raspberrypi@192.168.4.100 'cd myProxy && chmod +x scripts/deploy.sh && ./scripts/deploy.sh'
     
     - name: Health check
       run: |
@@ -48,10 +45,10 @@ jobs:
         sleep 30
         
         # Check service status
-        ssh raspberrypi@192.168.4.100 'sudo systemctl is-active myproxy-dual'
+        ssh -o StrictHostKeyChecking=no raspberrypi@192.168.4.100 'sudo systemctl is-active myproxy-dual'
         
         # Check if admin interface is responding
-        ssh raspberrypi@192.168.4.100 'curl -f http://localhost:8080/health || curl -f http://localhost:8080'
+        ssh -o StrictHostKeyChecking=no raspberrypi@192.168.4.100 'curl -f http://localhost:8080/health || curl -f http://localhost:8080'
     
     - name: Notify deployment status
       if: always()
