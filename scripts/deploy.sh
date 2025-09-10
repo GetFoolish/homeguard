@@ -68,6 +68,23 @@ else
     ssh raspberrypi@192.168.4.100 "cd myProxy && docker-compose -f docker-compose.pi.yml build --no-cache"
 fi
 
+# Ensure TOTP secrets file exists on target
+log "Setting up TOTP secrets..."
+if $LOCAL_DEPLOY; then
+    if [[ ! -f totp_secrets.json ]]; then
+        error "totp_secrets.json not found locally - required for deployment"
+        exit 1
+    fi
+else
+    if [[ -f totp_secrets.json ]]; then
+        log "Copying TOTP secrets to Pi"
+        scp totp_secrets.json raspberrypi@192.168.4.100:myProxy/
+    else
+        error "totp_secrets.json not found locally - required for deployment"
+        exit 1
+    fi
+fi
+
 # Install/update systemd service
 log "Installing systemd service..."
 if $LOCAL_DEPLOY; then

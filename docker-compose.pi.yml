@@ -8,9 +8,6 @@ services:
   myproxy-gateway:
     build: 
       context: .
-      platforms:
-        - linux/arm64  # For Pi 4/5
-        - linux/arm/v7  # For Pi 3
     container_name: myproxy-gateway
     restart: always
     ports:
@@ -24,7 +21,7 @@ services:
       - /etc/myproxy:/etc/myproxy:ro  # Mode configuration
       - ./totp_secrets.json:/app/data/totp_secrets.json:ro
     environment:
-      - MYPROXY_DATABASE_URL=sqlite+aiosqlite:///app/data/myproxy.db
+      - MYPROXY_DATABASE_URL=sqlite+aiosqlite:////app/data/myproxy.db
       - MYPROXY_DEBUG=false
       - MYPROXY_WEB_HOST=0.0.0.0
       - MYPROXY_WEB_PORT=8080

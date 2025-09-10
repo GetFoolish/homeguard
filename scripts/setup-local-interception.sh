@@ -60,6 +60,10 @@ iptables-save > /tmp/iptables-backup-$(date +%s).rules
 iptables -t nat -N MYPROXY_LOCAL 2>/dev/null || true
 iptables -t filter -N MYPROXY_FILTER 2>/dev/null || true
 
+# Exempt localhost traffic from redirection (CRITICAL for web server)
+iptables -t nat -I OUTPUT 1 -o lo -j ACCEPT
+iptables -t nat -I OUTPUT 1 -d 127.0.0.0/8 -j ACCEPT
+
 # Redirect HTTP traffic to proxy (port 8888)
 iptables -t nat -A OUTPUT -p tcp --dport 80 -j REDIRECT --to-port 8888
 iptables -t nat -A OUTPUT -p tcp --dport 443 -j REDIRECT --to-port 8888

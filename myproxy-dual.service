@@ -10,20 +10,16 @@ Type=forking
 RemainAfterExit=true
 User=root
 Group=root
-WorkingDirectory=/home/pi/myProxy
+WorkingDirectory=/home/raspberrypi/myProxy
 
-# Pre-start: Detect and configure mode
-ExecStartPre=/bin/bash -c 'cd /home/pi/myProxy/scripts/pi-deployment && ./detect-mode.sh > /tmp/myproxy-mode.log 2>&1'
-ExecStartPre=/bin/bash -c 'source /etc/myproxy/mode.conf && export MYPROXY_MODE WAN_INTERFACE LAN_INTERFACE'
+# Start MyProxy containers
+ExecStart=/usr/bin/docker-compose -f docker-compose.pi.yml up -d
 
-# Start MyProxy in detected mode
-ExecStart=/bin/bash -c 'source /etc/myproxy/mode.conf && docker-compose -f docker-compose.pi.yml up -d'
-
-# Stop command
+# Stop command  
 ExecStop=/usr/bin/docker-compose -f docker-compose.pi.yml down
 
-# Reload: Switch modes if requested
-ExecReload=/bin/bash -c 'cd /home/pi/myProxy/scripts/pi-deployment && ./switch-mode.sh auto'
+# Reload: Restart containers
+ExecReload=/usr/bin/docker-compose -f docker-compose.pi.yml restart
 
 # Restart policy
 TimeoutStartSec=180

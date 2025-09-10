@@ -36,6 +36,7 @@ jobs:
           --exclude '*.pyc' \
           --exclude 'venv' \
           --exclude '.env' \
+          --include 'totp_secrets.json' \
           ./ raspberrypi@192.168.4.100:myProxy/
         
         # Run deployment script on Pi
