@@ -1,0 +1,775 @@
+2025-09-07 01:59:33,005 - __main__ - INFO - MyProxy Network Gateway starting...
+2025-09-07 01:59:33,005 - __main__ - INFO - Debug mode: False
+2025-09-07 01:59:33,005 - __main__ - INFO - Auto recovery: True
+2025-09-07 01:59:33,005 - __main__ - INFO - Starting MyProxy services...
+2025-09-07 01:59:33,005 - __main__ - INFO - TrafficMonitor started
+2025-09-07 01:59:33,005 - __main__ - INFO - Starting web server on 0.0.0.0:8080
+2025-09-07 01:59:33,005 - myproxy.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-07 01:59:33,016 - myproxy.web.app - INFO - Starting MyProxy web application
+2025-09-07 01:59:33,019 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 01:59:33,022 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 01:59:33,026 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 01:59:33,027 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 01:59:33,027 - myproxy.network.traffic_monitor - INFO - Restoring service state...
+2025-09-07 01:59:33,031 - myproxy.database.connection - ERROR - Failed to create database tables: (sqlite3.OperationalError) table devices already exists
+[SQL: 
+CREATE TABLE devices (
+	mac_address VARCHAR(17) NOT NULL, 
+	ip_address VARCHAR(15), 
+	hostname VARCHAR(255), 
+	first_seen DATETIME, 
+	last_seen DATETIME, 
+	is_authorized BOOLEAN, 
+	access_granted_at DATETIME, 
+	access_expires_at DATETIME, 
+	access_duration VARCHAR(20), 
+	user_agent TEXT, 
+	device_type VARCHAR(50), 
+	notes TEXT, 
+	PRIMARY KEY (mac_address)
+)
+
+]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-07 01:59:33,042 - myproxy.network.traffic_monitor - INFO - State restoration complete. 0 authorized devices restored
+2025-09-07 01:59:33,042 - myproxy.network.traffic_monitor - INFO - Background monitoring tasks started
+2025-09-07 01:59:33,042 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service started successfully
+2025-09-07 01:59:33,042 - myproxy.network.traffic_monitor - INFO - Entering main service loop
+2025-09-07 01:59:33,046 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 01:59:33,047 - myproxy.database.connection - INFO - Cleaned up 0 expired device access records
+2025-09-07 02:01:51,870 - myproxy.network.traffic_monitor - INFO - Received signal 2, initiating graceful shutdown...
+2025-09-07 02:01:51,871 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:01:51,873 - __main__ - INFO - Received shutdown signal
+2025-09-07 02:01:51,873 - __main__ - INFO - Shutting down services...
+2025-09-07 02:01:51,873 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:01:51,877 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:01:51,879 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:01:57,273 - __main__ - INFO - MyProxy Network Gateway starting...
+2025-09-07 02:01:57,273 - __main__ - INFO - Debug mode: False
+2025-09-07 02:01:57,273 - __main__ - INFO - Auto recovery: True
+2025-09-07 02:01:57,273 - __main__ - INFO - Starting MyProxy services...
+2025-09-07 02:01:57,273 - __main__ - INFO - TrafficMonitor started
+2025-09-07 02:01:57,273 - __main__ - INFO - Starting web server on 0.0.0.0:8080
+2025-09-07 02:01:57,273 - myproxy.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-07 02:01:57,282 - myproxy.web.app - INFO - Starting MyProxy web application
+2025-09-07 02:01:57,284 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:01:57,286 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:01:57,286 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:01:57,286 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:01:57,286 - myproxy.network.traffic_monitor - INFO - Restoring service state...
+2025-09-07 02:01:57,291 - myproxy.network.traffic_monitor - INFO - Restored service configuration: 4 settings
+2025-09-07 02:01:57,291 - myproxy.network.traffic_monitor - INFO - State restoration complete. 0 authorized devices restored
+2025-09-07 02:01:57,291 - myproxy.network.traffic_monitor - INFO - Background monitoring tasks started
+2025-09-07 02:01:57,291 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service started successfully
+2025-09-07 02:01:57,291 - myproxy.network.traffic_monitor - INFO - Entering main service loop
+2025-09-07 02:01:57,292 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:01:57,292 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:01:57,294 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:01:57,294 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:01:57,295 - myproxy.database.connection - INFO - Cleaned up 0 expired device access records
+2025-09-07 02:03:29,691 - myproxy.network.traffic_monitor - INFO - Received signal 2, initiating graceful shutdown...
+2025-09-07 02:03:29,692 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:03:29,694 - __main__ - INFO - Received shutdown signal
+2025-09-07 02:03:29,694 - __main__ - INFO - Shutting down services...
+2025-09-07 02:03:29,694 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:03:29,698 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:03:29,699 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:03:29,887 - myproxy.web.app - INFO - Shutting down MyProxy web application
+2025-09-07 02:06:34,537 - __main__ - INFO - MyProxy Network Gateway starting...
+2025-09-07 02:06:34,538 - __main__ - INFO - Debug mode: False
+2025-09-07 02:06:34,538 - __main__ - INFO - Auto recovery: True
+2025-09-07 02:06:34,538 - __main__ - INFO - Starting MyProxy services...
+2025-09-07 02:06:34,538 - __main__ - INFO - TrafficMonitor started
+2025-09-07 02:06:34,538 - __main__ - INFO - Starting web server on 0.0.0.0:8080
+2025-09-07 02:06:34,538 - myproxy.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-07 02:06:34,548 - myproxy.web.app - INFO - Starting MyProxy web application
+2025-09-07 02:06:34,553 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:06:34,555 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:06:34,555 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:06:34,555 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:06:34,555 - myproxy.network.traffic_monitor - INFO - Restoring service state...
+2025-09-07 02:06:34,559 - myproxy.network.traffic_monitor - INFO - Restored service configuration: 4 settings
+2025-09-07 02:06:34,559 - myproxy.network.traffic_monitor - INFO - State restoration complete. 0 authorized devices restored
+2025-09-07 02:06:34,559 - myproxy.network.traffic_monitor - INFO - Background monitoring tasks started
+2025-09-07 02:06:34,559 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service started successfully
+2025-09-07 02:06:34,559 - myproxy.network.traffic_monitor - INFO - Entering main service loop
+2025-09-07 02:06:34,561 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:06:34,561 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:06:34,563 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:06:34,563 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:06:34,565 - myproxy.database.connection - INFO - Cleaned up 0 expired device access records
+2025-09-07 02:09:48,867 - myproxy.auth.totp - INFO - Valid TOTP code for 15min duration
+2025-09-07 02:10:15,340 - myproxy.network.traffic_monitor - INFO - Received signal 2, initiating graceful shutdown...
+2025-09-07 02:10:15,340 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:10:15,342 - __main__ - INFO - Received shutdown signal
+2025-09-07 02:10:15,342 - __main__ - INFO - Shutting down services...
+2025-09-07 02:10:15,342 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:10:15,347 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:10:15,348 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:10:15,546 - myproxy.web.app - INFO - Shutting down MyProxy web application
+2025-09-07 02:10:23,756 - __main__ - INFO - MyProxy Network Gateway starting...
+2025-09-07 02:10:23,756 - __main__ - INFO - Debug mode: False
+2025-09-07 02:10:23,756 - __main__ - INFO - Auto recovery: True
+2025-09-07 02:10:23,756 - __main__ - INFO - Starting MyProxy services...
+2025-09-07 02:10:23,757 - __main__ - INFO - TrafficMonitor started
+2025-09-07 02:10:23,757 - __main__ - INFO - Starting web server on 0.0.0.0:8080
+2025-09-07 02:10:23,757 - myproxy.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-07 02:10:23,765 - myproxy.web.app - INFO - Starting MyProxy web application
+2025-09-07 02:10:23,769 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:10:23,771 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:10:23,771 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:10:23,771 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:10:23,772 - myproxy.network.traffic_monitor - INFO - Restoring service state...
+2025-09-07 02:10:23,774 - myproxy.network.traffic_monitor - INFO - Restored authorized device: 00:00:00:00:00:01
+2025-09-07 02:10:23,776 - myproxy.network.traffic_monitor - INFO - Restored service configuration: 4 settings
+2025-09-07 02:10:23,776 - myproxy.network.traffic_monitor - INFO - State restoration complete. 1 authorized devices restored
+2025-09-07 02:10:23,776 - myproxy.network.traffic_monitor - INFO - Background monitoring tasks started
+2025-09-07 02:10:23,776 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service started successfully
+2025-09-07 02:10:23,776 - myproxy.network.traffic_monitor - INFO - Entering main service loop
+2025-09-07 02:10:23,777 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:10:23,777 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:10:23,779 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:10:23,780 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:10:23,781 - myproxy.database.connection - INFO - Cleaned up 0 expired device access records
+2025-09-07 02:11:48,814 - myproxy.network.traffic_monitor - INFO - Received signal 2, initiating graceful shutdown...
+2025-09-07 02:11:48,815 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:11:48,817 - __main__ - INFO - Received shutdown signal
+2025-09-07 02:11:48,817 - __main__ - INFO - Shutting down services...
+2025-09-07 02:11:48,817 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:11:48,822 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:11:48,823 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:11:48,994 - myproxy.web.app - INFO - Shutting down MyProxy web application
+2025-09-07 02:16:10,620 - __main__ - INFO - MyProxy Network Gateway starting...
+2025-09-07 02:16:10,620 - __main__ - INFO - Debug mode: False
+2025-09-07 02:16:10,620 - __main__ - INFO - Auto recovery: True
+2025-09-07 02:16:10,621 - __main__ - INFO - Starting MyProxy services...
+2025-09-07 02:16:10,621 - __main__ - INFO - TrafficMonitor started
+2025-09-07 02:16:10,621 - __main__ - INFO - Starting web server on 0.0.0.0:8080
+2025-09-07 02:16:10,621 - myproxy.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-07 02:16:10,630 - myproxy.web.app - INFO - Starting MyProxy web application
+2025-09-07 02:16:10,635 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:16:10,637 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:16:10,637 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:16:10,637 - myproxy.network.traffic_monitor - INFO - Restoring service state...
+2025-09-07 02:16:10,640 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:16:10,641 - myproxy.network.traffic_monitor - INFO - Restored authorized device: 00:00:00:00:00:01
+2025-09-07 02:16:10,643 - myproxy.network.traffic_monitor - INFO - Restored service configuration: 4 settings
+2025-09-07 02:16:10,643 - myproxy.network.traffic_monitor - INFO - State restoration complete. 1 authorized devices restored
+2025-09-07 02:16:10,643 - myproxy.network.traffic_monitor - INFO - Background monitoring tasks started
+2025-09-07 02:16:10,643 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service started successfully
+2025-09-07 02:16:10,643 - myproxy.network.traffic_monitor - INFO - Entering main service loop
+2025-09-07 02:16:10,645 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:16:10,645 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:16:10,646 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:16:10,646 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:16:10,648 - myproxy.database.connection - INFO - Cleaned up 0 expired device access records
+2025-09-07 02:16:33,396 - myproxy.web.app - ERROR - Error revoking device access: 'TrafficMonitor' object has no attribute 'revoke_device_access'
+2025-09-07 02:17:00,002 - myproxy.web.app - ERROR - Authentication error: TrafficMonitor.authenticate_device() got an unexpected keyword argument 'device_info'
+2025-09-07 02:18:16,189 - myproxy.web.app - ERROR - Authentication error: TrafficMonitor.authenticate_device() got an unexpected keyword argument 'device_info'
+2025-09-07 02:18:31,653 - myproxy.network.traffic_monitor - INFO - Received signal 2, initiating graceful shutdown...
+2025-09-07 02:18:31,654 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:18:31,655 - __main__ - INFO - Received shutdown signal
+2025-09-07 02:18:31,656 - __main__ - INFO - Shutting down services...
+2025-09-07 02:18:31,656 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:18:31,662 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:18:31,663 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:18:31,818 - myproxy.web.app - INFO - Shutting down MyProxy web application
+2025-09-07 02:20:38,716 - __main__ - INFO - MyProxy Network Gateway starting...
+2025-09-07 02:20:38,717 - __main__ - INFO - Debug mode: False
+2025-09-07 02:20:38,717 - __main__ - INFO - Auto recovery: True
+2025-09-07 02:20:38,717 - __main__ - INFO - Starting MyProxy services...
+2025-09-07 02:20:38,717 - __main__ - INFO - TrafficMonitor started
+2025-09-07 02:20:38,717 - __main__ - INFO - Starting web server on 0.0.0.0:8080
+2025-09-07 02:20:38,717 - myproxy.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-07 02:20:38,726 - myproxy.web.app - INFO - Starting MyProxy web application
+2025-09-07 02:20:38,733 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:20:38,735 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:20:38,735 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:20:38,735 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:20:38,735 - myproxy.network.traffic_monitor - INFO - Restoring service state...
+2025-09-07 02:20:38,739 - myproxy.network.traffic_monitor - INFO - Restored service configuration: 4 settings
+2025-09-07 02:20:38,740 - myproxy.network.traffic_monitor - INFO - State restoration complete. 0 authorized devices restored
+2025-09-07 02:20:38,740 - myproxy.network.traffic_monitor - INFO - Background monitoring tasks started
+2025-09-07 02:20:38,740 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service started successfully
+2025-09-07 02:20:38,740 - myproxy.network.traffic_monitor - INFO - Entering main service loop
+2025-09-07 02:20:38,742 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:20:38,742 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:20:38,743 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:20:38,743 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:20:38,746 - myproxy.database.connection - INFO - Cleaned up 0 expired device access records
+2025-09-07 02:20:56,957 - myproxy.auth.totp - WARNING - Invalid TOTP code provided: 585557
+2025-09-07 02:21:09,228 - myproxy.auth.totp - WARNING - Invalid TOTP code provided: 901912
+2025-09-07 02:21:21,202 - myproxy.auth.totp - WARNING - Invalid TOTP code provided: 431829
+2025-09-07 02:25:38,753 - myproxy.database.connection - INFO - Cleaned up 0 expired device access records
+2025-09-07 02:26:49,955 - myproxy.network.traffic_monitor - INFO - Received signal 2, initiating graceful shutdown...
+2025-09-07 02:26:49,957 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:26:49,958 - __main__ - INFO - Received shutdown signal
+2025-09-07 02:26:49,958 - __main__ - INFO - Shutting down services...
+2025-09-07 02:26:49,958 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:26:49,962 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:26:49,963 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:26:50,081 - myproxy.web.app - INFO - Shutting down MyProxy web application
+2025-09-07 02:26:53,596 - __main__ - INFO - MyProxy Network Gateway starting...
+2025-09-07 02:26:53,596 - __main__ - INFO - Debug mode: False
+2025-09-07 02:26:53,596 - __main__ - INFO - Auto recovery: True
+2025-09-07 02:26:53,596 - __main__ - INFO - Starting MyProxy services...
+2025-09-07 02:26:53,597 - __main__ - INFO - TrafficMonitor started
+2025-09-07 02:26:53,597 - __main__ - INFO - Starting web server on 0.0.0.0:8080
+2025-09-07 02:26:53,597 - myproxy.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-07 02:26:53,605 - myproxy.web.app - INFO - Starting MyProxy web application
+2025-09-07 02:26:53,607 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:26:53,609 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:26:53,609 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:26:53,609 - myproxy.network.traffic_monitor - INFO - Restoring service state...
+2025-09-07 02:26:53,611 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:26:53,614 - myproxy.network.traffic_monitor - INFO - Restored service configuration: 4 settings
+2025-09-07 02:26:53,614 - myproxy.network.traffic_monitor - INFO - State restoration complete. 0 authorized devices restored
+2025-09-07 02:26:53,614 - myproxy.network.traffic_monitor - INFO - Background monitoring tasks started
+2025-09-07 02:26:53,614 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service started successfully
+2025-09-07 02:26:53,614 - myproxy.network.traffic_monitor - INFO - Entering main service loop
+2025-09-07 02:26:53,615 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:26:53,616 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:26:53,617 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:26:53,617 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:26:53,618 - myproxy.database.connection - INFO - Cleaned up 0 expired device access records
+2025-09-07 02:28:11,543 - myproxy.auth.totp - INFO - Valid TOTP code for 15min duration
+2025-09-07 02:28:29,552 - myproxy.network.traffic_monitor - INFO - Access revoked for device: d8:b9:4d:63:3a:5c
+2025-09-07 02:28:29,552 - myproxy.web.app - INFO - Admin revoked access for device: d8:b9:4d:63:3a:5c
+2025-09-07 02:28:57,058 - myproxy.auth.totp - INFO - Valid TOTP code for 15min duration
+2025-09-07 02:31:37,218 - myproxy.network.traffic_monitor - INFO - Received signal 2, initiating graceful shutdown...
+2025-09-07 02:31:37,220 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:31:37,225 - __main__ - INFO - Received shutdown signal
+2025-09-07 02:31:37,225 - __main__ - INFO - Shutting down services...
+2025-09-07 02:31:37,226 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:31:37,231 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:31:37,232 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:31:37,384 - myproxy.web.app - INFO - Shutting down MyProxy web application
+2025-09-07 02:31:39,401 - __main__ - INFO - MyProxy Network Gateway starting...
+2025-09-07 02:31:39,401 - __main__ - INFO - Debug mode: False
+2025-09-07 02:31:39,401 - __main__ - INFO - Auto recovery: True
+2025-09-07 02:31:39,401 - __main__ - INFO - Starting MyProxy services...
+2025-09-07 02:31:39,402 - __main__ - INFO - TrafficMonitor started
+2025-09-07 02:31:39,402 - __main__ - INFO - Starting web server on 0.0.0.0:8080
+2025-09-07 02:31:39,402 - myproxy.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-07 02:31:39,411 - myproxy.web.app - INFO - Starting MyProxy web application
+2025-09-07 02:31:39,414 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:31:39,416 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:31:39,416 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:31:39,416 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:31:39,416 - myproxy.network.traffic_monitor - INFO - Restoring service state...
+2025-09-07 02:31:39,419 - myproxy.network.traffic_monitor - INFO - Restored authorized device: d8:b9:4d:63:3a:5c
+2025-09-07 02:31:39,421 - myproxy.network.traffic_monitor - INFO - Restored service configuration: 4 settings
+2025-09-07 02:31:39,421 - myproxy.network.traffic_monitor - INFO - State restoration complete. 1 authorized devices restored
+2025-09-07 02:31:39,421 - myproxy.network.traffic_monitor - INFO - Background monitoring tasks started
+2025-09-07 02:31:39,421 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service started successfully
+2025-09-07 02:31:39,421 - myproxy.network.traffic_monitor - INFO - Entering main service loop
+2025-09-07 02:31:39,423 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:31:39,423 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:31:39,425 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:31:39,425 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:31:39,426 - myproxy.database.connection - INFO - Cleaned up 0 expired device access records
+2025-09-07 02:34:42,838 - myproxy.network.traffic_monitor - INFO - Received signal 2, initiating graceful shutdown...
+2025-09-07 02:34:42,840 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:34:42,841 - __main__ - INFO - Received shutdown signal
+2025-09-07 02:34:42,841 - __main__ - INFO - Shutting down services...
+2025-09-07 02:34:42,841 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:34:42,846 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:34:42,847 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:34:43,000 - myproxy.web.app - INFO - Shutting down MyProxy web application
+2025-09-07 02:34:45,091 - __main__ - INFO - MyProxy Network Gateway starting...
+2025-09-07 02:34:45,091 - __main__ - INFO - Debug mode: False
+2025-09-07 02:34:45,091 - __main__ - INFO - Auto recovery: True
+2025-09-07 02:34:45,091 - __main__ - INFO - Starting MyProxy services...
+2025-09-07 02:34:45,091 - __main__ - INFO - TrafficMonitor started
+2025-09-07 02:34:45,092 - __main__ - INFO - Starting web server on 0.0.0.0:8080
+2025-09-07 02:34:45,092 - myproxy.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-07 02:34:45,100 - myproxy.web.app - INFO - Starting MyProxy web application
+2025-09-07 02:34:45,105 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:34:45,107 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:34:45,107 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:34:45,107 - myproxy.network.traffic_monitor - INFO - Restoring service state...
+2025-09-07 02:34:45,110 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:34:45,110 - myproxy.network.traffic_monitor - INFO - Restored authorized device: d8:b9:4d:63:3a:5c
+2025-09-07 02:34:45,112 - myproxy.network.traffic_monitor - INFO - Restored service configuration: 4 settings
+2025-09-07 02:34:45,112 - myproxy.network.traffic_monitor - INFO - State restoration complete. 1 authorized devices restored
+2025-09-07 02:34:45,112 - myproxy.network.traffic_monitor - INFO - Background monitoring tasks started
+2025-09-07 02:34:45,112 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service started successfully
+2025-09-07 02:34:45,112 - myproxy.network.traffic_monitor - INFO - Entering main service loop
+2025-09-07 02:34:45,114 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:34:45,114 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:34:45,116 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:34:45,116 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:34:45,117 - myproxy.database.connection - INFO - Cleaned up 0 expired device access records
+2025-09-07 02:35:09,152 - myproxy.auth.totp - INFO - Valid TOTP code for forever duration
+2025-09-07 02:35:09,152 - myproxy.web.app - INFO - Admin authenticated successfully
+2025-09-07 02:36:56,899 - myproxy.network.traffic_monitor - INFO - Received signal 2, initiating graceful shutdown...
+2025-09-07 02:36:56,900 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:36:56,903 - __main__ - INFO - Received shutdown signal
+2025-09-07 02:36:56,903 - __main__ - INFO - Shutting down services...
+2025-09-07 02:36:56,903 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:36:56,907 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:36:56,909 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:36:57,045 - myproxy.web.app - INFO - Shutting down MyProxy web application
+2025-09-07 02:37:52,361 - __main__ - INFO - MyProxy Network Gateway starting...
+2025-09-07 02:37:52,361 - __main__ - INFO - Debug mode: False
+2025-09-07 02:37:52,361 - __main__ - INFO - Auto recovery: True
+2025-09-07 02:37:52,361 - __main__ - INFO - Starting MyProxy services...
+2025-09-07 02:37:52,362 - __main__ - INFO - TrafficMonitor started
+2025-09-07 02:37:52,362 - __main__ - INFO - Starting web server on 0.0.0.0:8080
+2025-09-07 02:37:52,362 - myproxy.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-07 02:37:52,372 - myproxy.web.app - INFO - Starting MyProxy web application
+2025-09-07 02:37:52,380 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:37:52,382 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:37:52,382 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:37:52,382 - myproxy.network.traffic_monitor - INFO - Restoring service state...
+2025-09-07 02:37:52,385 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:37:52,386 - myproxy.network.traffic_monitor - INFO - Restored authorized device: d8:b9:4d:63:3a:5c
+2025-09-07 02:37:52,388 - myproxy.network.traffic_monitor - INFO - Restored service configuration: 4 settings
+2025-09-07 02:37:52,388 - myproxy.network.traffic_monitor - INFO - State restoration complete. 1 authorized devices restored
+2025-09-07 02:37:52,388 - myproxy.network.traffic_monitor - INFO - Background monitoring tasks started
+2025-09-07 02:37:52,388 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service started successfully
+2025-09-07 02:37:52,388 - myproxy.network.traffic_monitor - INFO - Entering main service loop
+2025-09-07 02:37:52,389 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:37:52,389 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:37:52,391 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:37:52,391 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:37:52,393 - myproxy.database.connection - INFO - Cleaned up 0 expired device access records
+2025-09-07 02:39:31,736 - myproxy.auth.totp - WARNING - Invalid TOTP code provided: 025286
+2025-09-07 02:39:48,110 - myproxy.auth.totp - INFO - Valid TOTP code for forever duration
+2025-09-07 02:39:48,111 - myproxy.web.app - INFO - Admin authenticated successfully
+2025-09-07 02:39:52,784 - myproxy.network.traffic_monitor - INFO - Access revoked for device: d8:b9:4d:63:3a:5c
+2025-09-07 02:39:52,784 - myproxy.web.app - INFO - Admin revoked access for device: d8:b9:4d:63:3a:5c
+2025-09-07 02:40:09,604 - myproxy.auth.totp - INFO - Valid TOTP code for 15min duration
+2025-09-07 02:40:23,379 - myproxy.auth.totp - INFO - Valid TOTP code for 15min duration
+2025-09-07 02:41:08,393 - myproxy.network.traffic_monitor - INFO - Received signal 2, initiating graceful shutdown...
+2025-09-07 02:41:08,394 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:41:08,395 - __main__ - INFO - Received shutdown signal
+2025-09-07 02:41:08,395 - __main__ - INFO - Shutting down services...
+2025-09-07 02:41:08,395 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:41:08,398 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:41:08,400 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:41:08,529 - myproxy.web.app - INFO - Shutting down MyProxy web application
+2025-09-07 02:42:22,405 - __main__ - INFO - MyProxy Network Gateway starting...
+2025-09-07 02:42:22,406 - __main__ - INFO - Debug mode: False
+2025-09-07 02:42:22,406 - __main__ - INFO - Auto recovery: True
+2025-09-07 02:42:22,406 - __main__ - INFO - Starting MyProxy services...
+2025-09-07 02:42:22,406 - __main__ - INFO - TrafficMonitor started
+2025-09-07 02:42:22,406 - __main__ - INFO - Starting web server on 0.0.0.0:8080
+2025-09-07 02:42:22,406 - myproxy.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-07 02:42:22,415 - myproxy.web.app - INFO - Starting MyProxy web application
+2025-09-07 02:42:22,421 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:42:22,423 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:42:22,423 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:42:22,423 - myproxy.network.traffic_monitor - INFO - Restoring service state...
+2025-09-07 02:42:22,425 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:42:22,426 - myproxy.network.traffic_monitor - INFO - Restored authorized device: d8:b9:4d:63:3a:5c
+2025-09-07 02:42:22,427 - myproxy.network.traffic_monitor - INFO - Restored service configuration: 4 settings
+2025-09-07 02:42:22,428 - myproxy.network.traffic_monitor - INFO - State restoration complete. 1 authorized devices restored
+2025-09-07 02:42:22,428 - myproxy.network.traffic_monitor - INFO - Background monitoring tasks started
+2025-09-07 02:42:22,428 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service started successfully
+2025-09-07 02:42:22,428 - myproxy.network.traffic_monitor - INFO - Entering main service loop
+2025-09-07 02:42:22,429 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:42:22,429 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:42:22,431 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:42:22,431 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:42:22,433 - myproxy.database.connection - INFO - Cleaned up 0 expired device access records
+2025-09-07 02:44:37,173 - myproxy.network.traffic_monitor - INFO - Received signal 2, initiating graceful shutdown...
+2025-09-07 02:44:37,175 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:44:37,176 - __main__ - INFO - Received shutdown signal
+2025-09-07 02:44:37,176 - __main__ - INFO - Shutting down services...
+2025-09-07 02:44:37,176 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:44:37,180 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:44:37,181 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:44:37,364 - myproxy.web.app - INFO - Shutting down MyProxy web application
+2025-09-07 02:44:40,376 - __main__ - INFO - MyProxy Network Gateway starting...
+2025-09-07 02:44:40,376 - __main__ - INFO - Debug mode: False
+2025-09-07 02:44:40,376 - __main__ - INFO - Auto recovery: True
+2025-09-07 02:44:40,377 - __main__ - INFO - Starting MyProxy services...
+2025-09-07 02:44:40,377 - __main__ - INFO - TrafficMonitor started
+2025-09-07 02:44:40,377 - __main__ - INFO - Starting web server on 0.0.0.0:8080
+2025-09-07 02:44:40,377 - myproxy.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-07 02:44:40,386 - myproxy.web.app - INFO - Starting MyProxy web application
+2025-09-07 02:44:40,387 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:44:40,389 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:44:40,389 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:44:40,389 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:44:40,389 - myproxy.network.traffic_monitor - INFO - Restoring service state...
+2025-09-07 02:44:40,392 - myproxy.network.traffic_monitor - INFO - Restored authorized device: d8:b9:4d:63:3a:5c
+2025-09-07 02:44:40,394 - myproxy.network.traffic_monitor - INFO - Restored service configuration: 4 settings
+2025-09-07 02:44:40,394 - myproxy.network.traffic_monitor - INFO - State restoration complete. 1 authorized devices restored
+2025-09-07 02:44:40,394 - myproxy.network.traffic_monitor - INFO - Background monitoring tasks started
+2025-09-07 02:44:40,394 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service started successfully
+2025-09-07 02:44:40,394 - myproxy.network.traffic_monitor - INFO - Entering main service loop
+2025-09-07 02:44:40,396 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:44:40,396 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:44:40,398 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:44:40,399 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:44:40,400 - myproxy.database.connection - INFO - Cleaned up 0 expired device access records
+2025-09-07 02:45:47,892 - myproxy.network.traffic_monitor - INFO - Received signal 2, initiating graceful shutdown...
+2025-09-07 02:45:47,893 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:45:47,894 - __main__ - INFO - Received shutdown signal
+2025-09-07 02:45:47,894 - __main__ - INFO - Shutting down services...
+2025-09-07 02:45:47,894 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:45:47,898 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:45:47,899 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:45:48,094 - myproxy.web.app - INFO - Shutting down MyProxy web application
+2025-09-07 02:46:10,795 - __main__ - INFO - MyProxy Network Gateway starting...
+2025-09-07 02:46:10,795 - __main__ - INFO - Debug mode: False
+2025-09-07 02:46:10,795 - __main__ - INFO - Auto recovery: True
+2025-09-07 02:46:10,795 - __main__ - INFO - Starting MyProxy services...
+2025-09-07 02:46:10,795 - __main__ - INFO - TrafficMonitor started
+2025-09-07 02:46:10,795 - __main__ - INFO - Starting web server on 0.0.0.0:8080
+2025-09-07 02:46:10,795 - myproxy.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-07 02:46:10,803 - myproxy.web.app - INFO - Starting MyProxy web application
+2025-09-07 02:46:10,805 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:46:10,807 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:46:10,807 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:46:10,808 - myproxy.network.traffic_monitor - INFO - Restoring service state...
+2025-09-07 02:46:10,810 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:46:10,811 - myproxy.network.traffic_monitor - INFO - Restored authorized device: d8:b9:4d:63:3a:5c
+2025-09-07 02:46:10,813 - myproxy.network.traffic_monitor - INFO - Restored service configuration: 4 settings
+2025-09-07 02:46:10,813 - myproxy.network.traffic_monitor - INFO - State restoration complete. 1 authorized devices restored
+2025-09-07 02:46:10,813 - myproxy.network.traffic_monitor - INFO - Background monitoring tasks started
+2025-09-07 02:46:10,813 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service started successfully
+2025-09-07 02:46:10,813 - myproxy.network.traffic_monitor - INFO - Entering main service loop
+2025-09-07 02:46:10,815 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:46:10,815 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:46:10,816 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:46:10,816 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:46:10,817 - myproxy.database.connection - INFO - Cleaned up 0 expired device access records
+2025-09-07 02:46:16,698 - myproxy.web.app - INFO - === DEBUG: Status Page Values ===
+2025-09-07 02:46:16,698 - myproxy.web.app - INFO - MAC Address: d8:b9:4d:63:3a:5c
+2025-09-07 02:46:16,698 - myproxy.web.app - INFO - Device Found: True
+2025-09-07 02:46:16,698 - myproxy.web.app - INFO - Access Valid: True
+2025-09-07 02:46:16,698 - myproxy.web.app - INFO - Granted Time (raw): 2025-09-07 06:40:23.382376
+2025-09-07 02:46:16,698 - myproxy.web.app - INFO - Expires Time (raw): 2025-09-07 06:55:23.379764
+2025-09-07 02:46:16,698 - myproxy.web.app - INFO - Granted Time (used): 2025-09-07 06:40:23.382376
+2025-09-07 02:46:16,698 - myproxy.web.app - INFO - Expires Time (used): 2025-09-07 06:55:23.379764
+2025-09-07 02:46:16,699 - myproxy.web.app - INFO - Access Duration: 15min
+2025-09-07 02:46:16,699 - myproxy.web.app - INFO - Granted Formatted: 2025-09-07T06:40:23
+2025-09-07 02:46:16,699 - myproxy.web.app - INFO - Expires Formatted: 2025-09-07T06:55:23
+2025-09-07 02:46:16,699 - myproxy.web.app - INFO - Time Left (seconds): 546
+2025-09-07 02:46:16,699 - myproxy.web.app - INFO - Time Left (formatted): 0h 9m 6s
+2025-09-07 02:46:16,699 - myproxy.web.app - INFO - ===================================
+2025-09-07 02:46:34,380 - myproxy.web.app - INFO - === DEBUG: Status Page Values ===
+2025-09-07 02:46:34,381 - myproxy.web.app - INFO - MAC Address: d8:b9:4d:63:3a:5c
+2025-09-07 02:46:34,381 - myproxy.web.app - INFO - Device Found: True
+2025-09-07 02:46:34,381 - myproxy.web.app - INFO - Access Valid: True
+2025-09-07 02:46:34,381 - myproxy.web.app - INFO - Granted Time (raw): 2025-09-07 06:40:23.382376
+2025-09-07 02:46:34,382 - myproxy.web.app - INFO - Expires Time (raw): 2025-09-07 06:55:23.379764
+2025-09-07 02:46:34,382 - myproxy.web.app - INFO - Granted Time (used): 2025-09-07 06:40:23.382376
+2025-09-07 02:46:34,382 - myproxy.web.app - INFO - Expires Time (used): 2025-09-07 06:55:23.379764
+2025-09-07 02:46:34,382 - myproxy.web.app - INFO - Access Duration: 15min
+2025-09-07 02:46:34,382 - myproxy.web.app - INFO - Granted Formatted: 2025-09-07T06:40:23
+2025-09-07 02:46:34,382 - myproxy.web.app - INFO - Expires Formatted: 2025-09-07T06:55:23
+2025-09-07 02:46:34,382 - myproxy.web.app - INFO - Time Left (seconds): 528
+2025-09-07 02:46:34,383 - myproxy.web.app - INFO - Time Left (formatted): 0h 8m 48s
+2025-09-07 02:46:34,383 - myproxy.web.app - INFO - ===================================
+2025-09-07 02:47:27,755 - myproxy.web.app - INFO - === DEBUG: Status Page Values ===
+2025-09-07 02:47:27,755 - myproxy.web.app - INFO - MAC Address: d8:b9:4d:63:3a:5c
+2025-09-07 02:47:27,755 - myproxy.web.app - INFO - Device Found: True
+2025-09-07 02:47:27,756 - myproxy.web.app - INFO - Access Valid: True
+2025-09-07 02:47:27,756 - myproxy.web.app - INFO - Granted Time (raw): 2025-09-07 06:40:23.382376
+2025-09-07 02:47:27,756 - myproxy.web.app - INFO - Expires Time (raw): 2025-09-07 06:55:23.379764
+2025-09-07 02:47:27,756 - myproxy.web.app - INFO - Granted Time (used): 2025-09-07 06:40:23.382376
+2025-09-07 02:47:27,756 - myproxy.web.app - INFO - Expires Time (used): 2025-09-07 06:55:23.379764
+2025-09-07 02:47:27,756 - myproxy.web.app - INFO - Access Duration: 15min
+2025-09-07 02:47:27,756 - myproxy.web.app - INFO - Granted Formatted: 2025-09-07T06:40:23
+2025-09-07 02:47:27,756 - myproxy.web.app - INFO - Expires Formatted: 2025-09-07T06:55:23
+2025-09-07 02:47:27,756 - myproxy.web.app - INFO - Time Left (seconds): 475
+2025-09-07 02:47:27,756 - myproxy.web.app - INFO - Time Left (formatted): 0h 7m 55s
+2025-09-07 02:47:27,756 - myproxy.web.app - INFO - ===================================
+2025-09-07 02:47:28,976 - myproxy.web.app - INFO - === DEBUG: Status Page Values ===
+2025-09-07 02:47:28,977 - myproxy.web.app - INFO - MAC Address: d8:b9:4d:63:3a:5c
+2025-09-07 02:47:28,977 - myproxy.web.app - INFO - Device Found: True
+2025-09-07 02:47:28,977 - myproxy.web.app - INFO - Access Valid: True
+2025-09-07 02:47:28,977 - myproxy.web.app - INFO - Granted Time (raw): 2025-09-07 06:40:23.382376
+2025-09-07 02:47:28,977 - myproxy.web.app - INFO - Expires Time (raw): 2025-09-07 06:55:23.379764
+2025-09-07 02:47:28,977 - myproxy.web.app - INFO - Granted Time (used): 2025-09-07 06:40:23.382376
+2025-09-07 02:47:28,978 - myproxy.web.app - INFO - Expires Time (used): 2025-09-07 06:55:23.379764
+2025-09-07 02:47:28,978 - myproxy.web.app - INFO - Access Duration: 15min
+2025-09-07 02:47:28,978 - myproxy.web.app - INFO - Granted Formatted: 2025-09-07T06:40:23
+2025-09-07 02:47:28,978 - myproxy.web.app - INFO - Expires Formatted: 2025-09-07T06:55:23
+2025-09-07 02:47:28,978 - myproxy.web.app - INFO - Time Left (seconds): 474
+2025-09-07 02:47:28,978 - myproxy.web.app - INFO - Time Left (formatted): 0h 7m 54s
+2025-09-07 02:47:28,978 - myproxy.web.app - INFO - ===================================
+2025-09-07 02:47:38,674 - myproxy.web.app - INFO - === DEBUG: Status Page Values ===
+2025-09-07 02:47:38,674 - myproxy.web.app - INFO - MAC Address: d8:b9:4d:63:3a:5c
+2025-09-07 02:47:38,675 - myproxy.web.app - INFO - Device Found: True
+2025-09-07 02:47:38,675 - myproxy.web.app - INFO - Access Valid: True
+2025-09-07 02:47:38,675 - myproxy.web.app - INFO - Granted Time (raw): 2025-09-07 06:40:23.382376
+2025-09-07 02:47:38,675 - myproxy.web.app - INFO - Expires Time (raw): 2025-09-07 06:55:23.379764
+2025-09-07 02:47:38,675 - myproxy.web.app - INFO - Granted Time (used): 2025-09-07 06:40:23.382376
+2025-09-07 02:47:38,675 - myproxy.web.app - INFO - Expires Time (used): 2025-09-07 06:55:23.379764
+2025-09-07 02:47:38,675 - myproxy.web.app - INFO - Access Duration: 15min
+2025-09-07 02:47:38,675 - myproxy.web.app - INFO - Granted Formatted: 2025-09-07T06:40:23
+2025-09-07 02:47:38,675 - myproxy.web.app - INFO - Expires Formatted: 2025-09-07T06:55:23
+2025-09-07 02:47:38,675 - myproxy.web.app - INFO - Time Left (seconds): 464
+2025-09-07 02:47:38,675 - myproxy.web.app - INFO - Time Left (formatted): 0h 7m 44s
+2025-09-07 02:47:38,675 - myproxy.web.app - INFO - ===================================
+2025-09-07 02:47:42,302 - myproxy.network.traffic_monitor - INFO - Received signal 2, initiating graceful shutdown...
+2025-09-07 02:47:42,302 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:47:42,303 - __main__ - INFO - Received shutdown signal
+2025-09-07 02:47:42,304 - __main__ - INFO - Shutting down services...
+2025-09-07 02:47:42,304 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:47:42,309 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:47:42,310 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:47:42,498 - myproxy.web.app - INFO - Shutting down MyProxy web application
+2025-09-07 02:47:44,853 - __main__ - INFO - MyProxy Network Gateway starting...
+2025-09-07 02:47:44,853 - __main__ - INFO - Debug mode: False
+2025-09-07 02:47:44,853 - __main__ - INFO - Auto recovery: True
+2025-09-07 02:47:44,853 - __main__ - INFO - Starting MyProxy services...
+2025-09-07 02:47:44,853 - __main__ - INFO - TrafficMonitor started
+2025-09-07 02:47:44,853 - __main__ - INFO - Starting web server on 0.0.0.0:8080
+2025-09-07 02:47:44,853 - myproxy.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-07 02:47:44,862 - myproxy.web.app - INFO - Starting MyProxy web application
+2025-09-07 02:47:44,864 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:47:44,866 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:47:44,866 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:47:44,866 - myproxy.network.traffic_monitor - INFO - Restoring service state...
+2025-09-07 02:47:44,868 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:47:44,869 - myproxy.network.traffic_monitor - INFO - Restored authorized device: d8:b9:4d:63:3a:5c
+2025-09-07 02:47:44,870 - myproxy.network.traffic_monitor - INFO - Restored service configuration: 4 settings
+2025-09-07 02:47:44,871 - myproxy.network.traffic_monitor - INFO - State restoration complete. 1 authorized devices restored
+2025-09-07 02:47:44,871 - myproxy.network.traffic_monitor - INFO - Background monitoring tasks started
+2025-09-07 02:47:44,871 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service started successfully
+2025-09-07 02:47:44,871 - myproxy.network.traffic_monitor - INFO - Entering main service loop
+2025-09-07 02:47:44,872 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:47:44,872 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:47:44,874 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:47:44,874 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:47:44,875 - myproxy.database.connection - INFO - Cleaned up 0 expired device access records
+2025-09-07 02:47:47,975 - myproxy.web.app - INFO - === DEBUG: Status Page Values ===
+2025-09-07 02:47:47,975 - myproxy.web.app - INFO - MAC Address: d8:b9:4d:63:3a:5c
+2025-09-07 02:47:47,975 - myproxy.web.app - INFO - Device Found: True
+2025-09-07 02:47:47,976 - myproxy.web.app - INFO - Access Valid: True
+2025-09-07 02:47:47,976 - myproxy.web.app - INFO - Granted Time (raw): 2025-09-07 06:40:23.382376
+2025-09-07 02:47:47,976 - myproxy.web.app - INFO - Expires Time (raw): 2025-09-07 06:55:23.379764
+2025-09-07 02:47:47,976 - myproxy.web.app - INFO - Granted Time (used): 2025-09-07 06:40:23.382376
+2025-09-07 02:47:47,976 - myproxy.web.app - INFO - Expires Time (used): 2025-09-07 06:55:23.379764
+2025-09-07 02:47:47,976 - myproxy.web.app - INFO - Access Duration: 15min
+2025-09-07 02:47:47,976 - myproxy.web.app - INFO - Granted Formatted: 2025-09-07T06:40:23
+2025-09-07 02:47:47,976 - myproxy.web.app - INFO - Expires Formatted: 2025-09-07T06:55:23
+2025-09-07 02:47:47,976 - myproxy.web.app - INFO - Time Left (seconds): 455
+2025-09-07 02:47:47,976 - myproxy.web.app - INFO - Time Left (formatted): 0h 7m 35s
+2025-09-07 02:47:47,976 - myproxy.web.app - INFO - ===================================
+2025-09-07 02:47:52,962 - myproxy.web.app - INFO - === DEBUG: Status Page Values ===
+2025-09-07 02:47:52,963 - myproxy.web.app - INFO - MAC Address: d8:b9:4d:63:3a:5c
+2025-09-07 02:47:52,963 - myproxy.web.app - INFO - Device Found: True
+2025-09-07 02:47:52,963 - myproxy.web.app - INFO - Access Valid: True
+2025-09-07 02:47:52,963 - myproxy.web.app - INFO - Granted Time (raw): 2025-09-07 06:40:23.382376
+2025-09-07 02:47:52,963 - myproxy.web.app - INFO - Expires Time (raw): 2025-09-07 06:55:23.379764
+2025-09-07 02:47:52,963 - myproxy.web.app - INFO - Granted Time (used): 2025-09-07 06:40:23.382376
+2025-09-07 02:47:52,963 - myproxy.web.app - INFO - Expires Time (used): 2025-09-07 06:55:23.379764
+2025-09-07 02:47:52,964 - myproxy.web.app - INFO - Access Duration: 15min
+2025-09-07 02:47:52,964 - myproxy.web.app - INFO - Granted Formatted: 2025-09-07T06:40:23
+2025-09-07 02:47:52,964 - myproxy.web.app - INFO - Expires Formatted: 2025-09-07T06:55:23
+2025-09-07 02:47:52,964 - myproxy.web.app - INFO - Time Left (seconds): 450
+2025-09-07 02:47:52,964 - myproxy.web.app - INFO - Time Left (formatted): 0h 7m 30s
+2025-09-07 02:47:52,964 - myproxy.web.app - INFO - ===================================
+2025-09-07 02:48:33,508 - myproxy.web.app - INFO - === DEBUG: Status Page Values ===
+2025-09-07 02:48:33,509 - myproxy.web.app - INFO - MAC Address: d8:b9:4d:63:3a:5c
+2025-09-07 02:48:33,509 - myproxy.web.app - INFO - Device Found: True
+2025-09-07 02:48:33,510 - myproxy.web.app - INFO - Access Valid: True
+2025-09-07 02:48:33,510 - myproxy.web.app - INFO - Granted Time (raw): 2025-09-07 06:40:23.382376
+2025-09-07 02:48:33,510 - myproxy.web.app - INFO - Expires Time (raw): 2025-09-07 06:55:23.379764
+2025-09-07 02:48:33,510 - myproxy.web.app - INFO - Granted Time (used): 2025-09-07 06:40:23.382376
+2025-09-07 02:48:33,510 - myproxy.web.app - INFO - Expires Time (used): 2025-09-07 06:55:23.379764
+2025-09-07 02:48:33,510 - myproxy.web.app - INFO - Access Duration: 15min
+2025-09-07 02:48:33,510 - myproxy.web.app - INFO - Granted Formatted: 2025-09-07T06:40:23
+2025-09-07 02:48:33,510 - myproxy.web.app - INFO - Expires Formatted: 2025-09-07T06:55:23
+2025-09-07 02:48:33,510 - myproxy.web.app - INFO - Time Left (seconds): 409
+2025-09-07 02:48:33,510 - myproxy.web.app - INFO - Time Left (formatted): 0h 6m 49s
+2025-09-07 02:48:33,510 - myproxy.web.app - INFO - ===================================
+2025-09-07 02:48:43,135 - myproxy.web.app - INFO - === DEBUG: Status Page Values ===
+2025-09-07 02:48:43,135 - myproxy.web.app - INFO - MAC Address: d8:b9:4d:63:3a:5c
+2025-09-07 02:48:43,135 - myproxy.web.app - INFO - Device Found: True
+2025-09-07 02:48:43,135 - myproxy.web.app - INFO - Access Valid: True
+2025-09-07 02:48:43,135 - myproxy.web.app - INFO - Granted Time (raw): 2025-09-07 06:40:23.382376
+2025-09-07 02:48:43,136 - myproxy.web.app - INFO - Expires Time (raw): 2025-09-07 06:55:23.379764
+2025-09-07 02:48:43,136 - myproxy.web.app - INFO - Granted Time (used): 2025-09-07 06:40:23.382376
+2025-09-07 02:48:43,136 - myproxy.web.app - INFO - Expires Time (used): 2025-09-07 06:55:23.379764
+2025-09-07 02:48:43,136 - myproxy.web.app - INFO - Access Duration: 15min
+2025-09-07 02:48:43,136 - myproxy.web.app - INFO - Granted Formatted: 2025-09-07T06:40:23
+2025-09-07 02:48:43,136 - myproxy.web.app - INFO - Expires Formatted: 2025-09-07T06:55:23
+2025-09-07 02:48:43,136 - myproxy.web.app - INFO - Time Left (seconds): 400
+2025-09-07 02:48:43,136 - myproxy.web.app - INFO - Time Left (formatted): 0h 6m 40s
+2025-09-07 02:48:43,136 - myproxy.web.app - INFO - ===================================
+2025-09-07 02:48:45,808 - myproxy.web.app - INFO - === DEBUG: Status Page Values ===
+2025-09-07 02:48:45,809 - myproxy.web.app - INFO - MAC Address: d8:b9:4d:63:3a:5c
+2025-09-07 02:48:45,809 - myproxy.web.app - INFO - Device Found: True
+2025-09-07 02:48:45,809 - myproxy.web.app - INFO - Access Valid: True
+2025-09-07 02:48:45,809 - myproxy.web.app - INFO - Granted Time (raw): 2025-09-07 06:40:23.382376
+2025-09-07 02:48:45,809 - myproxy.web.app - INFO - Expires Time (raw): 2025-09-07 06:55:23.379764
+2025-09-07 02:48:45,809 - myproxy.web.app - INFO - Granted Time (used): 2025-09-07 06:40:23.382376
+2025-09-07 02:48:45,809 - myproxy.web.app - INFO - Expires Time (used): 2025-09-07 06:55:23.379764
+2025-09-07 02:48:45,809 - myproxy.web.app - INFO - Access Duration: 15min
+2025-09-07 02:48:45,809 - myproxy.web.app - INFO - Granted Formatted: 2025-09-07T06:40:23
+2025-09-07 02:48:45,809 - myproxy.web.app - INFO - Expires Formatted: 2025-09-07T06:55:23
+2025-09-07 02:48:45,809 - myproxy.web.app - INFO - Time Left (seconds): 397
+2025-09-07 02:48:45,810 - myproxy.web.app - INFO - Time Left (formatted): 0h 6m 37s
+2025-09-07 02:48:45,810 - myproxy.web.app - INFO - ===================================
+2025-09-07 02:48:46,777 - myproxy.web.app - INFO - === DEBUG: Status Page Values ===
+2025-09-07 02:48:46,777 - myproxy.web.app - INFO - MAC Address: d8:b9:4d:63:3a:5c
+2025-09-07 02:48:46,777 - myproxy.web.app - INFO - Device Found: True
+2025-09-07 02:48:46,777 - myproxy.web.app - INFO - Access Valid: True
+2025-09-07 02:48:46,777 - myproxy.web.app - INFO - Granted Time (raw): 2025-09-07 06:40:23.382376
+2025-09-07 02:48:46,777 - myproxy.web.app - INFO - Expires Time (raw): 2025-09-07 06:55:23.379764
+2025-09-07 02:48:46,777 - myproxy.web.app - INFO - Granted Time (used): 2025-09-07 06:40:23.382376
+2025-09-07 02:48:46,777 - myproxy.web.app - INFO - Expires Time (used): 2025-09-07 06:55:23.379764
+2025-09-07 02:48:46,777 - myproxy.web.app - INFO - Access Duration: 15min
+2025-09-07 02:48:46,777 - myproxy.web.app - INFO - Granted Formatted: 2025-09-07T06:40:23
+2025-09-07 02:48:46,777 - myproxy.web.app - INFO - Expires Formatted: 2025-09-07T06:55:23
+2025-09-07 02:48:46,778 - myproxy.web.app - INFO - Time Left (seconds): 396
+2025-09-07 02:48:46,778 - myproxy.web.app - INFO - Time Left (formatted): 0h 6m 36s
+2025-09-07 02:48:46,778 - myproxy.web.app - INFO - ===================================
+2025-09-07 02:48:50,147 - myproxy.network.traffic_monitor - INFO - Received signal 2, initiating graceful shutdown...
+2025-09-07 02:48:50,148 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:48:50,149 - __main__ - INFO - Received shutdown signal
+2025-09-07 02:48:50,150 - __main__ - INFO - Shutting down services...
+2025-09-07 02:48:50,150 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:48:50,154 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:48:50,155 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:48:50,276 - myproxy.web.app - INFO - Shutting down MyProxy web application
+2025-09-07 02:48:52,772 - __main__ - INFO - MyProxy Network Gateway starting...
+2025-09-07 02:48:52,772 - __main__ - INFO - Debug mode: False
+2025-09-07 02:48:52,773 - __main__ - INFO - Auto recovery: True
+2025-09-07 02:48:52,773 - __main__ - INFO - Starting MyProxy services...
+2025-09-07 02:48:52,773 - __main__ - INFO - TrafficMonitor started
+2025-09-07 02:48:52,773 - __main__ - INFO - Starting web server on 0.0.0.0:8080
+2025-09-07 02:48:52,773 - myproxy.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-07 02:48:52,782 - myproxy.web.app - INFO - Starting MyProxy web application
+2025-09-07 02:48:52,783 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:48:52,785 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:48:52,785 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:48:52,786 - myproxy.network.traffic_monitor - INFO - Restoring service state...
+2025-09-07 02:48:52,788 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:48:52,788 - myproxy.network.traffic_monitor - INFO - Restored authorized device: d8:b9:4d:63:3a:5c
+2025-09-07 02:48:52,790 - myproxy.network.traffic_monitor - INFO - Restored service configuration: 4 settings
+2025-09-07 02:48:52,790 - myproxy.network.traffic_monitor - INFO - State restoration complete. 1 authorized devices restored
+2025-09-07 02:48:52,790 - myproxy.network.traffic_monitor - INFO - Background monitoring tasks started
+2025-09-07 02:48:52,790 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service started successfully
+2025-09-07 02:48:52,790 - myproxy.network.traffic_monitor - INFO - Entering main service loop
+2025-09-07 02:48:52,792 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:48:52,792 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:48:52,794 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:48:52,794 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:48:52,795 - myproxy.database.connection - INFO - Cleaned up 0 expired device access records
+2025-09-07 02:48:55,833 - myproxy.web.app - INFO - === DEBUG: Status Page Values ===
+2025-09-07 02:48:55,833 - myproxy.web.app - INFO - MAC Address: d8:b9:4d:63:3a:5c
+2025-09-07 02:48:55,833 - myproxy.web.app - INFO - Device Found: True
+2025-09-07 02:48:55,833 - myproxy.web.app - INFO - Access Valid: True
+2025-09-07 02:48:55,833 - myproxy.web.app - INFO - Granted Time (raw): 2025-09-07 06:40:23.382376
+2025-09-07 02:48:55,833 - myproxy.web.app - INFO - Expires Time (raw): 2025-09-07 06:55:23.379764
+2025-09-07 02:48:55,833 - myproxy.web.app - INFO - Granted Time (used): 2025-09-07 06:40:23.382376
+2025-09-07 02:48:55,833 - myproxy.web.app - INFO - Expires Time (used): 2025-09-07 06:55:23.379764
+2025-09-07 02:48:55,834 - myproxy.web.app - INFO - Access Duration: 15min
+2025-09-07 02:48:55,834 - myproxy.web.app - INFO - Granted Formatted: 2025-09-07T06:40:23
+2025-09-07 02:48:55,834 - myproxy.web.app - INFO - Expires Formatted: 2025-09-07T06:55:23
+2025-09-07 02:48:55,834 - myproxy.web.app - INFO - Time Left (seconds): 387
+2025-09-07 02:48:55,834 - myproxy.web.app - INFO - Time Left (formatted): 0h 6m 27s
+2025-09-07 02:48:55,834 - myproxy.web.app - INFO - ===================================
+2025-09-07 02:49:39,564 - myproxy.auth.totp - INFO - Valid TOTP code for 15min duration
+2025-09-07 02:50:17,989 - myproxy.auth.totp - INFO - Valid TOTP code for 15min duration
+2025-09-07 02:50:26,098 - myproxy.auth.totp - INFO - Valid TOTP code for 15min duration
+2025-09-07 02:50:32,362 - myproxy.network.traffic_monitor - INFO - Received signal 2, initiating graceful shutdown...
+2025-09-07 02:50:32,363 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:50:32,365 - __main__ - INFO - Received shutdown signal
+2025-09-07 02:50:32,366 - __main__ - INFO - Shutting down services...
+2025-09-07 02:50:32,366 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 02:50:32,371 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:50:32,372 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 02:50:32,490 - myproxy.web.app - INFO - Shutting down MyProxy web application
+2025-09-07 02:50:34,848 - __main__ - INFO - MyProxy Network Gateway starting...
+2025-09-07 02:50:34,848 - __main__ - INFO - Debug mode: False
+2025-09-07 02:50:34,848 - __main__ - INFO - Auto recovery: True
+2025-09-07 02:50:34,849 - __main__ - INFO - Starting MyProxy services...
+2025-09-07 02:50:34,849 - __main__ - INFO - TrafficMonitor started
+2025-09-07 02:50:34,849 - __main__ - INFO - Starting web server on 0.0.0.0:8080
+2025-09-07 02:50:34,849 - myproxy.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-07 02:50:34,857 - myproxy.web.app - INFO - Starting MyProxy web application
+2025-09-07 02:50:34,859 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:50:34,861 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:50:34,861 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:50:34,861 - myproxy.network.traffic_monitor - INFO - Restoring service state...
+2025-09-07 02:50:34,864 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:50:34,864 - myproxy.network.traffic_monitor - INFO - Restored authorized device: d8:b9:4d:63:3a:5c
+2025-09-07 02:50:34,864 - myproxy.network.traffic_monitor - INFO - Restored authorized device: 42:11:7d:6d:8f:21
+2025-09-07 02:50:34,866 - myproxy.network.traffic_monitor - INFO - Restored service configuration: 4 settings
+2025-09-07 02:50:34,866 - myproxy.network.traffic_monitor - INFO - State restoration complete. 2 authorized devices restored
+2025-09-07 02:50:34,866 - myproxy.network.traffic_monitor - INFO - Background monitoring tasks started
+2025-09-07 02:50:34,866 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service started successfully
+2025-09-07 02:50:34,866 - myproxy.network.traffic_monitor - INFO - Entering main service loop
+2025-09-07 02:50:34,868 - myproxy.database.connection - INFO - Database tables created successfully
+2025-09-07 02:50:34,868 - myproxy.database.connection - INFO - Database manager initialized
+2025-09-07 02:50:34,869 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:50:34,869 - myproxy.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-07 02:50:34,870 - myproxy.database.connection - INFO - Cleaned up 0 expired device access records
+2025-09-07 02:50:38,046 - myproxy.auth.totp - WARNING - Invalid TOTP code provided: 657028
+2025-09-07 02:50:42,959 - myproxy.web.app - INFO - === DEBUG: Status Page Values ===
+2025-09-07 02:50:42,959 - myproxy.web.app - INFO - MAC Address: 42:11:7d:6d:8f:21
+2025-09-07 02:50:42,959 - myproxy.web.app - INFO - Device Found: True
+2025-09-07 02:50:42,959 - myproxy.web.app - INFO - Access Valid: True
+2025-09-07 02:50:42,959 - myproxy.web.app - INFO - Granted Time (raw): 2025-09-07 06:50:26.101102
+2025-09-07 02:50:42,960 - myproxy.web.app - INFO - Expires Time (raw): 2025-09-07 07:05:26.098762
+2025-09-07 02:50:42,960 - myproxy.web.app - INFO - Granted Time (used): 2025-09-07 06:50:26.101102
+2025-09-07 02:50:42,960 - myproxy.web.app - INFO - Expires Time (used): 2025-09-07 07:05:26.098762
+2025-09-07 02:50:42,960 - myproxy.web.app - INFO - Access Duration: 15min
+2025-09-07 02:50:42,960 - myproxy.web.app - INFO - Granted Formatted: 2025-09-07T06:50:26
+2025-09-07 02:50:42,960 - myproxy.web.app - INFO - Expires Formatted: 2025-09-07T07:05:26
+2025-09-07 02:50:42,960 - myproxy.web.app - INFO - Time Left (seconds): 883
+2025-09-07 02:50:42,960 - myproxy.web.app - INFO - Time Left (formatted): 0h 14m 43s
+2025-09-07 02:50:42,960 - myproxy.web.app - INFO - ===================================
+2025-09-07 02:50:46,377 - myproxy.web.app - INFO - === DEBUG: Status Page Values ===
+2025-09-07 02:50:46,377 - myproxy.web.app - INFO - MAC Address: 42:11:7d:6d:8f:21
+2025-09-07 02:50:46,378 - myproxy.web.app - INFO - Device Found: True
+2025-09-07 02:50:46,378 - myproxy.web.app - INFO - Access Valid: True
+2025-09-07 02:50:46,378 - myproxy.web.app - INFO - Granted Time (raw): 2025-09-07 06:50:26.101102
+2025-09-07 02:50:46,378 - myproxy.web.app - INFO - Expires Time (raw): 2025-09-07 07:05:26.098762
+2025-09-07 02:50:46,378 - myproxy.web.app - INFO - Granted Time (used): 2025-09-07 06:50:26.101102
+2025-09-07 02:50:46,378 - myproxy.web.app - INFO - Expires Time (used): 2025-09-07 07:05:26.098762
+2025-09-07 02:50:46,378 - myproxy.web.app - INFO - Access Duration: 15min
+2025-09-07 02:50:46,378 - myproxy.web.app - INFO - Granted Formatted: 2025-09-07T06:50:26
+2025-09-07 02:50:46,378 - myproxy.web.app - INFO - Expires Formatted: 2025-09-07T07:05:26
+2025-09-07 02:50:46,378 - myproxy.web.app - INFO - Time Left (seconds): 879
+2025-09-07 02:50:46,378 - myproxy.web.app - INFO - Time Left (formatted): 0h 14m 39s
+2025-09-07 02:50:46,378 - myproxy.web.app - INFO - ===================================
+2025-09-07 02:50:47,235 - myproxy.web.app - INFO - === DEBUG: Status Page Values ===
+2025-09-07 02:50:47,235 - myproxy.web.app - INFO - MAC Address: 42:11:7d:6d:8f:21
+2025-09-07 02:50:47,235 - myproxy.web.app - INFO - Device Found: True
+2025-09-07 02:50:47,235 - myproxy.web.app - INFO - Access Valid: True
+2025-09-07 02:50:47,235 - myproxy.web.app - INFO - Granted Time (raw): 2025-09-07 06:50:26.101102
+2025-09-07 02:50:47,235 - myproxy.web.app - INFO - Expires Time (raw): 2025-09-07 07:05:26.098762
+2025-09-07 02:50:47,235 - myproxy.web.app - INFO - Granted Time (used): 2025-09-07 06:50:26.101102
+2025-09-07 02:50:47,235 - myproxy.web.app - INFO - Expires Time (used): 2025-09-07 07:05:26.098762
+2025-09-07 02:50:47,235 - myproxy.web.app - INFO - Access Duration: 15min
+2025-09-07 02:50:47,235 - myproxy.web.app - INFO - Granted Formatted: 2025-09-07T06:50:26
+2025-09-07 02:50:47,235 - myproxy.web.app - INFO - Expires Formatted: 2025-09-07T07:05:26
+2025-09-07 02:50:47,236 - myproxy.web.app - INFO - Time Left (seconds): 878
+2025-09-07 02:50:47,236 - myproxy.web.app - INFO - Time Left (formatted): 0h 14m 38s
+2025-09-07 02:50:47,236 - myproxy.web.app - INFO - ===================================
+2025-09-07 02:50:48,252 - myproxy.web.app - INFO - === DEBUG: Status Page Values ===
+2025-09-07 02:50:48,252 - myproxy.web.app - INFO - MAC Address: 42:11:7d:6d:8f:21
+2025-09-07 02:50:48,252 - myproxy.web.app - INFO - Device Found: True
+2025-09-07 02:50:48,252 - myproxy.web.app - INFO - Access Valid: True
+2025-09-07 02:50:48,252 - myproxy.web.app - INFO - Granted Time (raw): 2025-09-07 06:50:26.101102
+2025-09-07 02:50:48,252 - myproxy.web.app - INFO - Expires Time (raw): 2025-09-07 07:05:26.098762
+2025-09-07 02:50:48,252 - myproxy.web.app - INFO - Granted Time (used): 2025-09-07 06:50:26.101102
+2025-09-07 02:50:48,252 - myproxy.web.app - INFO - Expires Time (used): 2025-09-07 07:05:26.098762
+2025-09-07 02:50:48,252 - myproxy.web.app - INFO - Access Duration: 15min
+2025-09-07 02:50:48,252 - myproxy.web.app - INFO - Granted Formatted: 2025-09-07T06:50:26
+2025-09-07 02:50:48,253 - myproxy.web.app - INFO - Expires Formatted: 2025-09-07T07:05:26
+2025-09-07 02:50:48,253 - myproxy.web.app - INFO - Time Left (seconds): 877
+2025-09-07 02:50:48,253 - myproxy.web.app - INFO - Time Left (formatted): 0h 14m 37s
+2025-09-07 02:50:48,253 - myproxy.web.app - INFO - ===================================
+2025-09-07 02:55:34,860 - myproxy.database.connection - INFO - Revoked expired access for device: d8:b9:4d:63:3a:5c
+2025-09-07 02:55:34,864 - myproxy.database.connection - INFO - Cleaned up 1 expired device access records
+2025-09-07 03:00:34,869 - myproxy.database.connection - INFO - Cleaned up 0 expired device access records
+2025-09-07 03:03:46,808 - myproxy.network.traffic_monitor - INFO - Received signal 2, initiating graceful shutdown...
+2025-09-07 03:03:46,809 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 03:03:46,811 - __main__ - INFO - Received shutdown signal
+2025-09-07 03:03:46,811 - __main__ - INFO - Shutting down services...
+2025-09-07 03:03:46,811 - myproxy.network.traffic_monitor - INFO - Stopping TrafficMonitor service...
+2025-09-07 03:03:46,813 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 03:03:46,814 - myproxy.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
+2025-09-07 03:03:47,002 - myproxy.web.app - INFO - Shutting down MyProxy web application

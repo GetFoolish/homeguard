@@ -1,0 +1,76 @@
+version: '3.8'
+
+# Dual-Mode MyProxy for Raspberry Pi
+# Supports both Access Point and Bridge modes
+# Mode detection happens automatically on container start
+
+services:
+  myproxy-gateway:
+    build: 
+      context: .
+      platforms:
+        - linux/arm64  # For Pi 4/5
+        - linux/arm/v7  # For Pi 3
+    container_name: myproxy-gateway
+    restart: always
+    ports:
+      - "80:8080"    # HTTP on standard port  
+      - "8080:8080"  # Admin access
+      - "8888:8888"  # HTTP proxy
+    volumes:
+      - myproxy-data:/app/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/myproxy:/etc/myproxy:ro  # Mode configuration
+      - ./totp_secrets.json:/app/data/totp_secrets.json:ro
+    environment:
+      - MYPROXY_DATABASE_URL=sqlite+aiosqlite:///app/data/myproxy.db
+      - MYPROXY_DEBUG=false
+      - MYPROXY_WEB_HOST=0.0.0.0
+      - MYPROXY_WEB_PORT=8080
+      - MYPROXY_AUTO_RECOVERY=true
+      - MYPROXY_LOG_LEVEL=INFO
+      # Mode-specific variables (will be set by mode detection)
+      - MYPROXY_MODE=${MYPROXY_MODE:-auto}
+      - MYPROXY_GATEWAY_IP=${MYPROXY_GATEWAY_IP:-192.168.4.1}
+      - MYPROXY_WAN_INTERFACE=${WAN_INTERFACE:-eth0}
+      - MYPROXY_LAN_INTERFACE=${LAN_INTERFACE:-wlan0}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # Network capabilities for transparent proxy functionality
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW  
+      - SYS_MODULE
+    privileged: true
+    sysctls:
+      - net.ipv4.ip_forward=1
+    # Host networking for direct interface access and iptables
+    network_mode: host
+    
+  # Watchtower for automatic updates
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: myproxy-watchtower
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_POLL_INTERVAL=3600  # Check every hour
+      - WATCHTOWER_INCLUDE_STOPPED=true
+    command: myproxy-gateway
+
+volumes:
+  myproxy-data:
+    name: myproxy-data
+    driver: local
