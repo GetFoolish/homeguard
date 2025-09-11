@@ -1,1 +1,1 @@
-"""MyProxy HTTP proxy module."""
+"""HTTP proxy module for transparent traffic interception."""

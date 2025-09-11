@@ -12,6 +12,9 @@ from ..database.connection import db_manager, get_session
 from ..database.models import Device, AccessLog
 from ..auth.totp import totp_manager
 from ..config.settings import settings
+from ..phases.phase_manager import phase_manager
+from .enhanced_filter import enhanced_filter
+from ..integrations.sheets import sheets_manager
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +54,15 @@ class TrafficMonitor:
             # Initialize database
             await db_manager.initialize()
             
+            # Initialize phase management system
+            await phase_manager.start()
+            
+            # Initialize enhanced traffic filtering
+            await enhanced_filter.start()
+            
+            # Initialize Google Sheets integration
+            await sheets_manager.start()
+            
             # Restore state from previous session (crash recovery)
             await self._restore_state()
             
@@ -89,6 +101,15 @@ class TrafficMonitor:
             self.health_check_task.cancel()
         if self.device_cleanup_task:
             self.device_cleanup_task.cancel()
+        
+        # Stop phase management system
+        await phase_manager.stop()
+        
+        # Stop enhanced traffic filtering
+        await enhanced_filter.stop()
+        
+        # Stop Google Sheets integration
+        await sheets_manager.stop()
         
         # Clean up iptables rules
         await self.cleanup_iptables_on_shutdown()

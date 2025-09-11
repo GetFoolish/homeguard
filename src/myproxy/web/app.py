@@ -1,13 +1,15 @@
 """FastAPI web application for captive portal and admin interface."""
 
-from fastapi import FastAPI, Request, Depends, HTTPException, Form, Cookie
+from fastapi import FastAPI, Request, Depends, HTTPException, Form, Cookie, Query
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 import logging
 from datetime import datetime
 from typing import Optional
+from pathlib import Path
 import qrcode
 import io
 import pyotp
@@ -19,6 +21,7 @@ from ..database.models import Device, AccessLog, FilterRule
 from ..network.traffic_monitor import traffic_monitor
 from ..auth.totp import totp_manager
 from ..config.settings import settings
+from ..phases.phase_manager import phase_manager
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +33,10 @@ app = FastAPI(
     docs_url="/admin/docs" if settings.debug else None,
     redoc_url="/admin/redoc" if settings.debug else None
 )
+
+# Initialize Jinja2 templates
+templates_dir = Path(__file__).parent / "templates"
+templates = Jinja2Templates(directory=str(templates_dir))
 
 # Simple session management
 admin_sessions = set()
@@ -1201,6 +1208,38 @@ async def health_check():
             "error": str(e),
             "timestamp": datetime.utcnow().isoformat()
         }, status_code=500)
+
+
+@app.get("/blocked", response_class=HTMLResponse)
+async def content_blocked_page(
+    request: Request, 
+    url: str = Query("unknown", description="Blocked URL"),
+    reason: str = Query("Content blocked by security policy", description="Block reason"),
+    rule_type: str = Query("policy", description="Rule type that blocked the content"),
+    pattern: str = Query("", description="Pattern that matched"),
+    client_mac: str = Query("", description="Client MAC address")
+):
+    """Show content blocked splash screen."""
+    try:
+        # Get current phase info
+        current_phase = phase_manager.get_current_phase()
+        phase_info = phase_manager.get_phase_info(current_phase)
+        
+        return templates.TemplateResponse("content_blocked.html", {
+            "request": request,
+            "blocked_url": url,
+            "block_reason": reason,
+            "rule_type": rule_type,
+            "rule_pattern": pattern,
+            "client_mac": client_mac or get_client_mac(request),
+            "block_time": datetime.utcnow().isoformat(),
+            "current_phase": current_phase,
+            "phase_name": phase_info.get("name", f"Phase {current_phase}")
+        })
+        
+    except Exception as e:
+        logger.error(f"Error rendering content blocked page: {e}")
+        return HTMLResponse(f"<h1>Content Blocked</h1><p>URL: {url}</p><p>Reason: {reason}</p>", status_code=200)
 
 
 # Startup and shutdown events
