@@ -42,6 +42,22 @@ app = FastAPI(
     redoc_url="/admin/redoc" if settings.debug else None
 )
 
+@app.on_event("startup")
+async def startup_event():
+    """Initialize services and set up testing mode blocking if configured."""
+    logger.info(f"Starting MyProxy with gateway_mode={settings.gateway_mode}")
+
+    # If we're in TOTP testing mode, automatically block the testing IP
+    if settings.gateway_mode == "totp_testing" and settings.testing_ip:
+        logger.info(f"🔒 TOTP Testing Mode: Automatically blocking {settings.testing_ip}")
+        try:
+            # Generate a fake MAC for the testing IP (same logic as client info)
+            fake_mac = f"test:{settings.testing_ip}"
+            await traffic_monitor.block_device_traffic(fake_mac, settings.testing_ip)
+            logger.info(f"✅ Successfully blocked traffic for testing IP {settings.testing_ip}")
+        except Exception as e:
+            logger.error(f"❌ Failed to block testing IP {settings.testing_ip}: {e}")
+
 # Initialize Jinja2 templates
 templates_dir = Path(__file__).parent / "templates"
 templates = Jinja2Templates(directory=str(templates_dir))
@@ -68,13 +84,26 @@ def require_admin_auth(session_token: str = Cookie(None)):
 
 def get_client_info(request: Request) -> dict:
     """Extract comprehensive client information from request."""
-    client_ip = request.client.host
+    # Try to get real client IP from forwarded headers first
+    client_ip = (
+        request.headers.get("x-forwarded-for", "").split(",")[0].strip() or
+        request.headers.get("x-real-ip", "").strip() or
+        request.headers.get("cf-connecting-ip", "").strip() or
+        request.client.host
+    )
+
+    # Store both the direct connection IP and potential real IP
+    direct_ip = request.client.host
+    forwarded_ip = client_ip if client_ip != direct_ip else None
 
     # Get user agent for device fingerprinting
     user_agent = request.headers.get("user-agent", "")
 
-    # Extract device type from user agent
+    # Extract device type and browser info from user agent
     device_type = "Unknown"
+    browser = "Unknown"
+    os = "Unknown"
+
     if "Mobile" in user_agent or "Android" in user_agent or "iPhone" in user_agent:
         device_type = "Mobile"
     elif "iPad" in user_agent or "Tablet" in user_agent:
@@ -82,8 +111,45 @@ def get_client_info(request: Request) -> dict:
     elif "Windows" in user_agent or "Mac" in user_agent or "Linux" in user_agent:
         device_type = "Desktop/Laptop"
 
-    # Get hostname from reverse DNS (in real deployment)
-    hostname = request.headers.get("host", "").split(":")[0]
+    # Parse browser info
+    if "Chrome" in user_agent and "Safari" in user_agent:
+        if "Edg" in user_agent:
+            browser = "Microsoft Edge"
+        elif "OPR" in user_agent or "Opera" in user_agent:
+            browser = "Opera"
+        else:
+            browser = "Chrome"
+    elif "Firefox" in user_agent:
+        browser = "Firefox"
+    elif "Safari" in user_agent and "Chrome" not in user_agent:
+        browser = "Safari"
+
+    # Parse OS info
+    if "Windows NT" in user_agent:
+        if "Windows NT 10.0" in user_agent:
+            os = "Windows 10/11"
+        elif "Windows NT 6.3" in user_agent:
+            os = "Windows 8.1"
+        elif "Windows NT 6.1" in user_agent:
+            os = "Windows 7"
+        else:
+            os = "Windows"
+    elif "Mac OS X" in user_agent or "macOS" in user_agent:
+        os = "macOS"
+    elif "Linux" in user_agent:
+        if "Android" in user_agent:
+            os = "Android"
+        else:
+            os = "Linux"
+    elif "iPhone" in user_agent or "iPad" in user_agent:
+        os = "iOS"
+
+    # Get additional headers
+    accept_language = request.headers.get("accept-language", "")
+    accept_encoding = request.headers.get("accept-encoding", "")
+    referer = request.headers.get("referer", "")
+    host = request.headers.get("host", "").split(":")[0]
+    connection = request.headers.get("connection", "")
 
     # Detect double NAT situation and handle appropriately
     is_behind_nat = client_ip in ["192.168.2.135"]  # Known WiFi router IPs
@@ -104,11 +170,19 @@ def get_client_info(request: Request) -> dict:
     return {
         "mac_address": mac_address,
         "ip_address": client_ip,
+        "direct_ip": direct_ip,
+        "forwarded_ip": forwarded_ip,
         "user_agent": user_agent,
         "device_type": device_type,
-        "hostname": hostname or f"device-{client_ip.split('.')[-1]}",
+        "browser": browser,
+        "os": os,
+        "accept_language": accept_language,
+        "accept_encoding": accept_encoding,
+        "referer": referer,
+        "hostname": host or f"device-{client_ip.split('.')[-1]}",
+        "connection": connection,
         "is_behind_nat": is_behind_nat,
-        "nat_router_ip": client_ip if is_behind_nat else None
+        "nat_router_ip": direct_ip if is_behind_nat else None
     }
 
 
@@ -117,12 +191,131 @@ def get_client_mac(request: Request) -> str:
     return get_client_info(request)["mac_address"]
 
 
+def should_enforce_totp(client_ip: str) -> bool:
+    """Determine if TOTP authentication should be enforced for this IP."""
+    if settings.emergency_mode:
+        return False
+
+    if settings.gateway_mode == "transparent":
+        return False
+    elif settings.gateway_mode == "totp_testing":
+        return client_ip == settings.testing_ip
+    elif settings.gateway_mode == "totp_enabled":
+        return True
+
+    return False
+
+
+def show_transparent_access_page(client_info: dict) -> HTMLResponse:
+    """Show transparent access page for devices not subject to TOTP."""
+    return HTMLResponse(f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>MyProxy - Internet Access</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {{ font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }}
+            .container {{ max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
+            .success {{ color: #28a745; text-align: center; font-size: 28px; margin-bottom: 20px; }}
+            .status-badge {{ background: #28a745; color: white; padding: 8px 16px; border-radius: 20px; display: inline-block; margin-bottom: 20px; }}
+            .device-info {{ background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }}
+            .device-title {{ font-weight: bold; color: #495057; margin-bottom: 15px; font-size: 16px; }}
+            .info-grid {{ display: grid; grid-template-columns: 1fr 2fr; gap: 8px; font-size: 12px; }}
+            .info-label {{ font-weight: bold; color: #495057; }}
+            .info-value {{ color: #6c757d; font-family: monospace; word-break: break-all; }}
+            .actions {{ text-align: center; margin-top: 20px; }}
+            .btn {{ display: inline-block; padding: 10px 20px; margin: 5px; text-decoration: none; border-radius: 5px; font-weight: bold; background: #007bff; color: white; }}
+            .mode-info {{ background: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="success">✓ Internet Access Active</div>
+            <div style="text-align: center;">
+                <span class="status-badge">Transparent Mode</span>
+            </div>
+
+            <div class="mode-info">
+                <strong>Network Status:</strong> You have unrestricted internet access.<br>
+                Mode: {settings.gateway_mode.title().replace('_', ' ')}
+            </div>
+
+            <div class="device-info">
+                <div class="device-title">📱 Device Information</div>
+                <div class="info-grid">
+                    <div class="info-label">IP Address:</div>
+                    <div class="info-value">{client_info['ip_address']}{' (via ' + client_info['direct_ip'] + ')' if client_info['forwarded_ip'] else ''}</div>
+
+                    <div class="info-label">Connection:</div>
+                    <div class="info-value">{'Direct' if not client_info['forwarded_ip'] else 'NAT via ' + client_info['direct_ip']}</div>
+
+                    <div class="info-label">Device Type:</div>
+                    <div class="info-value">{client_info['device_type']}</div>
+
+                    <div class="info-label">Browser:</div>
+                    <div class="info-value">{client_info['browser']}</div>
+
+                    <div class="info-label">Operating System:</div>
+                    <div class="info-value">{client_info['os']}</div>
+
+                    <div class="info-label">Generated ID:</div>
+                    <div class="info-value">{client_info['mac_address']}</div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <a href="https://google.com" class="btn">Continue to Internet</a>
+            </div>
+
+            <p style="text-align: center; color: #666; font-size: 12px; margin-top: 20px;">
+                This device is not subject to authentication in current mode.
+            </p>
+        </div>
+    </body>
+    </html>
+    """)
+
+
 @app.get("/", response_class=HTMLResponse)
 async def captive_portal(request: Request, session: AsyncSession = Depends(get_session)):
     """Main captive portal landing page."""
-    mac_address = get_client_mac(request)
+    client_info = get_client_info(request)
+    mac_address = client_info["mac_address"]
+    client_ip = client_info["ip_address"]
     user_agent = request.headers.get("user-agent", "")
-    
+
+    # Debug current settings
+    print(f"🔧 DEBUG: gateway_mode={settings.gateway_mode}, testing_ip={settings.testing_ip}, client_ip={client_ip}")
+    logger.info(f"🔧 Current settings - gateway_mode: {settings.gateway_mode}, testing_ip: {settings.testing_ip}")
+
+    # Check if TOTP enforcement applies to this device
+    enforce_totp = should_enforce_totp(client_ip)
+    print(f"📍 DEBUG: Device {client_ip} - TOTP enforcement check: {enforce_totp}")
+    logger.info(f"📍 Device {client_ip} - TOTP enforcement check: {enforce_totp}")
+
+    if not enforce_totp:
+        logger.info(f"📍 Device {client_ip} - TOTP not enforced (mode: {settings.gateway_mode}, testing_ip: {settings.testing_ip})")
+        return show_transparent_access_page(client_info)
+
+    logger.info(f"🔐 Device {client_ip} - TOTP enforcement active")
+
+    # For devices subject to TOTP testing, ensure traffic is blocked until authenticated
+    print(f"🔧 DEBUG: About to block traffic for {client_ip} (MAC: {mac_address})")
+    try:
+        print(f"🔧 DEBUG: traffic_monitor object: {traffic_monitor}")
+        print(f"🔧 DEBUG: Calling block_device_traffic with MAC={mac_address}, IP={client_ip}")
+
+        await traffic_monitor.block_device_traffic(mac_address, client_ip)
+
+        print(f"🚫 DEBUG: Successfully blocked traffic for device {client_ip} (MAC: {mac_address})")
+        logger.info(f"🚫 Blocked traffic for unauthenticated device {client_ip}")
+    except Exception as e:
+        print(f"❌ DEBUG: FAILED to block traffic for {client_ip}: {type(e).__name__}: {e}")
+        logger.error(f"Failed to block traffic for {client_ip}: {e}")
+        import traceback
+        print(f"❌ DEBUG: Traceback: {traceback.format_exc()}")
+
     # Check if device is already authorized
     device = await session.get(Device, mac_address)
     if device and device.is_access_valid:
@@ -323,7 +516,7 @@ async def captive_portal(request: Request, session: AsyncSession = Depends(get_s
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
             body {{ font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }}
-            .container {{ max-width: 400px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
+            .container {{ max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
             h1 {{ color: #333; text-align: center; margin-bottom: 30px; }}
             .form-group {{ margin-bottom: 20px; }}
             label {{ display: block; margin-bottom: 5px; color: #555; font-weight: bold; }}
@@ -332,6 +525,13 @@ async def captive_portal(request: Request, session: AsyncSession = Depends(get_s
             button:hover {{ background: #0056b3; }}
             .info {{ background: #e7f3ff; padding: 15px; border-radius: 4px; margin-bottom: 20px; font-size: 14px; }}
             .error {{ background: #f8d7da; color: #721c24; padding: 15px; border-radius: 4px; margin-bottom: 20px; }}
+            .device-info {{ background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }}
+            .device-title {{ font-weight: bold; color: #495057; margin-bottom: 15px; font-size: 16px; }}
+            .info-grid {{ display: grid; grid-template-columns: 1fr 2fr; gap: 8px; font-size: 12px; }}
+            .info-label {{ font-weight: bold; color: #495057; }}
+            .info-value {{ color: #6c757d; font-family: monospace; word-break: break-all; }}
+            .client-data {{ background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 10px; margin-top: 10px; }}
+            .loading {{ color: #6c757d; font-style: italic; }}
         </style>
     </head>
     <body>
@@ -341,18 +541,318 @@ async def captive_portal(request: Request, session: AsyncSession = Depends(get_s
                 <strong>Welcome!</strong> Enter your TOTP code to access the internet.
                 Different codes provide different access durations.
             </div>
-            
+
             <form method="post" action="/authenticate">
                 <div class="form-group">
                     <label for="totp_code">TOTP Code:</label>
-                    <input type="text" id="totp_code" name="totp_code" required 
+                    <input type="text" id="totp_code" name="totp_code" required
                            placeholder="Enter 6-digit code" maxlength="6" pattern="[0-9]{{6}}">
                 </div>
                 <button type="submit">Connect to Internet</button>
             </form>
-            
+
+            <div class="device-info">
+                <div class="device-title">📱 Device Information</div>
+                <div class="info-grid">
+                    <div class="info-label">IP Address:</div>
+                    <div class="info-value">{client_info['ip_address']}{' (via ' + client_info['direct_ip'] + ')' if client_info['forwarded_ip'] else ''}</div>
+
+                    <div class="info-label">Connection:</div>
+                    <div class="info-value">{'Direct' if not client_info['forwarded_ip'] else 'NAT via ' + client_info['direct_ip']}</div>
+
+                    <div class="info-label">Device Type:</div>
+                    <div class="info-value">{client_info['device_type']}</div>
+
+                    <div class="info-label">Browser:</div>
+                    <div class="info-value">{client_info['browser']}</div>
+
+                    <div class="info-label">Operating System:</div>
+                    <div class="info-value">{client_info['os']}</div>
+
+                    <div class="info-label">Language:</div>
+                    <div class="info-value">{client_info['accept_language'][:20]}...</div>
+
+                    <div class="info-label">Generated ID:</div>
+                    <div class="info-value">{client_info['mac_address']}</div>
+
+                    <div class="info-label">Screen:</div>
+                    <div class="info-value loading" id="screen-info">Loading...</div>
+
+                    <div class="info-label">Timezone:</div>
+                    <div class="info-value loading" id="timezone-info">Loading...</div>
+
+                    <div class="info-label">CPU Cores:</div>
+                    <div class="info-value loading" id="cpu-info">Loading...</div>
+
+                    <div class="info-label">Memory:</div>
+                    <div class="info-value loading" id="memory-info">Loading...</div>
+
+                    <div class="info-label">Platform:</div>
+                    <div class="info-value loading" id="platform-info">Loading...</div>
+
+                    <div class="info-label">Touch Support:</div>
+                    <div class="info-value loading" id="touch-info">Loading...</div>
+
+                    <div class="info-label">Online Status:</div>
+                    <div class="info-value loading" id="online-info">Loading...</div>
+
+                    <div class="info-label">Cookies Enabled:</div>
+                    <div class="info-value loading" id="cookies-info">Loading...</div>
+
+                    <div class="info-label" style="margin-top: 10px; border-top: 1px solid #e9ecef; padding-top: 8px;">All Headers:</div>
+                    <div class="info-value" style="font-size: 10px; max-height: 100px; overflow-y: auto;">
+                        {'<br>'.join([f"{k}: {v}" for k, v in dict(request.headers).items()])}
+                    </div>
+                </div>
+            </div>
+
             <p style="text-align: center; color: #666; font-size: 12px; margin-top: 20px;">
-                Device: {mac_address}<br>
+                Need help? Contact your network administrator.
+            </p>
+        </div>
+
+        <script>
+            // Capture client-side device information
+            document.addEventListener('DOMContentLoaded', function() {{
+                // Screen information
+                const screen = window.screen;
+                const screenInfo = screen.width + 'x' + screen.height +
+                    ' (' + screen.colorDepth + '-bit' +
+                    (window.devicePixelRatio ? ', ' + window.devicePixelRatio + 'x pixel ratio' : '') + ')';
+                document.getElementById('screen-info').textContent = screenInfo;
+
+                // Timezone
+                try {{
+                    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                    document.getElementById('timezone-info').textContent = timezone;
+                }} catch (e) {{
+                    document.getElementById('timezone-info').textContent = 'Unavailable';
+                }}
+
+                // CPU cores
+                const cpuCores = navigator.hardwareConcurrency || 'Unknown';
+                document.getElementById('cpu-info').textContent = cpuCores + (cpuCores !== 'Unknown' ? ' cores' : '');
+
+                // Memory (approximate)
+                const memory = navigator.deviceMemory || 'Unknown';
+                document.getElementById('memory-info').textContent = memory + (memory !== 'Unknown' ? ' GB' : '');
+
+                // Platform
+                document.getElementById('platform-info').textContent = navigator.platform || 'Unknown';
+
+                // Touch support
+                const touchPoints = navigator.maxTouchPoints || 0;
+                document.getElementById('touch-info').textContent = touchPoints > 0 ? 'Yes (' + touchPoints + ' points)' : 'No';
+
+                // Online status
+                document.getElementById('online-info').textContent = navigator.onLine ? 'Online' : 'Offline';
+
+                // Cookies enabled test
+                document.cookie = 'testcookie=1';
+                const cookiesEnabled = document.cookie.indexOf('testcookie=1') !== -1;
+                document.getElementById('cookies-info').textContent = cookiesEnabled ? 'Yes' : 'No';
+                if (cookiesEnabled) {{
+                    document.cookie = 'testcookie=1; expires=Thu, 01-Jan-1970 00:00:01 GMT'; // Clean up
+                }}
+            }});
+        </script>
+    </body>
+    </html>
+    """)
+
+
+@app.get("/", response_class=HTMLResponse)
+async def home(request: Request):
+    """Main landing page with application-layer blocking."""
+    # Get client information
+    client_info = get_client_info(request)
+    client_ip = client_info["ip_address"]
+
+    logger.info(f"🔧 DEBUG: gateway_mode={settings.gateway_mode}, testing_ip={settings.testing_ip}, client_ip={client_ip}")
+
+    # Check if TOTP should be enforced for this device
+    enforce_totp = should_enforce_totp(client_ip)
+    logger.info(f"📍 DEBUG: Device {client_ip} - TOTP enforcement check: {enforce_totp}")
+
+    if not enforce_totp:
+        # Show transparent access page
+        logger.info(f"✅ Allowing transparent access for device {client_ip}")
+        return show_transparent_access_page(client_info)
+
+    # Check if device is already authenticated
+    async with db_manager.session_maker() as session:
+        device = await session.get(Device, client_info["mac_address"])
+
+        if device and device.is_access_valid:
+            # Device is authenticated - show success page
+            logger.info(f"✅ Device {client_ip} is already authenticated")
+            return show_authenticated_success_page(client_info, device)
+
+    # Device needs TOTP authentication - show login form
+    logger.info(f"🔐 Device {client_ip} needs TOTP authentication")
+    return show_totp_authentication_form(client_info)
+
+
+def show_authenticated_success_page(client_info: dict, device) -> HTMLResponse:
+    """Show success page for already authenticated devices."""
+    granted_time = device.access_granted_at if device and device.access_granted_at else datetime.utcnow()
+    expires_time = device.access_expires_at if device and device.access_expires_at else datetime.utcnow()
+    access_duration = device.access_duration if device and device.access_duration else "unknown"
+
+    return HTMLResponse(f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>MyProxy - Access Active</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {{ font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }}
+            .container {{ max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
+            .success {{ color: #28a745; text-align: center; font-size: 28px; margin-bottom: 20px; }}
+            .status-badge {{ background: #28a745; color: white; padding: 8px 16px; border-radius: 20px; display: inline-block; margin-bottom: 20px; }}
+            .access-info {{ background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }}
+            .info-row {{ display: flex; justify-content: space-between; margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #e9ecef; }}
+            .info-label {{ font-weight: bold; color: #495057; }}
+            .info-value {{ color: #6c757d; font-family: monospace; }}
+            .countdown {{ background: #d4edda; color: #155724; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0; font-size: 18px; font-weight: bold; }}
+            .actions {{ text-align: center; margin-top: 20px; }}
+            .btn {{ display: inline-block; padding: 10px 20px; margin: 5px; text-decoration: none; border-radius: 5px; font-weight: bold; background: #007bff; color: white; }}
+            .btn-secondary {{ background: #6c757d; }}
+            .refresh-note {{ color: #666; font-size: 12px; text-align: center; margin-top: 10px; }}
+        </style>
+        <script>
+            const grantedTimeUTC = new Date("{granted_time.isoformat()}Z");
+            const expiresTimeUTC = new Date("{expires_time.isoformat()}Z");
+
+            function updateTimes() {{
+                document.getElementById('granted-time').textContent = grantedTimeUTC.toLocaleString();
+                document.getElementById('expires-time').textContent = expiresTimeUTC.toLocaleString();
+
+                const now = new Date();
+                const timeLeft = Math.max(0, Math.floor((expiresTimeUTC - now) / 1000));
+
+                if (timeLeft > 0) {{
+                    const hours = Math.floor(timeLeft / 3600);
+                    const minutes = Math.floor((timeLeft % 3600) / 60);
+                    const seconds = timeLeft % 60;
+
+                    let timeLeftStr = '';
+                    if (hours > 0) timeLeftStr += hours + 'h ';
+                    if (minutes > 0 || hours > 0) timeLeftStr += minutes + 'm ';
+                    timeLeftStr += seconds + 's';
+
+                    document.getElementById('time-left').textContent = timeLeftStr;
+                }} else {{
+                    document.getElementById('time-left').textContent = 'Expired';
+                    document.getElementById('countdown-container').style.background = '#f8d7da';
+                    document.getElementById('countdown-container').style.color = '#721c24';
+                }}
+            }}
+
+            updateTimes();
+            setInterval(updateTimes, 1000);
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="success">✓ Internet Access Active</div>
+            <div style="text-align: center;">
+                <span class="status-badge">Access Level: {access_duration}</span>
+            </div>
+
+            <div class="access-info">
+                <div class="info-row">
+                    <span class="info-label">Granted:</span>
+                    <span class="info-value" id="granted-time">Loading...</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Expires:</span>
+                    <span class="info-value" id="expires-time">Loading...</span>
+                </div>
+                <div class="info-row" style="border-bottom: none;">
+                    <span class="info-label">Time Left:</span>
+                    <span class="info-value" id="time-left">Calculating...</span>
+                </div>
+            </div>
+
+            <div class="countdown" id="countdown-container">
+                Calculating remaining time...
+            </div>
+
+            <div class="actions">
+                <a href="https://google.com" class="btn btn-primary">Continue Browsing</a>
+                <a href="javascript:location.reload()" class="btn btn-secondary">Refresh Status</a>
+            </div>
+
+            <div class="refresh-note">
+                Status updates automatically every second
+            </div>
+        </div>
+    </body>
+    </html>
+    """)
+
+
+def show_totp_authentication_form(client_info: dict) -> HTMLResponse:
+    """Show TOTP authentication form for devices that need authentication."""
+    return HTMLResponse(f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>MyProxy - Network Access</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {{ font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }}
+            .container {{ max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
+            h1 {{ color: #333; text-align: center; margin-bottom: 30px; }}
+            .form-group {{ margin-bottom: 20px; }}
+            label {{ display: block; margin-bottom: 5px; color: #555; font-weight: bold; }}
+            input {{ width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 4px; font-size: 16px; }}
+            button {{ width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }}
+            button:hover {{ background: #0056b3; }}
+            .info {{ background: #e7f3ff; padding: 15px; border-radius: 4px; margin-bottom: 20px; font-size: 14px; }}
+            .device-info {{ background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }}
+            .device-title {{ font-weight: bold; color: #495057; margin-bottom: 15px; font-size: 16px; }}
+            .info-grid {{ display: grid; grid-template-columns: 1fr 2fr; gap: 8px; font-size: 12px; }}
+            .info-label {{ font-weight: bold; color: #495057; }}
+            .info-value {{ color: #6c757d; font-family: monospace; word-break: break-all; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🔐 Network Access Required</h1>
+            <div class="info">
+                <strong>Welcome!</strong> Enter your TOTP code to access the internet.
+                Different codes provide different access durations.
+            </div>
+
+            <form method="post" action="/authenticate">
+                <div class="form-group">
+                    <label for="totp_code">TOTP Code:</label>
+                    <input type="text" id="totp_code" name="totp_code" required
+                           placeholder="Enter 6-digit code" maxlength="6" pattern="[0-9]{{6}}">
+                </div>
+                <button type="submit">Connect to Internet</button>
+            </form>
+
+            <div class="device-info">
+                <div class="device-title">📱 Device Information</div>
+                <div class="info-grid">
+                    <div class="info-label">IP Address:</div>
+                    <div class="info-value">{client_info['ip_address']}</div>
+
+                    <div class="info-label">Device Type:</div>
+                    <div class="info-value">{client_info['device_type']}</div>
+
+                    <div class="info-label">Browser:</div>
+                    <div class="info-value">{client_info['browser']}</div>
+
+                    <div class="info-label">Generated ID:</div>
+                    <div class="info-value">{client_info['mac_address']}</div>
+                </div>
+            </div>
+
+            <p style="text-align: center; color: #666; font-size: 12px; margin-top: 20px;">
                 Need help? Contact your network administrator.
             </p>
         </div>
@@ -445,7 +945,25 @@ async def authenticate_device(
                     // Update times immediately and then every second
                     updateTimes();
                     setInterval(updateTimes, 1000);
-                    
+
+                    // Populate device information
+                    document.addEventListener('DOMContentLoaded', function() {{
+                        // Screen information
+                        const screen = window.screen;
+                        const screenInfo = screen.width + 'x' + screen.height +
+                            ' (' + screen.colorDepth + '-bit' +
+                            (window.devicePixelRatio ? ', ' + window.devicePixelRatio + 'x pixel ratio' : '') + ')';
+                        document.getElementById('success-screen-info').textContent = screenInfo;
+
+                        // Timezone
+                        try {{
+                            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                            document.getElementById('success-timezone-info').textContent = timezone;
+                        }} catch (e) {{
+                            document.getElementById('success-timezone-info').textContent = 'Unavailable';
+                        }}
+                    }});
+
                     // Redirect to internet after 5 seconds
                     setTimeout(function() {{
                         window.location.href = 'https://google.com';
@@ -477,7 +995,36 @@ async def authenticate_device(
                     <div class="countdown" id="countdown-container">
                         <span id="time-left-display">Calculating remaining time...</span>
                     </div>
-                    
+
+                    <div class="access-info" style="margin-top: 20px;">
+                        <div style="font-weight: bold; color: #495057; margin-bottom: 15px; font-size: 16px;">📱 Device Information</div>
+                        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 8px; font-size: 12px;">
+                            <div style="font-weight: bold; color: #495057;">IP Address:</div>
+                            <div style="color: #6c757d; font-family: monospace;">{client_info['ip_address']}{' (via ' + client_info['direct_ip'] + ')' if client_info['forwarded_ip'] else ''}</div>
+
+                            <div style="font-weight: bold; color: #495057;">Connection:</div>
+                            <div style="color: #6c757d; font-family: monospace;">{'Direct' if not client_info['forwarded_ip'] else 'NAT via ' + client_info['direct_ip']}</div>
+
+                            <div style="font-weight: bold; color: #495057;">Device Type:</div>
+                            <div style="color: #6c757d; font-family: monospace;">{client_info['device_type']}</div>
+
+                            <div style="font-weight: bold; color: #495057;">Browser:</div>
+                            <div style="color: #6c757d; font-family: monospace;">{client_info['browser']}</div>
+
+                            <div style="font-weight: bold; color: #495057;">Operating System:</div>
+                            <div style="color: #6c757d; font-family: monospace;">{client_info['os']}</div>
+
+                            <div style="font-weight: bold; color: #495057;">Generated ID:</div>
+                            <div style="color: #6c757d; font-family: monospace;">{client_info['mac_address']}</div>
+
+                            <div style="font-weight: bold; color: #495057;">Screen:</div>
+                            <div style="color: #6c757d; font-family: monospace; font-style: italic;" id="success-screen-info">Loading...</div>
+
+                            <div style="font-weight: bold; color: #495057;">Timezone:</div>
+                            <div style="color: #6c757d; font-family: monospace; font-style: italic;" id="success-timezone-info">Loading...</div>
+                        </div>
+                    </div>
+
                     <div class="redirect">
                         Redirecting to the internet in 5 seconds...<br>
                         Or <a href="https://google.com">click here to continue</a>
@@ -980,8 +1527,8 @@ async def revoke_device_access(
         device.revoke_access()
         await session.commit()
         
-        # Also revoke from traffic monitor
-        await traffic_monitor.revoke_device_access(mac_address)
+        # Also revoke from traffic monitor (pass IP address for efficiency)
+        await traffic_monitor.revoke_device_access(mac_address, device.ip_address)
         
         logger.info(f"Admin revoked access for device: {mac_address}")
         

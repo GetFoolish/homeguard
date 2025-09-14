@@ -85,16 +85,31 @@ async def start_services():
 
 def main():
     """Main entry point."""
-    logger.info("MyProxy Network Gateway starting...")
-    logger.info(f"Debug mode: {settings.debug}")
-    logger.info(f"Auto recovery: {settings.auto_recovery}")
-    
+    logger.info("HomeguardGuard Network Gateway starting...")
+    logger.info("=" * 50)
+    logger.info(f"🔧 Configuration loaded from: /etc/homeguard/config.yaml")
+    logger.info(f"🚀 Operational Mode: {settings.gateway_mode.upper()}")
+
+    if settings.gateway_mode == "transparent":
+        logger.info("📝 Mode: TRANSPARENT - All traffic allowed through without filtering")
+    elif settings.gateway_mode == "totp_testing":
+        logger.info(f"📝 Mode: TOTP TESTING - Only blocking {settings.testing_ip}")
+    elif settings.gateway_mode == "totp_full":
+        logger.info("📝 Mode: TOTP FULL - All devices blocked until TOTP authentication")
+    else:
+        logger.warning(f"⚠️  Unknown mode: {settings.gateway_mode}")
+
+    logger.info(f"🌐 Gateway: {settings.gateway_ip}:{settings.web_port}")
+    logger.info(f"🔧 Debug mode: {settings.debug}")
+    logger.info(f"🔄 Auto recovery: {settings.auto_recovery}")
+    logger.info("=" * 50)
+
     try:
         asyncio.run(start_services())
     except KeyboardInterrupt:
-        logger.info("MyProxy shutdown complete")
+        logger.info("HomeguardGuard shutdown complete")
     except Exception as e:
-        logger.error(f"MyProxy failed to start: {e}")
+        logger.error(f"HomeguardGuard failed to start: {e}")
         sys.exit(1)
 
 

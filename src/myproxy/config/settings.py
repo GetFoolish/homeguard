@@ -2,8 +2,10 @@
 
 from pydantic_settings import BaseSettings
 from pydantic import Field
-from typing import List, Dict
+from typing import List, Dict, Optional
 import os
+import yaml
+from pathlib import Path
 
 
 class Settings(BaseSettings):
@@ -106,8 +108,12 @@ class Settings(BaseSettings):
     
     # Gateway mode settings
     gateway_mode: str = Field(
-        default="transparent",
-        description="Gateway mode: 'transparent' or 'totp_enabled'"
+        default="totp_testing",
+        description="Gateway mode: 'transparent', 'totp_testing', or 'totp_enabled'"
+    )
+    testing_ip: Optional[str] = Field(
+        default="192.168.2.52",
+        description="IP address to test TOTP on when in testing mode (e.g., '192.168.2.52')"
     )
     emergency_mode: bool = Field(
         default=False,
@@ -123,5 +129,87 @@ class Settings(BaseSettings):
         env_prefix = "MYPROXY_"
 
 
+def load_persistent_config() -> dict:
+    """Load configuration from persistent YAML file."""
+    config_path = Path("/etc/homeguard/config.yaml")
+
+    if not config_path.exists():
+        return {}
+
+    try:
+        with open(config_path, 'r') as f:
+            config = yaml.safe_load(f)
+
+        # Flatten the config structure for pydantic
+        flattened = {}
+
+        # Top-level mode
+        if 'mode' in config:
+            flattened['gateway_mode'] = config['mode']
+
+        # Mode-specific settings
+        current_mode = config.get('mode', 'transparent')
+        mode_config = config.get('modes', {}).get(current_mode, {})
+
+        if 'testing_ip' in mode_config:
+            flattened['testing_ip'] = mode_config['testing_ip']
+
+        # Network settings
+        network = config.get('network', {})
+        if 'gateway_ip' in network:
+            flattened['gateway_ip'] = network['gateway_ip']
+        if 'web_port' in network:
+            flattened['web_port'] = network['web_port']
+        if 'interface' in network:
+            flattened['gateway_interface'] = network['interface']
+            flattened['client_interface'] = network['interface']
+        if 'dhcp_range_start' in network:
+            flattened['dhcp_range_start'] = network['dhcp_range_start']
+        if 'dhcp_range_end' in network:
+            flattened['dhcp_range_end'] = network['dhcp_range_end']
+
+        # App settings
+        app = config.get('app', {})
+        if 'database_url' in app:
+            flattened['database_url'] = app['database_url']
+        if 'log_level' in app:
+            flattened['log_level'] = app['log_level']
+        if 'debug' in app:
+            flattened['debug'] = app['debug']
+
+        # TOTP settings
+        totp = config.get('totp', {})
+        if 'secret_length' in totp:
+            flattened['totp_secret_length'] = totp['secret_length']
+        if 'durations' in totp:
+            flattened['totp_durations'] = totp['durations']
+
+        # Admin settings
+        admin = config.get('admin', {})
+        if 'username' in admin:
+            flattened['admin_username'] = admin['username']
+        if 'password' in admin:
+            flattened['admin_password'] = admin['password']
+
+        return flattened
+
+    except Exception as e:
+        print(f"Warning: Could not load config file {config_path}: {e}")
+        return {}
+
+
+class EnhancedSettings(Settings):
+    """Settings that load from persistent config file first, then environment variables."""
+
+    def __init__(self, **kwargs):
+        # Load from persistent config file first
+        config_overrides = load_persistent_config()
+
+        # Merge with any provided kwargs (environment variables take precedence)
+        merged = {**config_overrides, **kwargs}
+
+        super().__init__(**merged)
+
+
 # Global settings instance
-settings = Settings()
+settings = EnhancedSettings()
