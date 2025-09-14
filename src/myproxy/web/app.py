@@ -23,6 +23,14 @@ from ..auth.totp import totp_manager
 from ..config.settings import settings
 from ..phases.phase_manager import phase_manager
 
+# Import gateway components
+try:
+    from ..gateway.config import GatewayConfig, GatewayMode
+    from ..gateway.iptables_manager import IptablesManager
+    GATEWAY_AVAILABLE = True
+except ImportError:
+    GATEWAY_AVAILABLE = False
+
 logger = logging.getLogger(__name__)
 
 # Create FastAPI app
@@ -61,10 +69,10 @@ def require_admin_auth(session_token: str = Cookie(None)):
 def get_client_info(request: Request) -> dict:
     """Extract comprehensive client information from request."""
     client_ip = request.client.host
-    
+
     # Get user agent for device fingerprinting
     user_agent = request.headers.get("user-agent", "")
-    
+
     # Extract device type from user agent
     device_type = "Unknown"
     if "Mobile" in user_agent or "Android" in user_agent or "iPhone" in user_agent:
@@ -73,23 +81,34 @@ def get_client_info(request: Request) -> dict:
         device_type = "Tablet"
     elif "Windows" in user_agent or "Mac" in user_agent or "Linux" in user_agent:
         device_type = "Desktop/Laptop"
-    
+
     # Get hostname from reverse DNS (in real deployment)
     hostname = request.headers.get("host", "").split(":")[0]
-    
-    # Generate MAC address (for local testing - in production this would come from ARP table)
-    # Using a more realistic MAC simulation based on IP + User Agent hash
+
+    # Detect double NAT situation and handle appropriately
+    is_behind_nat = client_ip in ["192.168.2.135"]  # Known WiFi router IPs
+
+    # Generate MAC address - use user agent hash for NAT'd devices to ensure uniqueness
     import hashlib
-    mac_seed = f"{client_ip}:{user_agent[:50]}"
+    if is_behind_nat:
+        # For devices behind NAT router, use user agent + device type for unique identification
+        mac_seed = f"NAT:{user_agent[:100]}:{device_type}"
+        logger.info(f"🔍 Device behind NAT router {client_ip}, using enhanced fingerprinting")
+    else:
+        # Direct connection, use IP + user agent
+        mac_seed = f"{client_ip}:{user_agent[:50]}"
+
     mac_hash = hashlib.md5(mac_seed.encode()).hexdigest()[:12]
     mac_address = ":".join([mac_hash[i:i+2] for i in range(0, 12, 2)])
-    
+
     return {
         "mac_address": mac_address,
         "ip_address": client_ip,
         "user_agent": user_agent,
         "device_type": device_type,
-        "hostname": hostname or f"device-{client_ip.split('.')[-1]}"
+        "hostname": hostname or f"device-{client_ip.split('.')[-1]}",
+        "is_behind_nat": is_behind_nat,
+        "nat_router_ip": client_ip if is_behind_nat else None
     }
 
 
@@ -731,6 +750,7 @@ async def admin_panel(request: Request, session_token: str = Cookie(None)):
             </div>
             
             <div class="nav">
+                <a href="/admin/gateway" class="nav-item">Gateway Control</a>
                 <a href="/admin/devices" class="nav-item">Device Management</a>
                 <a href="/admin/totp" class="nav-item">TOTP Codes</a>
                 <a href="/admin/qr" class="nav-item">QR Codes</a>
@@ -1189,6 +1209,283 @@ async def get_qr_image(duration: str, _auth: None = Depends(require_admin_auth))
     img_bytes.seek(0)
     
     return StreamingResponse(img_bytes, media_type="image/png")
+
+
+@app.get("/admin/gateway")
+async def admin_gateway_control(request: Request, _auth: None = Depends(require_admin_auth)):
+    """Gateway mode control panel."""
+    if not GATEWAY_AVAILABLE:
+        return HTMLResponse("""
+        <!DOCTYPE html>
+        <html>
+        <head><title>Gateway Not Available</title></head>
+        <body style="font-family: Arial; text-align: center; padding: 50px;">
+            <h1 style="color: #dc3545;">Gateway Control Not Available</h1>
+            <p>Gateway components are not installed or configured.</p>
+            <a href="/admin" style="color: #007bff;">← Back to Admin Panel</a>
+        </body>
+        </html>
+        """)
+    
+    try:
+        gateway_config = GatewayConfig()
+        current_mode = gateway_config.get_mode()
+        is_emergency = gateway_config.is_emergency_mode()
+        interfaces = gateway_config.get_network_interfaces()
+        ports = gateway_config.get_service_ports()
+        
+        iptables_manager = IptablesManager(gateway_config)
+        authenticated_devices = iptables_manager.list_authenticated_devices()
+        
+        mode_color = "#28a745" if current_mode == GatewayMode.TRANSPARENT else "#007bff"
+        emergency_warning = ""
+        if is_emergency:
+            emergency_warning = """
+            <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #f5c6cb;">
+                <strong>⚠️ EMERGENCY MODE ACTIVE</strong><br>
+                Gateway is in emergency transparent mode. All traffic is allowed.
+            </div>
+            """
+        
+        authenticated_devices_html = ""
+        if current_mode == GatewayMode.TOTP_ENABLED and authenticated_devices:
+            authenticated_devices_html = f"""
+            <div class="info-section">
+                <h3>Authenticated Devices ({len(authenticated_devices)})</h3>
+                <div class="device-list">
+                    {''.join(f'<div class="device-item">{mac}</div>' for mac in authenticated_devices)}
+                </div>
+            </div>
+            """
+        
+        return HTMLResponse(f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>MyProxy - Gateway Control</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                body {{ font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }}
+                .container {{ max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
+                .back-link {{ display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; }}
+                .back-link:hover {{ text-decoration: underline; }}
+                .status-section {{ background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; }}
+                .mode-indicator {{ display: inline-block; padding: 8px 16px; border-radius: 20px; color: white; font-weight: bold; background: {mode_color}; }}
+                .mode-controls {{ margin: 20px 0; }}
+                .mode-button {{ padding: 12px 24px; margin: 10px 5px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; }}
+                .mode-button.transparent {{ background: #28a745; color: white; }}
+                .mode-button.totp {{ background: #007bff; color: white; }}
+                .mode-button.emergency {{ background: #dc3545; color: white; }}
+                .mode-button:hover {{ opacity: 0.9; }}
+                .mode-button:disabled {{ background: #6c757d; cursor: not-allowed; }}
+                .info-section {{ margin: 20px 0; padding: 15px; background: #e7f3ff; border-radius: 8px; }}
+                .info-row {{ display: flex; justify-content: space-between; margin: 8px 0; }}
+                .info-label {{ font-weight: bold; color: #495057; }}
+                .info-value {{ color: #6c757d; font-family: monospace; }}
+                .device-list {{ margin-top: 10px; }}
+                .device-item {{ padding: 8px; background: white; margin: 5px 0; border-radius: 4px; font-family: monospace; }}
+                .actions {{ text-align: center; margin: 20px 0; }}
+                .restart-note {{ color: #666; font-size: 14px; text-align: center; margin-top: 10px; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <a href="/admin" class="back-link">← Back to Admin Panel</a>
+                <h1>Gateway Control</h1>
+                
+                {emergency_warning}
+                
+                <div class="status-section">
+                    <h2>Current Status</h2>
+                    <div class="info-row">
+                        <span class="info-label">Mode:</span>
+                        <span class="mode-indicator">{current_mode.value.replace('_', ' ').title()}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">WAN Interface:</span>
+                        <span class="info-value">{interfaces['wan']}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">LAN Interface:</span>
+                        <span class="info-value">{interfaces['lan']}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Admin Port:</span>
+                        <span class="info-value">{ports['admin']}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">SSH Port:</span>
+                        <span class="info-value">{ports['ssh']}</span>
+                    </div>
+                </div>
+                
+                {authenticated_devices_html}
+                
+                <div class="mode-controls">
+                    <h3>Gateway Mode Control</h3>
+                    <p>Select the gateway operating mode:</p>
+                    
+                    <div class="actions">
+                        <button class="mode-button transparent" 
+                                onclick="setMode('transparent')"
+                                {'disabled' if current_mode == GatewayMode.TRANSPARENT and not is_emergency else ''}>
+                            Transparent Mode
+                        </button>
+                        
+                        <button class="mode-button totp" 
+                                onclick="setMode('totp_enabled')"
+                                {'disabled' if current_mode == GatewayMode.TOTP_ENABLED and not is_emergency else ''}>
+                            TOTP Authentication
+                        </button>
+                        
+                        <button class="mode-button emergency" 
+                                onclick="enableEmergency()"
+                                {'disabled' if is_emergency else ''}>
+                            Emergency Transparent
+                        </button>
+                    </div>
+                    
+                    <div class="restart-note">
+                        Note: Mode changes require service restart to take effect
+                    </div>
+                </div>
+                
+                <div class="info-section">
+                    <h3>Mode Descriptions</h3>
+                    <p><strong>Transparent Mode:</strong> All traffic passes through without blocking. Basic bridge functionality.</p>
+                    <p><strong>TOTP Authentication:</strong> Block all traffic until TOTP authentication. Devices need to authenticate to access internet.</p>
+                    <p><strong>Emergency Transparent:</strong> Immediate bypass of all blocking. Use for emergency access.</p>
+                </div>
+            </div>
+            
+            <script>
+                async function setMode(mode) {{
+                    if (!confirm(`Are you sure you want to switch to ${{mode.replace('_', ' ')}} mode?`)) {{
+                        return;
+                    }}
+                    
+                    try {{
+                        const response = await fetch('/admin/gateway/set-mode', {{
+                            method: 'POST',
+                            headers: {{
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            }},
+                            body: `mode=${{encodeURIComponent(mode)}}`
+                        }});
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {{
+                            alert(`Gateway mode set to: ${{mode.replace('_', ' ')}}\\n\\nRestart the service to apply changes.`);
+                            location.reload();
+                        }} else {{
+                            alert(`Failed to set mode: ${{result.message}}`);
+                        }}
+                    }} catch (error) {{
+                        alert('Error setting mode: ' + error.message);
+                    }}
+                }}
+                
+                async function enableEmergency() {{
+                    if (!confirm('Are you sure you want to enable EMERGENCY TRANSPARENT mode?\\n\\nThis will immediately allow all traffic without authentication!')) {{
+                        return;
+                    }}
+                    
+                    try {{
+                        const response = await fetch('/admin/gateway/emergency', {{
+                            method: 'POST',
+                            headers: {{
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            }}
+                        }});
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {{
+                            alert('Emergency transparent mode enabled!\\n\\nRestart the service to apply changes.');
+                            location.reload();
+                        }} else {{
+                            alert(`Failed to enable emergency mode: ${{result.message}}`);
+                        }}
+                    }} catch (error) {{
+                        alert('Error enabling emergency mode: ' + error.message);
+                    }}
+                }}
+            </script>
+        </body>
+        </html>
+        """)
+        
+    except Exception as e:
+        logger.error(f"Error in gateway control panel: {e}")
+        return HTMLResponse(f"""
+        <!DOCTYPE html>
+        <html>
+        <head><title>Gateway Control Error</title></head>
+        <body style="font-family: Arial; text-align: center; padding: 50px;">
+            <h1 style="color: #dc3545;">Gateway Control Error</h1>
+            <p>Error loading gateway status: {str(e)}</p>
+            <a href="/admin" style="color: #007bff;">← Back to Admin Panel</a>
+        </body>
+        </html>
+        """, status_code=500)
+
+
+@app.post("/admin/gateway/set-mode")
+async def set_gateway_mode(mode: str = Form(...), _auth: None = Depends(require_admin_auth)):
+    """Set gateway mode."""
+    if not GATEWAY_AVAILABLE:
+        return JSONResponse({"success": False, "message": "Gateway not available"}, status_code=503)
+    
+    try:
+        gateway_mode = GatewayMode(mode.lower())
+        gateway_config = GatewayConfig()
+        gateway_config.set_mode(gateway_mode)
+        
+        logger.info(f"Admin set gateway mode to: {gateway_mode.value}")
+        
+        return JSONResponse({
+            "success": True,
+            "message": f"Gateway mode set to {gateway_mode.value}",
+            "mode": gateway_mode.value
+        })
+        
+    except ValueError:
+        return JSONResponse({
+            "success": False,
+            "message": f"Invalid mode: {mode}"
+        }, status_code=400)
+    except Exception as e:
+        logger.error(f"Error setting gateway mode: {e}")
+        return JSONResponse({
+            "success": False,
+            "message": f"Error setting mode: {str(e)}"
+        }, status_code=500)
+
+
+@app.post("/admin/gateway/emergency")
+async def enable_emergency_mode(_auth: None = Depends(require_admin_auth)):
+    """Enable emergency transparent mode."""
+    if not GATEWAY_AVAILABLE:
+        return JSONResponse({"success": False, "message": "Gateway not available"}, status_code=503)
+    
+    try:
+        gateway_config = GatewayConfig()
+        gateway_config.enable_emergency_mode()
+        
+        logger.warning("Admin enabled emergency transparent mode")
+        
+        return JSONResponse({
+            "success": True,
+            "message": "Emergency transparent mode enabled"
+        })
+        
+    except Exception as e:
+        logger.error(f"Error enabling emergency mode: {e}")
+        return JSONResponse({
+            "success": False,
+            "message": f"Error enabling emergency mode: {str(e)}"
+        }, status_code=500)
 
 
 @app.get("/health")

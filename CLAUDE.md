@@ -2,362 +2,133 @@
 
 **Python Environment**: Use `/Users/vandanchopra/Vandan_Personal_Folder/CODE_STUFF/Projects/myProxy/venv/bin/python`
 
-## PROJECT STATUS: 🚧 PRE-INLINE DEVELOPMENT REQUIRED
-
-### CURRENT SITUATION
-- ✅ **Basic System**: TOTP authentication, iptables filtering, Docker deployment
-- ✅ **Pi Deployment**: Auto-pull, bridge scripts, systemd integration
-- ❌ **Inline Ready**: Missing phased rollout, dual networking, enhanced filtering
-- **Timeline**: 2-3 weeks development + 1 week gradual rollout
-
-### CRITICAL REQUIREMENTS BEFORE INLINE
-- Phase management system (6-phase rollout)
-- Enhanced traffic filtering (keywords, URLs, Google Sheets)
-- Pi self-exemption from filtering rules
-- Dual IP networking configuration
-- Separate content blocked splash screens
-- Comprehensive testing in current environment
-
----
-
-## PRE-INLINE REQUIREMENTS ANALYSIS
-
-### SESSION CONTEXT (2025-09-10)
-Analysis of 6 critical questions for safe inline deployment:
-
-### 1. **Pi IP Address Strategy**
-**Question**: What will the Pi's IP be when inline between ISP router (192.168.1.1) and WiFi router (192.168.4.1)?
-
-**Answer**: 
-- **Primary IP**: 192.168.1.100 (static on WAN/eth0 interface)
-- **Backup IP**: 192.168.4.100 (keep WiFi for emergency access)
-- **Configuration**: Static IP assignment in bridge mode script
-
-### 2. **SSH/VNC Access Preservation**
-**Question**: How to ensure SSH/VNC continues working after inline deployment?
-
-**Answer**: ✅ Will work automatically
-- SSH to 192.168.1.100 (primary access)
-- SSH to 192.168.4.100 (backup access via WiFi)
-- Both IPs will be accessible from network segments
-
-### 3. **6-Phase Rollout Implementation**
-**Question**: Gradual rollout from transparent bridge to full TOTP authentication
-
-**Answer**: Requires new phase management system:
-- Phase 1: Transparent bridge (no blocking)
-- Phase 2: Traffic monitoring only
-- Phase 3: Block NDTV.com only
-- Phase 4: Block "mickey and jj" keywords
-- Phase 5: Google Sheets integration
-- Phase 6: Full TOTP authentication
-
-### 4. **TOTP Splash Screen Redirect**
-**Question**: Will unauthorized users be redirected to TOTP screen?
-
-**Answer**: ✅ Already implemented
-- HTTP proxy captures requests → captive portal redirect
-- Code: `src/myproxy/proxy/http_proxy.py:112-156`
-
-### 5. **Banned Content Splash Screen**
-**Question**: Separate screen for blocked URLs/keywords vs authentication
-
-**Answer**: ❌ Requires implementation
-- New "Content Blocked" splash screen
-- Distinct from TOTP authentication screen
-- Different redirect logic for content vs auth blocking
-
-### 6. **Script Exemption from Blocking**
-**Question**: Ensure Pi's own scripts aren't blocked
-
-**Answer**: ❌ Requires implementation
-- Whitelist Pi's IP addresses in iptables
-- Exempt SSH (22), admin web (8080), DNS, NTP
-- Allow system updates and management traffic
-
----
-
-## 6-PHASE ROLLOUT SYSTEM
-
-### Phase Management Architecture
-```
-PhaseManager Class
-├── Configuration: /etc/myproxy/phase.conf
-├── Database: Phase-specific rules storage
-├── Traffic Filter: Conditional rule application
-└── Web Interface: Phase switching controls
-```
-
-### Detailed Phase Specifications
-
-#### **Phase 1: Transparent Bridge**
-- **Purpose**: Verify network connectivity works
-- **Behavior**: Pass all traffic through without filtering
-- **iptables**: ACCEPT all in FORWARD chain
-- **Testing**: Confirm internet works, Pi accessible
-
-#### **Phase 2: Traffic Monitoring Only**
-- **Purpose**: Log and analyze household traffic patterns
-- **Behavior**: Log all traffic but allow everything
-- **Features**: Enhanced logging, traffic analysis dashboard
-- **Testing**: Verify logging works, no blocking occurs
-
-#### **Phase 3: Block NDTV.com Only**
-- **Purpose**: Test specific domain blocking
-- **Behavior**: Block NDTV.com (HTTP/HTTPS/DNS), allow everything else
-- **Implementation**: Domain pattern matching in traffic filter
-- **Testing**: Confirm NDTV blocked, other sites work
-
-#### **Phase 4: Block Keywords ("mickey and jj")**
-- **Purpose**: Test content inspection and keyword filtering
-- **Behavior**: Block pages containing "mickey" or "jj", allow everything else
-- **Implementation**: HTTP content inspection, keyword matching
-- **Testing**: Confirm keyword blocking, performance impact assessment
-
-#### **Phase 5: Google Sheets Integration**
-- **Purpose**: Dynamic rule management
-- **Behavior**: Read blocking rules from Google Sheets
-- **Implementation**: Sheets API integration, periodic rule updates
-- **Testing**: Add/remove rules via Sheets, verify real-time updates
-
-#### **Phase 6: Full TOTP Authentication**
-- **Purpose**: Complete security implementation
-- **Behavior**: Block all traffic until TOTP authentication
-- **Implementation**: Current system + all previous phases
-- **Testing**: Full authentication workflow, session management
-
----
-
-## REQUIRED NEW FEATURES
-
-### 1. **Phase Management System**
-```python
-class PhaseManager:
-    - load_phase_config()
-    - apply_phase_rules()
-    - switch_phase()
-    - validate_phase_transition()
-```
-
-### 2. **Enhanced Traffic Filtering**
-- **Keyword Filtering**: HTTP content inspection
-- **URL Pattern Matching**: Regex-based domain blocking
-- **Performance Optimization**: Efficient packet processing
-- **Logging**: Detailed traffic analysis and reporting
-
-### 3. **Google Sheets Integration**
-```python
-class SheetsRuleManager:
-    - fetch_blocking_rules()
-    - update_local_rules()
-    - validate_rule_format()
-    - periodic_sync()
-```
-
-### 4. **Pi Self-Exemption System**
-- **IP Whitelisting**: Both 192.168.1.100 and 192.168.4.100
-- **Service Exemption**: SSH, HTTP admin, DNS, NTP, system updates
-- **iptables Rules**: ACCEPT before blocking rules
-
-### 5. **Dual IP Networking Configuration**
-- **Static IP Assignment**: WAN interface gets 192.168.1.100
-- **Routing Priority**: eth0 metric 100, wlan0 metric 200
-- **Conflict Prevention**: Proper routing table management
-- **Backup Access**: WiFi remains on 192.168.4.100
-
-### 6. **Enhanced Splash Screens**
-- **TOTP Authentication**: Existing captive portal
-- **Content Blocked**: New screen for banned URLs/keywords
-- **Redirect Logic**: Different handling for auth vs content blocks
-
----
-
-## IMPLEMENTATION STRATEGY
-
-### BEFORE Moving Pi Inline (Weeks 1-2)
-**Location**: Current safe environment (192.168.4.x network)
-
-#### **Week 1: Core Development**
-- ✅ Implement PhaseManager class and configuration system
-- ✅ Build enhanced traffic filtering (keywords, URLs)
-- ✅ Create Google Sheets integration
-- ✅ Add Pi self-exemption iptables rules
-- ✅ Develop new "Content Blocked" splash screen
-
-#### **Week 2: Testing and Validation**
-- ✅ Test all 6 phases in current environment
-- ✅ Verify TOTP authentication still works
-- ✅ Test keyword and URL blocking functionality
-- ✅ Validate Google Sheets integration
-- ✅ Confirm Pi exemption rules work
-- ✅ Prepare static IP bridge configuration
-
-### AFTER Moving Pi Inline (Week 3)
-**Location**: Production inline deployment
-
-#### **Day 1: Physical Installation**
-- Connect hardware: ISP Router → Pi eth0 → Pi USB-eth → WiFi Router
-- Configure static IP 192.168.1.100 on WAN interface
-- Verify SSH access on both IPs (192.168.1.100 and 192.168.4.100)
-- Start in Phase 1 (transparent bridge)
-
-#### **Days 2-7: Gradual Rollout**
-- **Day 2**: Phase 2 (monitoring only)
-- **Day 3**: Phase 3 (block NDTV.com)
-- **Day 4**: Phase 4 (block keywords)
-- **Day 5**: Phase 5 (Google Sheets)
-- **Day 6**: Phase 6 (full TOTP)
-- **Day 7**: Monitor and optimize
-
----
-
-## NETWORK CONFIGURATION PLAN
-
-### Current Pi Status
-```
-WiFi (wlan0): 192.168.4.100 ✅
-Ethernet (eth0): 192.168.4.65 ✅
-Both on same subnet: 192.168.4.x/22
-```
-
-### Target Inline Configuration
-```
-WAN (eth0): 192.168.1.100 (static, primary)
-WiFi (wlan0): 192.168.4.100 (backup access)
-USB-Ethernet: No IP (bridge interface)
-```
-
-### Routing Configuration
-```bash
-# Primary internet route via eth0
-ip route add default via 192.168.1.1 dev eth0 metric 100
-
-# Backup route via wlan0  
-ip route add default via 192.168.4.1 dev wlan0 metric 200
-
-# Prevent routing conflicts
-echo "net.ipv4.conf.all.rp_filter=1" >> /etc/sysctl.conf
-```
-
-### Service Binding
-- **SSH**: Listen on both 192.168.1.100:22 and 192.168.4.100:22
-- **HTTP Admin**: Accessible on both 192.168.1.100:8080 and 192.168.4.100:8080
-- **VNC**: Available on both IP addresses
-
----
-
-## ARCHITECTURE OVERVIEW
-
-### Network Architecture - Inline Mode (Future)
-```
-ISP Router (192.168.1.1) → Pi eth0 (192.168.1.100) → Pi USB-eth → WiFi Router WAN
-                                    ↓
-                          MyProxy Phase-Based Filtering
-                             (FORWARD chain + phases)
-                                    ↓
-                        Phase 1: Transparent → Phase 6: Full TOTP
-```
-
-### Database Design (Enhanced)
-- **Device Management**: MAC addresses, IP tracking, authentication sessions
-- **Phase Configuration**: Current phase, phase-specific rules
-- **Traffic Filtering**: Keyword rules, URL patterns, Google Sheets rules
-- **Access Logging**: Authentication events, blocked content, phase transitions
-
----
-
-## NEXT SESSION HANDOFF
-
-### Context for Pi Claude Session
-This document provides complete context for implementing the pre-inline development phase on the Raspberry Pi. The next Claude session should:
-
-### **Priority Implementation Order**
-1. **Phase Management System** (src/myproxy/phases/)
-2. **Enhanced Traffic Filtering** (src/myproxy/network/enhanced_filter.py)
-3. **Google Sheets Integration** (src/myproxy/integrations/sheets.py)
-4. **Pi Self-Exemption Rules** (update traffic_monitor.py)
-5. **Content Blocked Splash Screen** (src/myproxy/web/templates/)
-6. **Dual IP Configuration** (scripts/configure-bridge-mode.sh)
-
-### **Validation Requirements**
-- Test each phase independently in current environment
-- Verify no existing functionality breaks
-- Confirm dual IP access works
-- Test Google Sheets rule updates
-- Validate content vs auth blocking logic
-
-### **Testing Checklist**
-- [ ] Phase 1: Network passes through transparently
-- [ ] Phase 2: Traffic logging without blocking
-- [ ] Phase 3: NDTV.com blocked, others allowed
-- [ ] Phase 4: Keywords blocked, others allowed  
-- [ ] Phase 5: Google Sheets rules applied dynamically
-- [ ] Phase 6: Full TOTP + all previous features
-- [ ] Pi self-exemption: SSH/admin always accessible
-- [ ] Dual IP: Both 192.168.1.100 and 192.168.4.100 work
-
-### **Files to Modify**
-- `src/myproxy/phases/` (new directory)
-- `src/myproxy/network/traffic_monitor.py`
-- `src/myproxy/web/app.py`
-- `scripts/configure-bridge-mode.sh`
-- `docker-compose.pi.yml`
-
----
-
-## TROUBLESHOOTING
-
-### Common Commands
-```bash
-# Check current phase
-cat /etc/myproxy/phase.conf
-
-# Switch phases manually
-echo "PHASE=1" | sudo tee -a /etc/myproxy/phase.conf
-
-# Check service status
-sudo systemctl status myproxy-dual
-
-# View logs
-sudo journalctl -u myproxy-dual -f
-
-# Check interfaces and IPs
-ip addr show
-
-# Check iptables rules
-sudo iptables -L -n -v
-
-# Test dual IP access
-ssh raspberrypi@192.168.1.100
-ssh raspberrypi@192.168.4.100
-```
-
-### Phase Transition Issues
-```bash
-# Reset to Phase 1 (safe mode)
-echo "PHASE=1" | sudo tee /etc/myproxy/phase.conf
-sudo systemctl restart myproxy-dual
-
-# Check phase-specific iptables
-sudo iptables -L MYPROXY_FILTER -n -v
-
-# Verify Pi self-exemption
-sudo iptables -L | grep "192.168"
-```
-
----
-
-## DEVELOPMENT STATUS
-
-**Current State**: ❌ Requires 2-3 weeks pre-inline development
-**Next Step**: Implement phase management system on Pi
-**Timeline**: 
-- Week 1-2: Development and testing in safe environment
-- Week 3: Inline deployment with gradual rollout
-- Risk Level: Low (extensive pre-testing + gradual rollout)
-
-**Key Success Factors**:
-1. Complete all development before going inline
-2. Test every phase thoroughly in current environment  
-3. Maintain dual IP access for redundancy
-4. Gradual rollout with easy rollback capability
+MY REQUIREMENT:
+read the files in the project and understand the project.
+
+Now, here is what i want you to do:
+1) Create a file that runs on startup and setup up the following:
+    1) ensures that the graphics user interface get 128MB, so that the UI works properly.
+    2) ensures that the screensize for VNC is 2048x1152
+    3) wifi is turned off, bluetooth is turned off.
+    4) There are two ethernet ports set up. and the IP addresses are detected and setup like @scripts/auto-configure-network. The script should automatically figure out it Pi is currently sitting in Inline mode or sideline mode. I want auto-configure-network to do the following: Ethernet port 1 should be .100 and Ethernet port 2 should be .200. 
+    5) Also since the file is not only doing network setup but also doing other things, lets call it 'auto-configure-onboot'
+    6) also, every time 'auto-configure-onboot' runs, it should clear out the last log file and create a new log file called 'reboot-logs' in the /CODE_STUFF folder and log everything it did to the log file.
+    
+2) The homeguard project is currently called myproxy. can we change the name of the project everywhere to homeguard.
+3) I want homeguard to work only in two modes: 1) transparent mode: where all the traffic is passed through without any intervention. 2) TOTP mode: where all traffic is blocked, and the TOTP authentication page is flashed for when someone tries to access the internet and authenticates them. If they are authenticated, then traffic for that device is let through, and all other devices are still blocked (until they authenticate themselves)
+4) Before you start working on fixing all this up, let think about how you want to set up the bridge mode, so that all the traffic from .100 and .200 is going through. The last time we moved the Pi to inline mode, the ssh and vnc and internet all stopped working. Make sure that doesn't happen this time. Make sure you add the final solution to 'auto-configure-onboot'.
+5) The way i want you to work on this is first work on step 4 and get bridge mode going, so that we can move the Pi to inline mode and VNC, ssh and internet are all working. Once that is done, then we will do step 1 and 2 and 3.
+
+CLAUDE's WORKFLOW AND PLAN:
+
+Safe Router Mode Configuration - Keep Internet Connected                    │ │
+│ │                                                                             │ │
+│ │ Current Situation:                                                          │ │
+│ │                                                                             │ │
+│ │ - Pi has WiFi backup (192.168.4.51) ✅ - KEEP THIS ACTIVE                    │ │
+│ │ - Bridge misconfigured with .2.x IPs that can't reach internet ❌            │ │
+│ │ - Need router mode (NAT) not bridge mode for inline deployment              │ │
+│ │ - Must maintain connectivity throughout process                             │ │
+│ │                                                                             │ │
+│ │ Safe Configuration Strategy:                                                │ │
+│ │                                                                             │ │
+│ │ Phase 1: Preserve Connectivity & Fix Bridge (WiFi Backup Active)            │ │
+│ │                                                                             │ │
+│ │ 1. Keep WiFi connected as backup throughout entire process                  │ │
+│ │ 2. Remove problematic .2.x IPs from bridge interface                        │ │
+│ │ 3. Configure Pi as Router (not bridge):                                     │ │
+│ │   - eth0: WAN interface (gets IP from ISP when inline)                      │ │
+│ │   - eth1: LAN interface (serves 192.168.4.x network to WiFi router)         │ │
+│ │   - Management: 192.168.4.100 (eth1 side) + WAN IP (eth0 side)              │ │
+│ │ 4. Setup NAT/iptables for router mode between eth0 ↔ eth1                   │ │
+│ │ 5. Test router functionality in sideline mode                               │ │
+│ │                                                                             │ │
+│ │ Phase 2: Validate Router Mode (Still Sideline)                              │ │
+│ │                                                                             │ │
+│ │ 6. Test NAT is working: Traffic flows through Pi router                     │ │
+│ │ 7. Verify management access: SSH works via 192.168.4.100                    │ │
+│ │ 8. Confirm internet connectivity for test devices                           │ │
+│ │ 9. Validate recovery procedures if something breaks                         │ │
+│ │                                                                             │ │
+│ │ Phase 3: Go Inline (The Big Moment)                                         │ │
+│ │                                                                             │ │
+│ │ 10. Physical connection change:                                             │ │
+│ │   - ISP Router → Pi eth0 (Pi gets ISP IP, probably 192.168.1.x)             │ │
+│ │   - Pi eth1 → WiFi Router WAN (Pi provides 192.168.4.1 to WiFi)             │ │
+│ │ 11. Pi becomes router between ISP network and WiFi network                  │ │
+│ │ 12. Management access:                                                      │ │
+│ │   - Primary: ISP-assigned IP (192.168.1.100)                                │ │
+│ │   - Secondary: LAN side (192.168.4.100)                                     │ │
+│ │                                                                             │ │
+│ │ Phase 4: Final Validation & Cleanup                                         │ │
+│ │                                                                             │ │
+│ │ 13. Test all connectivity: Internet works for all 10 devices                │ │
+│ │ 14. Verify management: SSH/VNC accessible from both sides                   │ │
+│ │ 15. Disable WiFi backup once everything confirmed working                   │ │
+│ │ 16. Document final configuration for auto-configure-onboot                  │ │
+│ │                                                                             │ │
+│ │ Network Architecture (Final State):                                         │ │
+│ │                                                                             │ │
+│ │ ISP Router (.1.1) → Pi eth0 (.1.100) [NAT/Router] Pi eth1 (.4.100) → WiFi   │ │
+│ │ Router (.4.1)                                                               │ │
+│ │                     ↑                                       ↑               │ │
+│ │               Management SSH                          Management SSH        │ │
+│ │                                                                             │ │
+│ │ Safety Features:                                                            │ │
+│ │                                                                             │ │
+│ │ - WiFi backup: Maintains connectivity throughout process                    │ │
+│ │ - Router mode: Handles subnet translation (.1.x ↔ .4.x)                     │ │
+│ │ - Dual management: Accessible from both WAN and LAN sides                   │ │
+│ │ - NAT handling: Pi manages all traffic translation                          │ │
+│ │ - Recovery procedures: Can revert if anything fails                         │ │
+│ │                                                                             │ │
+│ │ Success Criteria:                                                           │ │
+│ │                                                                             │ │
+│ │ ✅ Internet never goes down during configuration                             │ │
+│ │ ✅ SSH/Claude access maintained via WiFi backup                              │ │
+│ │ ✅ Router mode handles 10+ devices seamlessly✅ Management accessible from    │ │
+│ │ both network sides                                                          │ │
+│ │ ✅ Ready for auto-configure-onboot integration                               │ │
+│ │                                                                             │ │
+│ │ This approach treats Pi as a proper router (like your home router) rather   │ │
+│ │ than a simple bridge, which is what we actually need for inline deployment  │ │
+│ │ between different subnets. 
+
+
+
+
+Now we're ready for inline testing. Here's what to do next:
+
+  Step 1: Physical Connection for Testing
+
+  1. Take the ethernet cable that's currently connected to eth1 (USB ethernet)
+  2. Connect it to your WiFi router's WAN port (the port that usually connects
+  to ISP)
+  3. Leave your ISP connection to the WiFi router as-is for now (we're just
+  testing)
+
+  Step 2: Activate Pi Gateway Mode
+
+  sudo nmcli connection up HomeguardLAN
+
+  Step 3: Test Gateway Functionality
+
+  After activating HomeguardLAN, test if devices connected to your WiFi can
+  still get internet:
+  - Try browsing from a phone/laptop connected to WiFi
+  - If it works: Pi is successfully acting as gateway! 🎯
+  - If it doesn't work: Run sudo nmcli connection down HomeguardLAN to disable
+
+  Step 4: Full Inline Deployment (Only if Step 3 works)
+
+  - Move ISP connection from WiFi router → Pi eth0
+  - Pi becomes the main router between ISP and your WiFi network
+
+  Safety Net:
+
+  If anything goes wrong at any step:
+  sudo /home/raspberrypi/CODE_STUFF/homeguard/scripts/emergency-restore.sh
+
+  Ready for Step 1? Connect eth1 cable to WiFi router WAN port and let me know
+  when done!
+

@@ -395,11 +395,25 @@ class TrafficMonitor:
                 self.connected_devices[mac_address].is_authorized = True
             
             # Allow traffic for this device
-            client_ip = self._get_client_ip_from_mac(mac_address)
-            if client_ip:
+            client_ip = None
+
+            # Handle double NAT situation - check if device is behind NAT router
+            if device_info and device_info.get("is_behind_nat"):
+                nat_router_ip = device_info.get("nat_router_ip")
+                logger.info(f"🔍 Device {mac_address} is behind NAT router {nat_router_ip}")
+
+                # For NAT'd devices, allow traffic from the NAT router IP
+                client_ip = nat_router_ip
                 await self.allow_device_traffic(mac_address, client_ip)
+                logger.info(f"✅ Allowed traffic from NAT router {client_ip} for device {mac_address}")
+
             else:
-                logger.warning(f"Could not determine IP for MAC {mac_address}, traffic filtering may not work")
+                # Direct connection - try to get IP from MAC
+                client_ip = self._get_client_ip_from_mac(mac_address)
+                if client_ip:
+                    await self.allow_device_traffic(mac_address, client_ip)
+                else:
+                    logger.warning(f"Could not determine IP for MAC {mac_address}, traffic filtering may not work")
             
             await self._log_access_attempt(mac_address, "auth_success", f"Granted {duration_key} access")
             

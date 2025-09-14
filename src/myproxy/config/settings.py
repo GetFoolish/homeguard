@@ -17,23 +17,23 @@ class Settings(BaseSettings):
     
     # Network settings
     gateway_interface: str = Field(
-        default="eth0",
-        description="Network interface for gateway"
+        default="eth1",
+        description="Network interface for gateway (LAN side)"
     )
     client_interface: str = Field(
-        default="wlan0", 
-        description="Network interface for clients"
+        default="eth1",
+        description="Network interface for clients (LAN side)"
     )
     gateway_ip: str = Field(
-        default="192.168.1.1",
-        description="Gateway IP address"
+        default="192.168.2.1",
+        description="Gateway IP address (LAN side)"
     )
     dhcp_range_start: str = Field(
-        default="192.168.1.100",
+        default="192.168.2.100",
         description="DHCP range start"
     )
     dhcp_range_end: str = Field(
-        default="192.168.1.200",
+        default="192.168.2.200",
         description="DHCP range end"
     )
     
@@ -58,7 +58,7 @@ class Settings(BaseSettings):
     
     # Web interface settings
     web_host: str = Field(default="0.0.0.0", description="Web server host")
-    web_port: int = Field(default=8080, description="Web server port")
+    web_port: int = Field(default=8081, description="Web server port (admin interface)")
     admin_username: str = Field(default="admin", description="Admin username")
     admin_password: str = Field(default="admin123", description="Admin password")
     
@@ -104,6 +104,16 @@ class Settings(BaseSettings):
         description="Maximum restart attempts before giving up"
     )
     
+    # Gateway mode settings
+    gateway_mode: str = Field(
+        default="transparent",
+        description="Gateway mode: 'transparent' or 'totp_enabled'"
+    )
+    emergency_mode: bool = Field(
+        default=False,
+        description="Emergency transparent mode (bypasses all blocking)"
+    )
+
     # Development settings
     debug: bool = Field(default=False, description="Enable debug mode")
     log_level: str = Field(default="INFO", description="Logging level")

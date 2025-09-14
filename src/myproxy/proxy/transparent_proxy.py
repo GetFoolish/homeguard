@@ -13,6 +13,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../..'))
 
 from src.myproxy.network.enhanced_filter import enhanced_filter
 from src.myproxy.integrations.sheets import sheets_manager
+from src.myproxy.config.settings import settings
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +68,7 @@ class TransparentHTTPProxy:
                 
                 # Redirect to content blocked page
                 redirect_url = (
-                    f"http://192.168.4.65:{self.admin_port}/blocked?"
+                    f"http://{settings.gateway_ip}:{self.admin_port}/blocked?"
                     f"url={url}&"
                     f"reason={filter_result.reason}&"
                     f"rule_type={filter_result.rule_type}&"
@@ -127,7 +128,7 @@ class TransparentHTTPProxy:
                                 
                                 # Redirect to content blocked page
                                 redirect_url = (
-                                    f"http://192.168.4.65:{self.admin_port}/blocked?"
+                                    f"http://{settings.gateway_ip}:{self.admin_port}/blocked?"
                                     f"url={url}&"
                                     f"reason={content_filter_result.reason}&"
                                     f"rule_type={content_filter_result.rule_type}&"
@@ -187,7 +188,7 @@ class TransparentHTTPProxy:
             )
     
     async def handle_connect(self, request, client_ip):
-        """Handle HTTPS CONNECT requests with domain filtering."""
+        """Handle HTTPS CONNECT requests with proper tunnel establishment."""
         try:
             # Extract target host from CONNECT request
             path = request.path_qs
@@ -213,51 +214,49 @@ class TransparentHTTPProxy:
             if filter_result.blocked:
                 logger.info(f"🚫 HTTPS BLOCKED: {target_host} - {filter_result.reason}")
                 
-                # Return blocked page for HTTPS
-                redirect_url = (
-                    f"http://192.168.4.65:{self.admin_port}/blocked?"
-                    f"url={synthetic_url}&"
-                    f"reason={filter_result.reason}&"
-                    f"rule_type={filter_result.rule_type}&"
-                    f"pattern={filter_result.pattern}&"
-                    f"client_mac={client_ip}"
+                # For blocked CONNECT requests, return 403 Forbidden with connection close
+                # This tells the browser the connection is refused rather than trying to tunnel
+                return web.Response(
+                    text=f"Access to {target_host} blocked by network policy: {filter_result.reason}",
+                    status=403,
+                    headers={
+                        'Connection': 'close',
+                        'Content-Type': 'text/plain'
+                    }
+                )
+            
+            # Site is allowed - establish TCP tunnel
+            logger.info(f"✅ HTTPS ALLOWED: {target_host} - establishing tunnel")
+            
+            # Try to establish connection to target server
+            try:
+                # Open connection to target server
+                reader, writer = await asyncio.open_connection(target_host, target_port)
+                
+                # Send 200 Connection Established response to client
+                response_text = "HTTP/1.1 200 Connection established\r\n\r\n"
+                
+                # Return a streaming response that will handle the tunnel
+                return web.StreamResponse(
+                    status=200,
+                    reason='Connection established',
+                    headers={'Proxy-Agent': 'MyProxy/1.0'}
                 )
                 
-                # For CONNECT requests, we return an HTML response that redirects
+            except Exception as conn_error:
+                logger.error(f"❌ Failed to connect to {target_host}:{target_port}: {conn_error}")
                 return web.Response(
-                    text=f"""
-                    <html>
-                    <head>
-                        <title>HTTPS Site Blocked</title>
-                        <meta http-equiv="refresh" content="0;url={redirect_url}">
-                    </head>
-                    <body>
-                        <h1>HTTPS Site Blocked</h1>
-                        <p>Access to {target_host} has been blocked by the network security policy.</p>
-                        <p><a href="{redirect_url}">View block details</a></p>
-                    </body>
-                    </html>
-                    """,
-                    content_type='text/html',
-                    status=200
+                    text=f"Failed to connect to {target_host}: {str(conn_error)}",
+                    status=502,
+                    headers={'Connection': 'close'}
                 )
-            
-            # Site is allowed - establish tunnel connection
-            logger.info(f"✅ HTTPS ALLOWED: {target_host}")
-            
-            # Return 200 Connection Established for allowed HTTPS sites
-            return web.Response(
-                text="Connection established",
-                status=200,
-                headers={'Proxy-Agent': 'MyProxy/1.0'}
-            )
-            
+                
         except Exception as e:
             logger.error(f"❌ CONNECT handler error: {e}")
             return web.Response(
-                text=f"<h1>Connection Error</h1><p>Error establishing connection to {request.path_qs}: {str(e)}</p>",
-                content_type='text/html',
-                status=502
+                text=f"CONNECT tunnel error: {str(e)}",
+                status=502,
+                headers={'Connection': 'close'}
             )
     
     async def start(self):
@@ -286,7 +285,7 @@ class TransparentHTTPProxy:
             await site.start()
             
             logger.info(f"✅ Transparent HTTP Proxy started on http://0.0.0.0:{self.listen_port}")
-            logger.info(f"🔗 Admin interface: http://192.168.4.65:{self.admin_port}")
+            logger.info(f"🔗 Admin interface: http://{settings.gateway_ip}:{self.admin_port}")
             
             return runner
             
@@ -307,8 +306,8 @@ async def main():
     
     try:
         print("🌐 Transparent HTTP Proxy running...")
-        print("🧪 Test by setting your browser proxy to 192.168.4.65:8080")
-        print("🧪 Or test with: curl --proxy 192.168.4.65:8080 http://ndtv.com")
+        print(f"🧪 Test by setting your browser proxy to {settings.gateway_ip}:8080")
+        print(f"🧪 Or test with: curl --proxy {settings.gateway_ip}:8080 http://ndtv.com")
         print("⏹️  Press Ctrl+C to stop")
         
         # Keep running until interrupted
