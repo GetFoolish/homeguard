@@ -68,3 +68,4 @@ config/local.py
 *.pem
 *.key
 certificates/
+cookies.txt
