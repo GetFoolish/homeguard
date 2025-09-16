@@ -1,4 +1,4 @@
-"""Main application entry point for MyProxy."""
+"""Main application entry point for HomeguardGuard."""
 
 import asyncio
 import logging
@@ -9,10 +9,10 @@ from pathlib import Path
 # Add src directory to Python path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from myproxy.config.settings import settings
-from myproxy.network.traffic_monitor import traffic_monitor
-from myproxy.web.app import app
-from myproxy.proxy.http_proxy import proxy_server
+from homeguard.config.settings import settings
+from homeguard.network.traffic_monitor import traffic_monitor
+from homeguard.web.app import app
+from homeguard.proxy.http_proxy import proxy_server
 import uvicorn
 
 # Configure logging

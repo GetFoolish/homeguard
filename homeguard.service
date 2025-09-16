@@ -1,0 +1,43 @@
+[Unit]
+Description=HomeguardGuard Network Gateway
+Documentation=https://github.com/vandanchopra/homeguard
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/home/raspberrypi/CODE_STUFF/homeguard
+
+# Start HomeguardGuard Python application
+ExecStart=/home/raspberrypi/CODE_STUFF/homeguard/venv/bin/python /home/raspberrypi/CODE_STUFF/homeguard/src/main.py
+
+# Stop command (SIGTERM)
+KillMode=mixed
+KillSignal=SIGTERM
+
+# Reload: Restart service
+ExecReload=/bin/kill -HUP $MAINPID
+
+# Restart policy
+TimeoutStartSec=180
+TimeoutStopSec=60
+Restart=always
+RestartSec=30
+
+# Environment
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="DOCKER_HOST=unix:///var/run/docker.sock"
+
+# Security settings (relaxed for network gateway functionality)
+PrivateTmp=false
+NoNewPrivileges=false
+PrivateNetwork=false
+
+# Resource limits  
+LimitNOFILE=1048576
+LimitNPROC=1048576
+
+[Install]
+WantedBy=multi-user.target

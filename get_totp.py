@@ -7,11 +7,11 @@ from pathlib import Path
 # Add src directory to Python path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from myproxy.auth.totp import totp_manager
+from homeguard.auth.totp import totp_manager
 import pyotp
 
 def main():
-    print("MyProxy TOTP Information")
+    print("HomeguardGuard TOTP Information")
     print("=" * 40)
     
     # Get all secrets
@@ -28,8 +28,8 @@ def main():
         
         # Show QR code URL for easy setup in authenticator apps
         qr_url = totp.provisioning_uri(
-            name=f"MyProxy-{duration_key}",
-            issuer_name="MyProxy Gateway"
+            name=f"HomeguardGuard-{duration_key}",
+            issuer_name="HomeguardGuard Gateway"
         )
         print(f"QR Code URL: {qr_url}")
         print("-" * 40)

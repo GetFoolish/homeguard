@@ -1,134 +1,112 @@
-# MyProxy - Network Traffic Authentication Gateway
+# HomeguardGuard - Network Traffic Authentication Gateway
 
 **Python Environment**: Use `/Users/vandanchopra/Vandan_Personal_Folder/CODE_STUFF/Projects/myProxy/venv/bin/python`
 
-MY REQUIREMENT:
-read the files in the project and understand the project.
+1) Make the system work like this:
 
-Now, here is what i want you to do:
-1) Create a file that runs on startup and setup up the following:
-    1) ensures that the graphics user interface get 128MB, so that the UI works properly.
-    2) ensures that the screensize for VNC is 2048x1152
-    3) wifi is turned off, bluetooth is turned off.
-    4) There are two ethernet ports set up. and the IP addresses are detected and setup like @scripts/auto-configure-network. The script should automatically figure out it Pi is currently sitting in Inline mode or sideline mode. I want auto-configure-network to do the following: Ethernet port 1 should be .100 and Ethernet port 2 should be .200. 
-    5) Also since the file is not only doing network setup but also doing other things, lets call it 'auto-configure-onboot'
-    6) also, every time 'auto-configure-onboot' runs, it should clear out the last log file and create a new log file called 'reboot-logs' in the /CODE_STUFF folder and log everything it did to the log file.
-    
-2) The homeguard project is currently called myproxy. can we change the name of the project everywhere to homeguard.
-3) I want homeguard to work only in two modes: 1) transparent mode: where all the traffic is passed through without any intervention. 2) TOTP mode: where all traffic is blocked, and the TOTP authentication page is flashed for when someone tries to access the internet and authenticates them. If they are authenticated, then traffic for that device is let through, and all other devices are still blocked (until they authenticate themselves)
-4) Before you start working on fixing all this up, let think about how you want to set up the bridge mode, so that all the traffic from .100 and .200 is going through. The last time we moved the Pi to inline mode, the ssh and vnc and internet all stopped working. Make sure that doesn't happen this time. Make sure you add the final solution to 'auto-configure-onboot'.
-5) The way i want you to work on this is first work on step 4 and get bridge mode going, so that we can move the Pi to inline mode and VNC, ssh and internet are all working. Once that is done, then we will do step 1 and 2 and 3.
+  1) Transparent Mode:
 
-CLAUDE's WORKFLOW AND PLAN:
+  FORWARD Chain:
+  1. ACCEPT tcp dport 22,5900,8081
+  2. ACCEPT tcp sport 22,5900,8081 ctstate RELATED,ESTABLISHED
+  4. ACCEPT eth1→eth0 (outbound traffic)
+  5. ACCEPT eth0→eth1 ctstate RELATED,ESTABLISHED (return traffic)
 
-Safe Router Mode Configuration - Keep Internet Connected                    │ │
-│ │                                                                             │ │
-│ │ Current Situation:                                                          │ │
-│ │                                                                             │ │
-│ │ - Pi has WiFi backup (192.168.4.51) ✅ - KEEP THIS ACTIVE                    │ │
-│ │ - Bridge misconfigured with .2.x IPs that can't reach internet ❌            │ │
-│ │ - Need router mode (NAT) not bridge mode for inline deployment              │ │
-│ │ - Must maintain connectivity throughout process                             │ │
-│ │                                                                             │ │
-│ │ Safe Configuration Strategy:                                                │ │
-│ │                                                                             │ │
-│ │ Phase 1: Preserve Connectivity & Fix Bridge (WiFi Backup Active)            │ │
-│ │                                                                             │ │
-│ │ 1. Keep WiFi connected as backup throughout entire process                  │ │
-│ │ 2. Remove problematic .2.x IPs from bridge interface                        │ │
-│ │ 3. Configure Pi as Router (not bridge):                                     │ │
-│ │   - eth0: WAN interface (gets IP from ISP when inline)                      │ │
-│ │   - eth1: LAN interface (serves 192.168.4.x network to WiFi router)         │ │
-│ │   - Management: 192.168.4.100 (eth1 side) + WAN IP (eth0 side)              │ │
-│ │ 4. Setup NAT/iptables for router mode between eth0 ↔ eth1                   │ │
-│ │ 5. Test router functionality in sideline mode                               │ │
-│ │                                                                             │ │
-│ │ Phase 2: Validate Router Mode (Still Sideline)                              │ │
-│ │                                                                             │ │
-│ │ 6. Test NAT is working: Traffic flows through Pi router                     │ │
-│ │ 7. Verify management access: SSH works via 192.168.4.100                    │ │
-│ │ 8. Confirm internet connectivity for test devices                           │ │
-│ │ 9. Validate recovery procedures if something breaks                         │ │
-│ │                                                                             │ │
-│ │ Phase 3: Go Inline (The Big Moment)                                         │ │
-│ │                                                                             │ │
-│ │ 10. Physical connection change:                                             │ │
-│ │   - ISP Router → Pi eth0 (Pi gets ISP IP, probably 192.168.1.x)             │ │
-│ │   - Pi eth1 → WiFi Router WAN (Pi provides 192.168.4.1 to WiFi)             │ │
-│ │ 11. Pi becomes router between ISP network and WiFi network                  │ │
-│ │ 12. Management access:                                                      │ │
-│ │   - Primary: ISP-assigned IP (192.168.1.100)                                │ │
-│ │   - Secondary: LAN side (192.168.4.100)                                     │ │
-│ │                                                                             │ │
-│ │ Phase 4: Final Validation & Cleanup                                         │ │
-│ │                                                                             │ │
-│ │ 13. Test all connectivity: Internet works for all 10 devices                │ │
-│ │ 14. Verify management: SSH/VNC accessible from both sides                   │ │
-│ │ 15. Disable WiFi backup once everything confirmed working                   │ │
-│ │ 16. Document final configuration for auto-configure-onboot                  │ │
-│ │                                                                             │ │
-│ │ Network Architecture (Final State):                                         │ │
-│ │                                                                             │ │
-│ │ ISP Router (.1.1) → Pi eth0 (.1.100) [NAT/Router] Pi eth1 (.4.100) → WiFi   │ │
-│ │ Router (.4.1)                                                               │ │
-│ │                     ↑                                       ↑               │ │
-│ │               Management SSH                          Management SSH        │ │
-│ │                                                                             │ │
-│ │ Safety Features:                                                            │ │
-│ │                                                                             │ │
-│ │ - WiFi backup: Maintains connectivity throughout process                    │ │
-│ │ - Router mode: Handles subnet translation (.1.x ↔ .4.x)                     │ │
-│ │ - Dual management: Accessible from both WAN and LAN sides                   │ │
-│ │ - NAT handling: Pi manages all traffic translation                          │ │
-│ │ - Recovery procedures: Can revert if anything fails                         │ │
-│ │                                                                             │ │
-│ │ Success Criteria:                                                           │ │
-│ │                                                                             │ │
-│ │ ✅ Internet never goes down during configuration                             │ │
-│ │ ✅ SSH/Claude access maintained via WiFi backup                              │ │
-│ │ ✅ Router mode handles 10+ devices seamlessly✅ Management accessible from    │ │
-│ │ both network sides                                                          │ │
-│ │ ✅ Ready for auto-configure-onboot integration                               │ │
-│ │                                                                             │ │
-│ │ This approach treats Pi as a proper router (like your home router) rather   │ │
-│ │ than a simple bridge, which is what we actually need for inline deployment  │ │
-│ │ between different subnets. 
+  HOMEGUARD_FILTER Chain:
+  (Empty - not used)
+
+  Result: No blocking + SSH/VNC/Web Admin always work
+
+2) TOTP Full after restart:
+
+  FORWARD Chain:
+
+  1. ACCEPT tcp dport 22,5900,8081
+  2. ACCEPT tcp sport 22,5900,8081 ctstate RELATED,ESTABLISHED
+  3. HOMEGUARD_FILTER (for client traffic policing only)
+
+  HOMEGUARD_FILTER Chain:
+	(Empty)
+
+3) After User Enters Valid TOTP:
+
+  FORWARD Chain: (stays the same)
+  1. ACCEPT tcp dport 22,5900,8081
+  2. ACCEPT tcp sport 22,5900,8081 ctstate RELATED,ESTABLISHED
+  4. HOMEGUARD_FILTER
+
+  HOMEGUARD_FILTER Chain: (gets new rule added)
+ 1. ACCEPT -s 192.168.2.71 (authenticated device gets added)
+
+  Result: That specific device (192.168.2.71) gets internet access, all other devices still blocked
+
+  ---
+  Multiple Users Authenticate:
+
+  HOMEGUARD_FILTER Chain:
+ 1. ACCEPT -s 192.168.2.71 (first authenticated device)
+  2. ACCEPT -s 192.168.2.85 (second authenticated device)
+  3. ACCEPT -s 192.168.2.92 (third authenticated device)
+
+  Result: Only authenticated devices get internet, unauthenticated devices remain blocked
+
+ When Timer Expires or Access Revoked:
+
+  The specific device rule gets REMOVED from HOMEGUARD_FILTER:
+  2. ACCEPT -s 192.168.2.85 (still valid)
+  3. ACCEPT -s 192.168.2.92 (still valid)
+  (192.168.2.71 rule REMOVED)
+
+  Result: Device 192.168.2.71 loses internet immediately, others keep access
+
+  HOMEGUARD_FILTER rules dynamically change as users authenticate and sessions expire, but the FORWARD management rules stay constant.
+
+I want the system have 2 modes: testing, and live. 
+In testing mode it only creates the desired iptables setup in a json.
+In live mode, it actually makes changes to the IP tables as required, and checks the desired-ip-tables setup and the actual IP tables deployed every 5 minutes and makes changes as desired.
+
+2) How is it keeping track of running TOTP timers? And how are rule changes triggered when access is revoked or the timer runs out?
+
+3) Can you check how and where we are keeping a track of authenticated / unauthenticated IPs in the database.
+5) the TOTP frontend /authenticate page is not required. Once the TOTP has been accepted, it should go back to / where the timer is shown.
+6) The admin panel page where the current mode is shown, and the buttons for mode change exist, the system should automatically switch and activate when the mode is changed, rather than it requiring a restart manually by the user. Also, lets have the script output printed to the admin page when the mode is switched.
+7) Change the name of the project from homeguard to Homeguard. I don’t want to see homeguard anywhere, it should be homeguard_filters, homeguard in the code, homeguard in the folder and filenames.
+8) Make sure the project starts on reboot automatically.
 
 
+9) When a user is not authenticated, and they go to a url, it should automatically redirect to the authentication url.
+10) Setup captive portal redirect:  Automatic Detection: When devices connect to WiFi, they automatically check internet connectivity by trying to reach:
+  - http://detectportal.firefox.com/ (Firefox)
+  - http://www.msftconnecttest.com/ (Windows)
+  - http://connectivitycheck.gstatic.com/ (Android)
+  - http://captive.apple.com/ (Apple devices)
 
+  What Happens:
 
-Now we're ready for inline testing. Here's what to do next:
+  1. Device connects to WiFi
+  2. Device tries connectivity check → Gets blocked by our firewall
+  3. Device detects captive portal → Chrome/browser opens automatically
+  4. Browser shows: "Sign in to network" notification
+  5. User clicks → Redirected to our auth page
 
-  Step 1: Physical Connection for Testing
+  Implementation:
 
-  1. Take the ethernet cable that's currently connected to eth1 (USB ethernet)
-  2. Connect it to your WiFi router's WAN port (the port that usually connects
-  to ISP)
-  3. Leave your ISP connection to the WiFi router as-is for now (we're just
-  testing)
+  Setup captive portal redirect:
+  # Block connectivity checks → Force captive portal detection
+  iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8081
 
-  Step 2: Activate Pi Gateway Mode
+  Result:
+  - ✅ Netflix app fails → Triggers captive portal detection
+  - ✅ Chrome opens automatically with "Sign in to network"
+  - ✅ User gets redirected to http://homeguard.local or our auth page
+  - ✅ Works on all devices (phones, laptops, tablets)
 
-  sudo nmcli connection up HomeguardLAN
+  User Experience:
 
-  Step 3: Test Gateway Functionality
+  1. User opens Netflix app → "No internet"
+  2. Phone automatically opens Chrome → "Sign in to network"
+  3. User taps "Sign in" → Gets our TOTP auth page
+  4. User enters TOTP → Gets internet access
 
-  After activating HomeguardLAN, test if devices connected to your WiFi can
-  still get internet:
-  - Try browsing from a phone/laptop connected to WiFi
-  - If it works: Pi is successfully acting as gateway! 🎯
-  - If it doesn't work: Run sudo nmcli connection down HomeguardLAN to disable
-
-  Step 4: Full Inline Deployment (Only if Step 3 works)
-
-  - Move ISP connection from WiFi router → Pi eth0
-  - Pi becomes the main router between ISP and your WiFi network
-
-  Safety Net:
-
-  If anything goes wrong at any step:
-  sudo /home/raspberrypi/CODE_STUFF/homeguard/scripts/emergency-restore.sh
-
-  Ready for Step 1? Connect eth1 cable to WiFi router WAN port and let me know
-  when done!
+  This is exactly how hotel/airport WiFi works! Very familiar user experience.
 
