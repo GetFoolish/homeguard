@@ -64,6 +64,20 @@ class Settings(BaseSettings):
     admin_username: str = Field(default="admin", description="Admin username")
     admin_password: str = Field(default="admin123", description="Admin password")
     
+    # IoT Network Exemptions
+    iot_exempted_networks: List[str] = Field(
+        default=["networknews", "arkanet_iot"],
+        description="WiFi network names that bypass TOTP authentication"
+    )
+    iot_exempted_mac_prefixes: List[str] = Field(
+        default=[],
+        description="MAC address prefixes for IoT devices (e.g., ['aa:bb:cc', 'dd:ee:ff'])"
+    )
+    iot_exempted_device_names: List[str] = Field(
+        default=[],
+        description="Device hostnames that bypass authentication (e.g., ['smart-bulb', 'alexa'])"
+    )
+
     # Google Sheets integration
     google_sheets_id: str = Field(
         default="",
@@ -197,11 +211,52 @@ def load_persistent_config() -> dict:
         if 'password' in admin:
             flattened['admin_password'] = admin['password']
 
+        # IoT exemption settings
+        iot = config.get('iot', {})
+        if 'exempted_networks' in iot:
+            flattened['iot_exempted_networks'] = iot['exempted_networks']
+        if 'exempted_device_names' in iot:
+            flattened['iot_exempted_device_names'] = iot['exempted_device_names']
+        if 'exempted_mac_prefixes' in iot:
+            flattened['iot_exempted_mac_prefixes'] = iot['exempted_mac_prefixes']
+
         return flattened
 
     except Exception as e:
         print(f"Warning: Could not load config file {config_path}: {e}")
         return {}
+
+
+def save_persistent_config(settings_instance):
+    """Save current settings to the persistent config file."""
+    try:
+        config_path = Path("/etc/homeguard/config.yaml")
+        config_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Load existing config or create new one
+        if config_path.exists():
+            with open(config_path, 'r') as f:
+                config = yaml.safe_load(f) or {}
+        else:
+            config = {}
+
+        # Update IoT exemption settings
+        if 'iot' not in config:
+            config['iot'] = {}
+
+        config['iot']['exempted_networks'] = settings_instance.iot_exempted_networks
+        config['iot']['exempted_device_names'] = settings_instance.iot_exempted_device_names
+        config['iot']['exempted_mac_prefixes'] = settings_instance.iot_exempted_mac_prefixes
+
+        # Write back to file
+        with open(config_path, 'w') as f:
+            yaml.dump(config, f, default_flow_style=False, sort_keys=False)
+
+        return True
+
+    except Exception as e:
+        print(f"Error: Could not save config file {config_path}: {e}")
+        return False
 
 
 class EnhancedSettings(Settings):

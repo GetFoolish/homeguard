@@ -20,7 +20,7 @@ from ..database.connection import get_session, db_manager
 from ..database.models import Device, AccessLog, FilterRule
 from ..network.traffic_monitor import traffic_monitor
 from ..auth.totp import totp_manager
-from ..config.settings import settings
+from ..config.settings import settings, save_persistent_config
 from ..phases.phase_manager import phase_manager
 
 # Import gateway components
@@ -191,14 +191,22 @@ def get_client_mac(request: Request) -> str:
     return get_client_info(request)["mac_address"]
 
 
-def should_enforce_totp(client_ip: str) -> bool:
-    """Determine if TOTP authentication should be enforced for this IP."""
+def should_enforce_totp(client_ip: str, client_info: dict = None) -> bool:
+    """Determine if TOTP authentication should be enforced for this client."""
     if settings.emergency_mode:
         return False
 
     if settings.gateway_mode == "transparent":
         return False
-    elif settings.gateway_mode == "totp_testing":
+
+    # Check for IoT device exemptions by hostname
+    if client_info and client_info.get("hostname"):
+        hostname = client_info["hostname"]
+        if hostname in settings.iot_exempted_device_names:
+            logger.info(f"🏠 Device {client_ip} with hostname '{hostname}' is IoT exempt - bypassing TOTP")
+            return False
+
+    if settings.gateway_mode == "totp_testing":
         return client_ip == settings.testing_ip
     elif settings.gateway_mode == "totp_full":
         return True
@@ -291,7 +299,7 @@ async def captive_portal(request: Request, session: AsyncSession = Depends(get_s
     logger.info(f"🔧 Current settings - gateway_mode: {settings.gateway_mode}, testing_ip: {settings.testing_ip}")
 
     # Check if TOTP enforcement applies to this device
-    enforce_totp = should_enforce_totp(client_ip)
+    enforce_totp = should_enforce_totp(client_ip, client_info)
     print(f"📍 DEBUG: Device {client_ip} - TOTP enforcement check: {enforce_totp}")
     logger.info(f"📍 Device {client_ip} - TOTP enforcement check: {enforce_totp}")
 
@@ -668,7 +676,7 @@ async def home(request: Request):
     logger.info(f"🔧 DEBUG: gateway_mode={settings.gateway_mode}, testing_ip={settings.testing_ip}, client_ip={client_ip}")
 
     # Check if TOTP should be enforced for this device
-    enforce_totp = should_enforce_totp(client_ip)
+    enforce_totp = should_enforce_totp(client_ip, client_info)
     logger.info(f"📍 DEBUG: Device {client_ip} - TOTP enforcement check: {enforce_totp}")
 
     if not enforce_totp:
@@ -1270,22 +1278,37 @@ async def admin_devices(session: AsyncSession = Depends(get_session), _auth: Non
     for device in devices:
         status_color = "#28a745" if device.is_access_valid else "#6c757d"
         status_text = "Active" if device.is_access_valid else "Inactive"
-        
+
+        # Check if hostname is in exemption list
+        hostname = device.hostname or 'Unknown'
+        is_exempt = hostname in settings.iot_exempted_device_names
+        exemption_status = "Exempt" if is_exempt else "TOTP Required"
+        exemption_color = "#ff9500" if is_exempt else "#6c757d"
+
+        # Action buttons
+        action_buttons = ""
+
         # Revoke button (only show for active devices)
-        revoke_button = ""
         if device.is_access_valid:
-            revoke_button = f'<button onclick="revokeAccess(\'{device.mac_address}\')" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">Revoke</button>'
-        
+            action_buttons += f'<button onclick="revokeAccess(\'{device.mac_address}\')" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; margin-right: 5px;">Revoke</button>'
+
+        # Exemption button
+        if is_exempt:
+            action_buttons += f'<button onclick="removeExemption(\'{hostname}\')" style="background: #ffc107; color: black; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">Remove Exempt</button>'
+        else:
+            action_buttons += f'<button onclick="addExemption(\'{hostname}\')" style="background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">Add TOTP Exempt</button>'
+
         devices_html += f"""
         <tr>
             <td title="{device.mac_address}">{device.mac_address[:12]}...</td>
             <td>{device.ip_address or 'N/A'}</td>
-            <td>{device.hostname or 'Unknown'}</td>
+            <td>{hostname}</td>
             <td>{device.device_type or 'Unknown'}</td>
             <td><span style="color: {status_color};">{status_text}</span></td>
+            <td><span style="color: {exemption_color};">{exemption_status}</span></td>
             <td>{device.access_duration or 'None'}</td>
             <td>{device.last_seen.strftime('%m/%d %H:%M') if device.last_seen else 'Never'}</td>
-            <td>{revoke_button}</td>
+            <td>{action_buttons}</td>
         </tr>
         """
     
@@ -1317,6 +1340,7 @@ async def admin_devices(session: AsyncSession = Depends(get_session), _auth: Non
                         <th>Hostname</th>
                         <th>Device Type</th>
                         <th>Status</th>
+                        <th>Exemption Status</th>
                         <th>Access Level</th>
                         <th>Last Seen</th>
                         <th>Actions</th>
@@ -1357,6 +1381,60 @@ async def admin_devices(session: AsyncSession = Depends(get_session), _auth: Non
                     }}
                 }} catch (error) {{
                     alert('Error revoking access: ' + error.message);
+                }}
+            }}
+
+            async function addExemption(hostname) {{
+                if (!confirm(`Add TOTP exemption for hostname '${{hostname}}'?\\n\\nAll devices with this hostname will bypass TOTP authentication.`)) {{
+                    return;
+                }}
+
+                try {{
+                    const response = await fetch('/admin/devices/exempt-hostname', {{
+                        method: 'POST',
+                        headers: {{
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        }},
+                        body: `hostname=${{encodeURIComponent(hostname)}}`
+                    }});
+
+                    const result = await response.json();
+
+                    if (result.success) {{
+                        alert(`Hostname '${{hostname}}' added to TOTP exemption list`);
+                        location.reload();
+                    }} else {{
+                        alert(`Failed to add exemption: ${{result.message}}`);
+                    }}
+                }} catch (error) {{
+                    alert('Error adding exemption: ' + error.message);
+                }}
+            }}
+
+            async function removeExemption(hostname) {{
+                if (!confirm(`Remove TOTP exemption for hostname '${{hostname}}'?\\n\\nDevices with this hostname will require TOTP authentication.`)) {{
+                    return;
+                }}
+
+                try {{
+                    const response = await fetch('/admin/devices/unexempt-hostname', {{
+                        method: 'POST',
+                        headers: {{
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        }},
+                        body: `hostname=${{encodeURIComponent(hostname)}}`
+                    }});
+
+                    const result = await response.json();
+
+                    if (result.success) {{
+                        alert(`Hostname '${{hostname}}' removed from TOTP exemption list`);
+                        location.reload();
+                    }} else {{
+                        alert(`Failed to remove exemption: ${{result.message}}`);
+                    }}
+                }} catch (error) {{
+                    alert('Error removing exemption: ' + error.message);
                 }}
             }}
         </script>
@@ -1404,6 +1482,88 @@ async def revoke_device_access(
         return JSONResponse({
             "success": False,
             "message": f"Error revoking access: {str(e)}"
+        }, status_code=500)
+
+
+@app.post("/admin/devices/exempt-hostname")
+async def exempt_hostname(
+    hostname: str = Form(...),
+    _auth: None = Depends(require_admin_auth)
+):
+    """Add hostname to TOTP exemption list."""
+    try:
+        if not hostname or hostname == "Unknown":
+            return JSONResponse({
+                "success": False,
+                "message": "Invalid hostname"
+            }, status_code=400)
+
+        # Add hostname to exemption list if not already present
+        if hostname not in settings.iot_exempted_device_names:
+            settings.iot_exempted_device_names.append(hostname)
+
+            # Save to persistent configuration
+            if save_persistent_config(settings):
+                logger.info(f"Admin added hostname '{hostname}' to TOTP exemption list and saved to config")
+            else:
+                logger.warning(f"Added hostname '{hostname}' to exemption list but failed to save to config")
+
+            return JSONResponse({
+                "success": True,
+                "message": f"Hostname '{hostname}' added to exemption list"
+            })
+        else:
+            return JSONResponse({
+                "success": False,
+                "message": f"Hostname '{hostname}' is already exempt"
+            })
+
+    except Exception as e:
+        logger.error(f"Error adding hostname exemption: {e}")
+        return JSONResponse({
+            "success": False,
+            "message": f"Error adding exemption: {str(e)}"
+        }, status_code=500)
+
+
+@app.post("/admin/devices/unexempt-hostname")
+async def unexempt_hostname(
+    hostname: str = Form(...),
+    _auth: None = Depends(require_admin_auth)
+):
+    """Remove hostname from TOTP exemption list."""
+    try:
+        if not hostname:
+            return JSONResponse({
+                "success": False,
+                "message": "Invalid hostname"
+            }, status_code=400)
+
+        # Remove hostname from exemption list if present
+        if hostname in settings.iot_exempted_device_names:
+            settings.iot_exempted_device_names.remove(hostname)
+
+            # Save to persistent configuration
+            if save_persistent_config(settings):
+                logger.info(f"Admin removed hostname '{hostname}' from TOTP exemption list and saved to config")
+            else:
+                logger.warning(f"Removed hostname '{hostname}' from exemption list but failed to save to config")
+
+            return JSONResponse({
+                "success": True,
+                "message": f"Hostname '{hostname}' removed from exemption list"
+            })
+        else:
+            return JSONResponse({
+                "success": False,
+                "message": f"Hostname '{hostname}' is not in exemption list"
+            })
+
+    except Exception as e:
+        logger.error(f"Error removing hostname exemption: {e}")
+        return JSONResponse({
+            "success": False,
+            "message": f"Error removing exemption: {str(e)}"
         }, status_code=500)
 
 
@@ -2147,7 +2307,7 @@ async def catch_all_redirect(request: Request, path: str):
     logger.info(f"🌐 Catch-all redirect triggered for path '{path}' from device {client_ip}")
 
     # Check if TOTP should be enforced for this device
-    enforce_totp = should_enforce_totp(client_ip)
+    enforce_totp = should_enforce_totp(client_ip, client_info)
 
     if not enforce_totp:
         # In transparent mode, show a simple message
