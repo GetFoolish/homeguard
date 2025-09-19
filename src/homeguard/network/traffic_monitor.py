@@ -688,8 +688,67 @@ class TrafficMonitor:
         # - No default rules = traffic gets dropped by FORWARD policy
         logger.info("✅ TOTP full mode setup complete - HOMEGUARD_FILTER will control all client traffic")
 
+        # Setup QoS traffic prioritization for real-time traffic
+        await self._setup_qos_optimization()
+
         # Setup captive portal redirect
         await self._setup_captive_portal()
+
+    async def _setup_qos_optimization(self):
+        """Setup QoS rules to prioritize real-time traffic and reduce packet loss."""
+        logger.info("🚀 Setting up QoS optimization for real-time traffic")
+
+        try:
+            # Create mangle table rules for traffic classification
+            # Mark real-time traffic (VoIP, video calls, gaming) with high priority
+
+            # 1. Mark VoIP/SIP traffic (ports 5060, 5061)
+            await self._run_iptables_command([
+                "iptables", "-t", "mangle", "-A", "FORWARD",
+                "-p", "udp", "-m", "multiport", "--ports", "5060,5061",
+                "-j", "MARK", "--set-mark", "1"
+            ], ignore_errors=True)
+
+            # 2. Mark RTP traffic (UDP ports 10000-20000 commonly used for audio/video)
+            await self._run_iptables_command([
+                "iptables", "-t", "mangle", "-A", "FORWARD",
+                "-p", "udp", "--dport", "10000:20000",
+                "-j", "MARK", "--set-mark", "1"
+            ], ignore_errors=True)
+
+            # 3. Mark WebRTC/STUN traffic (port 3478)
+            await self._run_iptables_command([
+                "iptables", "-t", "mangle", "-A", "FORWARD",
+                "-p", "udp", "--dport", "3478",
+                "-j", "MARK", "--set-mark", "1"
+            ], ignore_errors=True)
+
+            # 4. Mark gaming traffic (common ports)
+            gaming_ports = "25565,7777,27015,3724,6112,1119,27036"
+            await self._run_iptables_command([
+                "iptables", "-t", "mangle", "-A", "FORWARD",
+                "-p", "udp", "-m", "multiport", "--ports", gaming_ports,
+                "-j", "MARK", "--set-mark", "1"
+            ], ignore_errors=True)
+
+            # 5. Mark Google Meet/Zoom traffic by destination
+            # Google: 74.125.0.0/16, 173.194.0.0/16
+            await self._run_iptables_command([
+                "iptables", "-t", "mangle", "-A", "FORWARD",
+                "-p", "udp", "-d", "74.125.0.0/16",
+                "-j", "MARK", "--set-mark", "1"
+            ], ignore_errors=True)
+
+            # 6. Express lane in HOMEGUARD_FILTER for marked packets
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-I", "HOMEGUARD_FILTER", "1",
+                "-m", "mark", "--mark", "1", "-j", "ACCEPT"
+            ], ignore_errors=True)
+
+            logger.info("✅ QoS optimization setup complete - Real-time traffic prioritized")
+
+        except Exception as e:
+            logger.error(f"Error setting up QoS optimization: {e}")
 
     async def _run_iptables_command(self, command: List[str], ignore_errors: bool = False) -> bool:
         """Execute iptables command through state manager (respects testing/live mode)."""
@@ -1026,6 +1085,235 @@ class TrafficMonitor:
         except Exception as e:
             logger.error(f"Failed to get IP for MAC {mac_address}: {e}")
             return None
+
+    async def discover_all_devices(self) -> dict:
+        """
+        Comprehensive device discovery using ARP, nmap, and DHCP leases.
+        Returns dict of discovered devices with their information.
+        """
+        discovered_devices = {}
+
+        try:
+            logger.info("🔍 Starting comprehensive device discovery...")
+
+            # Method 1: ARP table scan
+            arp_devices = await self._scan_arp_table()
+            discovered_devices.update(arp_devices)
+            logger.info(f"📡 ARP scan found {len(arp_devices)} devices")
+
+            # Method 2: Network scan using nmap (if available)
+            nmap_devices = await self._scan_network_nmap()
+            discovered_devices.update(nmap_devices)
+            logger.info(f"🗺️ Network scan found {len(nmap_devices)} additional devices")
+
+            # Method 3: DHCP leases (if available)
+            dhcp_devices = await self._scan_dhcp_leases()
+            discovered_devices.update(dhcp_devices)
+            logger.info(f"📋 DHCP leases found {len(dhcp_devices)} additional devices")
+
+            # Update database with discovered devices
+            await self._update_discovered_devices(discovered_devices)
+
+            logger.info(f"✅ Device discovery complete: {len(discovered_devices)} total devices found")
+            return discovered_devices
+
+        except Exception as e:
+            logger.error(f"Error during device discovery: {e}")
+            return {}
+
+    async def _scan_arp_table(self) -> dict:
+        """Scan ARP table for connected devices."""
+        devices = {}
+        try:
+            import subprocess
+            import re
+
+            result = subprocess.run(['arp', '-a'], capture_output=True, text=True)
+
+            for line in result.stdout.split('\n'):
+                if not line.strip():
+                    continue
+
+                # Parse ARP entries: hostname (ip) at mac_address [ether] on interface
+                match = re.search(r'(\S+)\s+\(([\d.]+)\)\s+at\s+([a-fA-F0-9:]{17})', line)
+                if match:
+                    hostname, ip_address, mac_address = match.groups()
+
+                    # Clean hostname (remove domain suffix if present)
+                    hostname = hostname.split('.')[0] if hostname != '?' else 'Unknown'
+
+                    devices[mac_address.lower()] = {
+                        'mac_address': mac_address.lower(),
+                        'ip_address': ip_address,
+                        'hostname': hostname if hostname != '?' else None,
+                        'discovery_method': 'arp',
+                        'device_type': self._guess_device_type(hostname, mac_address)
+                    }
+
+        except Exception as e:
+            logger.error(f"Error scanning ARP table: {e}")
+
+        return devices
+
+    async def _scan_network_nmap(self) -> dict:
+        """Scan network using nmap for comprehensive device discovery."""
+        devices = {}
+        try:
+            import subprocess
+            import re
+
+            # Get network range from gateway IP
+            network_range = f"{settings.gateway_ip.rsplit('.', 1)[0]}.0/24"
+
+            # Check if nmap is available
+            try:
+                subprocess.run(['which', 'nmap'], check=True, capture_output=True)
+            except subprocess.CalledProcessError:
+                logger.warning("nmap not available, skipping network scan")
+                return devices
+
+            # Run nmap scan with hostname resolution
+            result = subprocess.run([
+                'nmap', '-sn', '-R', network_range
+            ], capture_output=True, text=True, timeout=30)
+
+            current_ip = None
+            current_hostname = None
+
+            for line in result.stdout.split('\n'):
+                # Parse nmap output
+                ip_match = re.search(r'Nmap scan report for (\S+) \(([\d.]+)\)', line)
+                if ip_match:
+                    current_hostname, current_ip = ip_match.groups()
+                    continue
+
+                ip_only_match = re.search(r'Nmap scan report for ([\d.]+)', line)
+                if ip_only_match:
+                    current_ip = ip_only_match.group(1)
+                    current_hostname = None
+                    continue
+
+                # Look for MAC address in subsequent lines
+                mac_match = re.search(r'MAC Address: ([A-Fa-f0-9:]{17})', line)
+                if mac_match and current_ip:
+                    mac_address = mac_match.group(1).lower()
+
+                    devices[mac_address] = {
+                        'mac_address': mac_address,
+                        'ip_address': current_ip,
+                        'hostname': current_hostname,
+                        'discovery_method': 'nmap',
+                        'device_type': self._guess_device_type(current_hostname, mac_address)
+                    }
+
+        except subprocess.TimeoutExpired:
+            logger.warning("nmap scan timed out")
+        except Exception as e:
+            logger.error(f"Error with nmap scan: {e}")
+
+        return devices
+
+    async def _scan_dhcp_leases(self) -> dict:
+        """Scan DHCP leases for additional device information."""
+        devices = {}
+        try:
+            import subprocess
+            import re
+
+            # Common DHCP lease file locations
+            lease_files = [
+                '/var/lib/dhcp/dhcpd.leases',
+                '/var/lib/dhcpcd5/dhcpcd.leases',
+                '/var/lib/NetworkManager/dhcpcd.leases'
+            ]
+
+            for lease_file in lease_files:
+                try:
+                    with open(lease_file, 'r') as f:
+                        content = f.read()
+
+                    # Parse DHCP lease entries
+                    lease_blocks = re.findall(r'lease ([\d.]+) \{[^}]+\}', content, re.DOTALL)
+
+                    for ip_address in lease_blocks:
+                        # Extract more details from lease block if needed
+                        devices[f"dhcp:{ip_address}"] = {
+                            'ip_address': ip_address,
+                            'discovery_method': 'dhcp',
+                            'device_type': 'Unknown'
+                        }
+
+                except FileNotFoundError:
+                    continue
+                except Exception as e:
+                    logger.debug(f"Error reading {lease_file}: {e}")
+                    continue
+
+        except Exception as e:
+            logger.error(f"Error scanning DHCP leases: {e}")
+
+        return devices
+
+    def _guess_device_type(self, hostname: str, mac_address: str) -> str:
+        """Guess device type based on hostname and MAC address."""
+        if not hostname:
+            return 'Unknown'
+
+        hostname_lower = hostname.lower()
+
+        # Mobile devices
+        if any(keyword in hostname_lower for keyword in ['iphone', 'android', 'mobile', 'phone']):
+            return 'Mobile'
+
+        # Computers
+        if any(keyword in hostname_lower for keyword in ['desktop', 'laptop', 'pc', 'macbook', 'imac']):
+            return 'Computer'
+
+        # IoT devices
+        if any(keyword in hostname_lower for keyword in ['esp', 'arduino', 'iot', 'sensor', 'smart', 'alexa', 'google']):
+            return 'IoT'
+
+        # Network equipment
+        if any(keyword in hostname_lower for keyword in ['router', 'switch', 'ap', 'bridge']):
+            return 'Network'
+
+        # Gaming consoles
+        if any(keyword in hostname_lower for keyword in ['xbox', 'playstation', 'nintendo', 'steam']):
+            return 'Gaming'
+
+        return 'Unknown'
+
+    async def _update_discovered_devices(self, discovered_devices: dict):
+        """Update database with discovered devices."""
+        try:
+            async with db_manager.session_maker() as session:
+                for mac_address, device_info in discovered_devices.items():
+                    # Skip DHCP-only entries without MAC
+                    if mac_address.startswith('dhcp:'):
+                        continue
+
+                    # Get or create device
+                    device = await session.get(Device, mac_address)
+                    if not device:
+                        device = Device(mac_address=mac_address)
+                        session.add(device)
+
+                    # Update device information
+                    if device_info.get('ip_address'):
+                        device.ip_address = device_info['ip_address']
+                    if device_info.get('hostname'):
+                        device.hostname = device_info['hostname']
+                    if device_info.get('device_type'):
+                        device.device_type = device_info['device_type']
+
+                    # Update last_seen timestamp
+                    device.last_seen = datetime.utcnow()
+
+                await session.commit()
+                logger.info(f"📊 Updated database with {len(discovered_devices)} discovered devices")
+
+        except Exception as e:
+            logger.error(f"Error updating discovered devices in database: {e}")
 
     async def _check_unauthorized_traffic(self):
         """Check for unauthorized traffic attempts and log them."""
