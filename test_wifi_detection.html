@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WiFi Network Detection Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; }
+        .result { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; margin: 5px; border-radius: 4px; cursor: pointer; }
+        .code { background: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 WiFi Network Detection Test</h1>
+        <p>Testing various methods to detect WiFi network name from browser</p>
+
+        <div id="results"></div>
+
+        <h3>🧪 Test Methods:</h3>
+        <button onclick="testNetworkConnection()">1. Network Connection API</button>
+        <button onclick="testNavigatorConnection()">2. Navigator Connection</button>
+        <button onclick="testWebRTC()">3. WebRTC Network Info</button>
+        <button onclick="testGeolocation()">4. Geolocation API</button>
+        <button onclick="testWiFiAPI()">5. WiFi API (Android)</button>
+        <button onclick="testBeaconAPI()">6. Beacon API</button>
+        <button onclick="testNetworkTiming()">7. Network Timing</button>
+        <button onclick="testAllMethods()">🚀 Test All Methods</button>
+
+        <h3>📱 Device Information:</h3>
+        <div id="deviceInfo" class="info">
+            <p><strong>User Agent:</strong> <span id="userAgent"></span></p>
+            <p><strong>Platform:</strong> <span id="platform"></span></p>
+            <p><strong>Is Mobile:</strong> <span id="isMobile"></span></p>
+            <p><strong>Is Touch Device:</strong> <span id="isTouch"></span></p>
+        </div>
+
+        <h3>📊 Results Summary:</h3>
+        <div id="summary"></div>
+    </div>
+
+    <script>
+        function logResult(method, success, data = '', error = '') {
+            const results = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result ${success ? 'success' : 'error'}`;
+
+            let html = `<strong>${success ? '✅' : '❌'} ${method}</strong>`;
+            if (data) html += `<br>Data: ${data}`;
+            if (error) html += `<br>Error: ${error}`;
+
+            resultDiv.innerHTML = html;
+            results.appendChild(resultDiv);
+
+            // Scroll to latest result
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function testNetworkConnection() {
+            try {
+                if ('connection' in navigator) {
+                    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+                    const info = {
+                        effectiveType: connection.effectiveType,
+                        type: connection.type,
+                        downlink: connection.downlink,
+                        rtt: connection.rtt
+                    };
+
+                    logResult('Network Connection API', true, JSON.stringify(info, null, 2));
+                } else {
+                    logResult('Network Connection API', false, '', 'API not supported');
+                }
+            } catch (e) {
+                logResult('Network Connection API', false, '', e.message);
+            }
+        }
+
+        function testNavigatorConnection() {
+            try {
+                const connectionInfo = {};
+
+                // Check various navigator properties
+                if (navigator.onLine !== undefined) connectionInfo.online = navigator.onLine;
+                if (navigator.cookieEnabled !== undefined) connectionInfo.cookieEnabled = navigator.cookieEnabled;
+                if (navigator.language) connectionInfo.language = navigator.language;
+                if (navigator.languages) connectionInfo.languages = navigator.languages;
+
+                logResult('Navigator Properties', true, JSON.stringify(connectionInfo, null, 2));
+            } catch (e) {
+                logResult('Navigator Properties', false, '', e.message);
+            }
+        }
+
+        async function testWebRTC() {
+            try {
+                const pc = new RTCPeerConnection({
+                    iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+                });
+
+                pc.createDataChannel('test');
+
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+
+                return new Promise((resolve) => {
+                    const timeout = setTimeout(() => {
+                        pc.close();
+                        logResult('WebRTC Network Info', false, '', 'Timeout waiting for ICE candidates');
+                        resolve();
+                    }, 5000);
+
+                    pc.onicecandidate = (event) => {
+                        if (event.candidate) {
+                            const candidate = event.candidate.candidate;
+                            if (candidate.includes('192.168.2.')) {
+                                clearTimeout(timeout);
+                                pc.close();
+                                logResult('WebRTC Network Info', true, `Local IP detected: ${candidate}`);
+                                resolve();
+                            }
+                        }
+                    };
+                });
+            } catch (e) {
+                logResult('WebRTC Network Info', false, '', e.message);
+            }
+        }
+
+        function testGeolocation() {
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const info = {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude,
+                            accuracy: position.coords.accuracy
+                        };
+                        logResult('Geolocation API', true, JSON.stringify(info, null, 2));
+                    },
+                    (error) => {
+                        logResult('Geolocation API', false, '', error.message);
+                    },
+                    { timeout: 5000 }
+                );
+            } else {
+                logResult('Geolocation API', false, '', 'API not supported');
+            }
+        }
+
+        function testWiFiAPI() {
+            try {
+                // Android-specific WiFi API
+                if ('wifi' in navigator) {
+                    navigator.wifi.getNetworks().then(networks => {
+                        logResult('WiFi API (Android)', true, `Found ${networks.length} networks`);
+                    }).catch(e => {
+                        logResult('WiFi API (Android)', false, '', e.message);
+                    });
+                } else if (window.WifiManager) {
+                    // Alternative WiFi manager
+                    WifiManager.getConnectedNetwork().then(network => {
+                        logResult('WiFi Manager', true, `Connected to: ${network.ssid}`);
+                    }).catch(e => {
+                        logResult('WiFi Manager', false, '', e.message);
+                    });
+                } else {
+                    logResult('WiFi API', false, '', 'No WiFi API available');
+                }
+            } catch (e) {
+                logResult('WiFi API', false, '', e.message);
+            }
+        }
+
+        function testBeaconAPI() {
+            try {
+                if ('sendBeacon' in navigator) {
+                    // Try to detect network info through beacon API
+                    const data = JSON.stringify({
+                        timestamp: Date.now(),
+                        userAgent: navigator.userAgent,
+                        referrer: document.referrer,
+                        location: window.location.href
+                    });
+
+                    const success = navigator.sendBeacon('/api/network-info', data);
+                    logResult('Beacon API', success, 'Beacon sent successfully');
+                } else {
+                    logResult('Beacon API', false, '', 'API not supported');
+                }
+            } catch (e) {
+                logResult('Beacon API', false, '', e.message);
+            }
+        }
+
+        function testNetworkTiming() {
+            try {
+                if ('performance' in window && 'getEntriesByType' in performance) {
+                    const navigation = performance.getEntriesByType('navigation')[0];
+                    const timing = {
+                        dns: navigation.domainLookupEnd - navigation.domainLookupStart,
+                        connect: navigation.connectEnd - navigation.connectStart,
+                        request: navigation.responseStart - navigation.requestStart,
+                        response: navigation.responseEnd - navigation.responseStart
+                    };
+
+                    logResult('Network Timing', true, JSON.stringify(timing, null, 2));
+                } else {
+                    logResult('Network Timing', false, '', 'Performance API not supported');
+                }
+            } catch (e) {
+                logResult('Network Timing', false, '', e.message);
+            }
+        }
+
+        async function testAllMethods() {
+            document.getElementById('results').innerHTML = '';
+
+            testNetworkConnection();
+            testNavigatorConnection();
+            await testWebRTC();
+            testGeolocation();
+            testWiFiAPI();
+            testBeaconAPI();
+            testNetworkTiming();
+
+            updateSummary();
+        }
+
+        function updateSummary() {
+            setTimeout(() => {
+                const results = document.querySelectorAll('.result');
+                const successful = Array.from(results).filter(r => r.classList.contains('success')).length;
+                const total = results.length;
+
+                document.getElementById('summary').innerHTML = `
+                    <div class="info">
+                        <strong>Test Results:</strong> ${successful}/${total} methods successful<br>
+                        <strong>Recommendation:</strong> ${getRecommendation(successful, total)}
+                    </div>
+                `;
+            }, 1000);
+        }
+
+        function getRecommendation(successful, total) {
+            if (successful === 0) {
+                return "❌ No client-side WiFi detection possible. Recommend server-side MAC/IP analysis.";
+            } else if (successful < total / 2) {
+                return "⚠️ Limited detection capability. Consider fallback methods.";
+            } else {
+                return "✅ Good detection capability. Can implement WiFi-based routing.";
+            }
+        }
+
+        // Initialize device info
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('userAgent').textContent = navigator.userAgent;
+            document.getElementById('platform').textContent = navigator.platform;
+            document.getElementById('isMobile').textContent = /Mobi|Android/i.test(navigator.userAgent);
+            document.getElementById('isTouch').textContent = 'ontouchstart' in window;
+        });
+
+        // Auto-run basic tests
+        setTimeout(() => {
+            testNetworkConnection();
+            testNavigatorConnection();
+        }, 500);
+    </script>
+</body>
+</html>

@@ -286,9 +286,45 @@ def show_transparent_access_page(client_info: dict) -> HTMLResponse:
     """)
 
 
+async def update_device_user_agent(request: Request, session: AsyncSession):
+    """Update device record with User-Agent information when they make HTTP requests"""
+    try:
+        client_info = get_client_info(request)
+        user_agent = request.headers.get("user-agent", "")
+
+        if user_agent and client_info.get("mac_address"):
+            # Find and update device record
+            device = await session.get(Device, client_info["mac_address"])
+            if device:
+                # Only update if we don't have a User-Agent or if it's different
+                if not device.user_agent or device.user_agent != user_agent:
+                    device.user_agent = user_agent
+                    device.last_seen = datetime.utcnow()
+                    await session.commit()
+                    logger.info(f"📱 Updated User-Agent for {client_info['mac_address']}: {user_agent[:50]}...")
+            else:
+                # Create new device record
+                device = Device(
+                    mac_address=client_info["mac_address"],
+                    ip_address=client_info["ip_address"],
+                    user_agent=user_agent,
+                    device_type=client_info.get("device_type", "Unknown"),
+                    hostname=client_info.get("hostname"),
+                    last_seen=datetime.utcnow()
+                )
+                session.add(device)
+                await session.commit()
+                logger.info(f"📱 Created device record with User-Agent for {client_info['mac_address']}: {user_agent[:50]}...")
+    except Exception as e:
+        logger.error(f"Error updating device User-Agent: {e}")
+
+
 @app.get("/", response_class=HTMLResponse)
 async def captive_portal(request: Request, session: AsyncSession = Depends(get_session)):
     """Main captive portal landing page."""
+    # Update device User-Agent information
+    await update_device_user_agent(request, session)
+
     client_info = get_client_info(request)
     mac_address = client_info["mac_address"]
     client_ip = client_info["ip_address"]
@@ -445,6 +481,181 @@ async def captive_portal(request: Request, session: AsyncSession = Depends(get_s
 
                     // Check auth status every 30 seconds
                     setInterval(checkAuthStatus, 30000);
+
+                    // Trigger automatic captive portal success detection for macOS
+                    setTimeout(triggerCaptivePortalSuccess, 2000);
+                }}
+
+                function triggerCaptivePortalSuccess() {{
+                    console.log('Triggering captive portal success detection...');
+
+                    // Method 1: Signal to macOS WebKit that captive portal is complete
+                    try {{
+                        if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.captivePortal) {{
+                            window.webkit.messageHandlers.captivePortal.postMessage('success');
+                            console.log('WebKit captive portal message sent');
+                        }}
+
+                        // Also try the modern approach
+                        if (window.CaptivePortal) {{
+                            window.CaptivePortal.success();
+                            console.log('CaptivePortal.success() called');
+                        }}
+                    }} catch (e) {{
+                        console.log('Direct captive portal signals attempted');
+                    }}
+
+                    // Method 2: Create hidden iframe to trigger Apple's success detection
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = '/hotspot-detect.html';
+                    document.body.appendChild(iframe);
+
+                    // Method 3: Trigger all connectivity check endpoints
+                    function triggerConnectivityChecks() {{
+                        console.log('Triggering connectivity checks for all device types...');
+
+                        // All the connectivity check endpoints that different devices use
+                        const connectivityEndpoints = [
+                            // Android
+                            '/generate_204',
+                            '/gen_204',
+                            // Apple iOS/macOS
+                            '/hotspot-detect.html',
+                            '/library/test/success.html',
+                            // Windows
+                            '/connecttest.txt',
+                            '/ncsi.txt',
+                            // Firefox
+                            '/firefox/connecttest'
+                        ];
+
+                        // Trigger each endpoint multiple times to force re-check
+                        connectivityEndpoints.forEach((endpoint, index) => {{
+                            // Multiple attempts with delays
+                            for (let attempt = 0; attempt < 5; attempt++) {{
+                                setTimeout(() => {{
+                                    fetch(endpoint + '?recheck=' + Date.now())
+                                        .then(response => {{
+                                            console.log(`Connectivity check ${{endpoint}} attempt ${{attempt + 1}}, status:`, response.status);
+                                        }})
+                                        .catch(e => console.log(`Connectivity check ${{endpoint}} attempt ${{attempt + 1}} failed:`, e));
+                                }}, (index * 200) + (attempt * 500));
+                            }}
+                        }});
+                    }}
+
+                    // Method 4: Aggressive authentication verification with connectivity triggering
+                    let successCheckCount = 0;
+                    const maxChecks = 15;
+
+                    function checkAndTriggerSuccess() {{
+                        successCheckCount++;
+
+                        fetch('/captive-portal-success')
+                            .then(response => response.json())
+                            .then(data => {{
+                                console.log(`Success check ${{successCheckCount}}:`, data);
+
+                                if (data.authenticated) {{
+                                    console.log('Authentication confirmed! Triggering all connectivity checks...');
+
+                                    // Trigger connectivity checks immediately
+                                    triggerConnectivityChecks();
+
+                                    // Stop polling once authenticated
+                                    return;
+                                }}
+
+                                // Continue polling if not authenticated and under max checks
+                                if (successCheckCount < maxChecks) {{
+                                    setTimeout(checkAndTriggerSuccess, 800);
+                                }}
+                            }})
+                            .catch(e => {{
+                                console.log(`Success check ${{successCheckCount}} failed:`, e);
+                                if (successCheckCount < maxChecks) {{
+                                    setTimeout(checkAndTriggerSuccess, 800);
+                                }}
+                            }});
+                    }}
+
+                    // Start polling immediately
+                    checkAndTriggerSuccess();
+
+                    // Also trigger connectivity checks right away
+                    setTimeout(triggerConnectivityChecks, 500);
+
+                    // Method 4: Force macOS to repeatedly check hotspot-detect
+                    let forceCheckCount = 0;
+                    function forceAppleRecheck() {{
+                        if (forceCheckCount < 20) {{
+                            forceCheckCount++;
+
+                            // Create new iframe each time to force fresh check
+                            const checkFrame = document.createElement('iframe');
+                            checkFrame.style.display = 'none';
+                            checkFrame.src = '/hotspot-detect.html?t=' + Date.now();
+                            document.body.appendChild(checkFrame);
+
+                            // Remove after short delay
+                            setTimeout(() => {{
+                                if (checkFrame.parentNode) {{
+                                    checkFrame.parentNode.removeChild(checkFrame);
+                                }}
+                            }}, 200);
+
+                            console.log(`Force check ${{forceCheckCount}} sent to Apple`);
+                            setTimeout(forceAppleRecheck, 300);
+                        }}
+                    }}
+
+                    // Start aggressive checking after 1 second
+                    setTimeout(forceAppleRecheck, 1000);
+
+                    // Method 4: Try window navigation methods
+                    setTimeout(() => {{
+                        try {{
+                            // Signal completion and attempt to close
+                            if (window.parent !== window) {{
+                                window.parent.postMessage('captive-portal-complete', '*');
+                            }}
+
+                            // Try to close the captive portal window
+                            window.close();
+                        }} catch (e) {{
+                            console.log('Window navigation methods attempted');
+                        }}
+                    }}, 2000);
+
+                    // Remove iframe after cleanup
+                    setTimeout(() => {{
+                        if (iframe.parentNode) {{
+                            iframe.parentNode.removeChild(iframe);
+                        }}
+                    }}, 5000);
+                }}
+
+                function closeCaptivePortal() {{
+                    // Method 1: Redirect to OUR hotspot-detect endpoint to trigger macOS success detection
+                    try {{
+                        window.location.href = '/hotspot-detect.html';
+                        return;
+                    }} catch (e) {{
+                        console.log('Could not redirect to local hotspot-detect:', e);
+                    }}
+
+                    // Method 2: Try to close the window (works if opened as popup)
+                    try {{
+                        window.close();
+                    }} catch (e) {{
+                        console.log('Could not close window:', e);
+                    }}
+
+                    // Method 3: Show success message as fallback
+                    setTimeout(() => {{
+                        alert('✅ Authentication complete! You now have internet access. You can close this window.');
+                    }}, 1000);
                 }}
             </script>
         </head>
@@ -475,7 +686,8 @@ async def captive_portal(request: Request, session: AsyncSession = Depends(get_s
                 </div>
                 
                 <div class="actions">
-                    <a href="https://google.com" class="btn btn-primary">Continue Browsing</a>
+                    <button onclick="closeCaptivePortal()" class="btn btn-primary" style="background: #28a745; border: none; cursor: pointer;">Done</button>
+                    <a href="https://google.com" class="btn btn-secondary">Continue Browsing</a>
                     <a href="javascript:location.reload()" class="btn btn-secondary">Refresh Status</a>
                 </div>
                 
@@ -1184,7 +1396,7 @@ async def admin_panel(request: Request, session_token: str = Cookie(None)):
 
 
 @app.get("/admin/totp")
-async def admin_totp_codes(# _auth: None = Depends(require_admin_auth)  # DISABLED FOR TESTING):
+async def admin_totp_codes():  # _auth: None = Depends(require_admin_auth)  # DISABLED FOR TESTING
     """Admin page showing current TOTP codes."""
     current_codes = totp_manager.generate_current_codes()
     time_remaining = totp_manager.get_time_remaining()
@@ -1248,33 +1460,57 @@ async def admin_totp_codes(# _auth: None = Depends(require_admin_auth)  # DISABL
 
 
 @app.get("/admin/devices")
-async def admin_devices(session: AsyncSession = Depends(get_session), # _auth: None = Depends(require_admin_auth)  # DISABLED FOR TESTING):
+async def admin_devices(session: AsyncSession = Depends(get_session)):  # _auth: None = Depends(require_admin_auth)  # DISABLED FOR TESTING
     """Admin page for device management."""
     # Get all devices from database
     stmt = select(Device).order_by(Device.last_seen.desc())
     result = await session.execute(stmt)
     devices = result.scalars().all()
 
-    # Separate devices by status
+    # Separate devices by status - "active" means recently seen (within 10 minutes)
+    from datetime import datetime, timedelta
+    cutoff_time = datetime.utcnow() - timedelta(minutes=10)
+
     active_devices = []
     offline_devices = []
 
     for device in devices:
-        if device.is_access_valid:
+        # Device is "active" if seen within last 10 minutes
+        is_recently_active = device.last_seen and device.last_seen > cutoff_time
+        if is_recently_active:
             active_devices.append(device)
         else:
             offline_devices.append(device)
 
     # Generate HTML for active devices
     def generate_device_row(device):
-        status_color = "#28a745" if device.is_access_valid else "#6c757d"
-        status_text = "Active" if device.is_access_valid else "Inactive"
+        # Determine if device is online (recently seen) vs authenticated
+        is_recently_active = device.last_seen and device.last_seen > cutoff_time
+        is_authenticated = device.is_access_valid
+
+        # Status display: Online + Auth status
+        if is_recently_active and is_authenticated:
+            status_color = "#28a745"
+            status_text = "Online & Auth"
+        elif is_recently_active:
+            status_color = "#ffc107"
+            status_text = "Online"
+        elif is_authenticated:
+            status_color = "#17a2b8"
+            status_text = "Auth (Offline)"
+        else:
+            status_color = "#6c757d"
+            status_text = "Offline"
 
         # Check if hostname is in exemption list
         hostname = device.hostname or 'Unknown'
         is_exempt = hostname in settings.iot_exempted_device_names
         exemption_status = "Exempt" if is_exempt else "TOTP Required"
         exemption_color = "#ff9500" if is_exempt else "#6c757d"
+
+        # User-Agent info for display
+        user_agent_short = (device.user_agent[:30] + "...") if device.user_agent else "Unknown"
+        user_agent_full = device.user_agent or "No User-Agent recorded"
 
         # Action buttons
         action_buttons = ""
@@ -1293,16 +1529,17 @@ async def admin_devices(session: AsyncSession = Depends(get_session), # _auth: N
             action_buttons += f'<button onclick="addExemption(\'{hostname}\')" style="background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">Add TOTP Exempt</button>'
 
         return f"""
-        <tr>
+        <tr onclick="showDeviceDetails('{device.mac_address}', '{hostname}', '{device.ip_address or 'N/A'}', '{user_agent_full}', '{device.device_type or 'Unknown'}', '{device.last_seen.isoformat() if device.last_seen else 'Never'}')" style="cursor: pointer;">
             <td title="{device.mac_address}">{device.mac_address[:12]}...</td>
             <td>{device.ip_address or 'N/A'}</td>
             <td>{hostname}</td>
             <td>{device.device_type or 'Unknown'}</td>
             <td><span style="color: {status_color};">{status_text}</span></td>
             <td><span style="color: {exemption_color};">{exemption_status}</span></td>
+            <td title="{user_agent_full}">{user_agent_short}</td>
             <td>{device.access_duration or 'None'}</td>
             <td>{device.last_seen.strftime('%m/%d %H:%M') if device.last_seen else 'Never'}</td>
-            <td>{action_buttons}</td>
+            <td onclick="event.stopPropagation()">{action_buttons}</td>
         </tr>
         """
 
@@ -1365,6 +1602,7 @@ async def admin_devices(session: AsyncSession = Depends(get_session), # _auth: N
                                 <th>Device Type</th>
                                 <th>Status</th>
                                 <th>Exemption Status</th>
+                                <th>User-Agent</th>
                                 <th>Access Level</th>
                                 <th>Last Seen</th>
                                 <th>Actions</th>
@@ -1399,6 +1637,7 @@ async def admin_devices(session: AsyncSession = Depends(get_session), # _auth: N
                                 <th>Device Type</th>
                                 <th>Status</th>
                                 <th>Exemption Status</th>
+                                <th>User-Agent</th>
                                 <th>Access Level</th>
                                 <th>Last Seen</th>
                                 <th>Actions</th>
@@ -1599,6 +1838,64 @@ async def admin_devices(session: AsyncSession = Depends(get_session), # _auth: N
             }}
 
             function closeAdminModal() {{
+                const modal = document.querySelector('div[style*="position: fixed"]');
+                if (modal) {{
+                    modal.remove();
+                }}
+            }}
+
+            function showDeviceDetails(macAddress, hostname, ipAddress, userAgent, deviceType, lastSeen) {{
+                // Create modal dialog for device details
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    background: rgba(0,0,0,0.5); z-index: 1000; display: flex;
+                    align-items: center; justify-content: center;
+                `;
+
+                modal.innerHTML = `
+                    <div style="background: white; padding: 30px; border-radius: 8px; max-width: 600px; width: 90%; max-height: 80%; overflow-y: auto;">
+                        <h3>📱 Device Details</h3>
+
+                        <div style="margin: 15px 0;">
+                            <strong>MAC Address:</strong> ${{macAddress}}
+                        </div>
+
+                        <div style="margin: 15px 0;">
+                            <strong>IP Address:</strong> ${{ipAddress}}
+                        </div>
+
+                        <div style="margin: 15px 0;">
+                            <strong>Hostname:</strong> ${{hostname}}
+                        </div>
+
+                        <div style="margin: 15px 0;">
+                            <strong>Device Type:</strong> ${{deviceType}}
+                        </div>
+
+                        <div style="margin: 15px 0;">
+                            <strong>Last Seen:</strong> ${{lastSeen}}
+                        </div>
+
+                        <div style="margin: 15px 0;">
+                            <strong>User-Agent:</strong>
+                            <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin-top: 5px; word-wrap: break-word; font-family: monospace; font-size: 12px;">
+                                ${{userAgent || 'No User-Agent recorded'}}
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 25px;">
+                            <button onclick="closeDeviceModal()" style="background: #6c757d; color: white; border: none; padding: 12px 25px; border-radius: 4px; cursor: pointer; font-size: 16px;">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(modal);
+            }}
+
+            function closeDeviceModal() {{
                 const modal = document.querySelector('div[style*="position: fixed"]');
                 if (modal) {{
                     modal.remove();
@@ -1911,7 +2208,7 @@ async def check_auth_status(request: Request, session: AsyncSession = Depends(ge
 
 
 @app.get("/admin/qr", response_class=HTMLResponse)
-async def qr_codes_page(# _auth: None = Depends(require_admin_auth)  # DISABLED FOR TESTING):
+async def qr_codes_page():  # _auth: None = Depends(require_admin_auth)  # DISABLED FOR TESTING
     """QR codes page with duration dropdown."""
     durations = list(totp_manager._totp_generators.keys())
     
@@ -2072,7 +2369,7 @@ async def qr_codes_page(# _auth: None = Depends(require_admin_auth)  # DISABLED 
 
 
 @app.get("/admin/qr/{duration}")
-async def get_qr_info(duration: str, # _auth: None = Depends(require_admin_auth)  # DISABLED FOR TESTING):
+async def get_qr_info(duration: str):  # _auth: None = Depends(require_admin_auth)  # DISABLED FOR TESTING
     """Get QR code information for a specific duration."""
     if duration not in totp_manager._totp_generators:
         raise HTTPException(status_code=404, detail="Duration not found")
@@ -2092,7 +2389,7 @@ async def get_qr_info(duration: str, # _auth: None = Depends(require_admin_auth)
 
 
 @app.get("/admin/qr/{duration}/image")
-async def get_qr_image(duration: str, # _auth: None = Depends(require_admin_auth)  # DISABLED FOR TESTING):
+async def get_qr_image(duration: str):  # _auth: None = Depends(require_admin_auth)  # DISABLED FOR TESTING
     """Generate QR code image for a specific duration."""
     if duration not in totp_manager._totp_generators:
         raise HTTPException(status_code=404, detail="Duration not found")
@@ -2123,7 +2420,7 @@ async def get_qr_image(duration: str, # _auth: None = Depends(require_admin_auth
 
 
 @app.get("/admin/gateway")
-async def admin_gateway_control(request: Request, # _auth: None = Depends(require_admin_auth)  # DISABLED FOR TESTING):
+async def admin_gateway_control(request: Request):  # _auth: None = Depends(require_admin_auth)  # DISABLED FOR TESTING
     """Gateway mode control panel using config.yaml and set-mode.sh script."""
     try:
         # Read current configuration
@@ -2458,7 +2755,7 @@ async def admin_gateway_control(request: Request, # _auth: None = Depends(requir
 
 
 @app.post("/admin/gateway/set-mode")
-async def set_gateway_mode(mode: str = Form(...), testing_ip: str = Form(None), # _auth: None = Depends(require_admin_auth)  # DISABLED FOR TESTING):
+async def set_gateway_mode(mode: str = Form(...), testing_ip: str = Form(None)):  # _auth: None = Depends(require_admin_auth)  # DISABLED FOR TESTING
     """Set gateway mode using set-mode.sh script."""
     try:
         # Validate mode
@@ -2605,7 +2902,7 @@ async def emergency_shutdown(# _auth: None = Depends(require_admin_auth)  # DISA
 
 
 @app.post("/admin/gateway/set-execution-mode")
-async def set_execution_mode(execution_mode: str = Form(...), # _auth: None = Depends(require_admin_auth)  # DISABLED FOR TESTING):
+async def set_execution_mode(execution_mode: str = Form(...)):  # _auth: None = Depends(require_admin_auth)  # DISABLED FOR TESTING
     """Set execution mode (testing/live) in config.yaml."""
     try:
         # Validate execution mode
@@ -2730,49 +3027,204 @@ async def content_blocked_page(
 # Captive portal connectivity check routes
 @app.get("/generate_204")
 @app.get("/gen_204")
-async def captive_portal_android(request: Request):
-    """Android captive portal check - optimized for speed (<1 second)."""
-    client_ip = request.client.host  # Fast IP extraction, no full client info
-    logger.info(f"📱 Fast Android captive portal from {client_ip}")
+async def captive_portal_android(request: Request, session: AsyncSession = Depends(get_session)):
+    """Android captive portal check - authentication-aware for proper captive portal completion."""
+    client_info = get_client_info(request)
+    client_ip = client_info["ip_address"]
+    mac_address = client_info["mac_address"]
 
-    # Immediate redirect without processing delay
-    return RedirectResponse(url="/", status_code=302)
+    logger.info(f"📱 Android captive portal check from {client_ip}")
+
+    # Check if device is authenticated (handle Android MAC randomization)
+    # First try the current MAC address
+    device = await session.get(Device, mac_address)
+
+    # If not found, check if any device on this IP address is authenticated
+    if not device or not device.is_access_valid:
+        stmt = select(Device).where(Device.ip_address == client_ip, Device.is_access_valid == True)
+        result = await session.execute(stmt)
+        authenticated_device = result.scalar_one_or_none()
+
+        if authenticated_device:
+            logger.info(f"📱 Found authenticated device on IP {client_ip} with different MAC: {authenticated_device.mac_address}")
+            device = authenticated_device
+
+    if device and device.is_access_valid:
+        # Device is authenticated - return 204 No Content (Android expects this)
+        logger.info(f"📱 Android device {client_ip} is authenticated - returning 204")
+        from fastapi import Response
+        return Response(status_code=204)
+    else:
+        # Device not authenticated - return HTML page instead of redirect to avoid data:text/html issue
+        logger.info(f"📱 Android device {client_ip} not authenticated - showing captive portal")
+        return HTMLResponse("""
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Network Login Required</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f5f5f5; }
+        .container { max-width: 400px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .login-btn { background: #007cba; color: white; padding: 15px 30px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; text-decoration: none; display: inline-block; }
+        .login-btn:hover { background: #005a8b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🔒 Network Login Required</h2>
+        <p>Please complete authentication to access the internet.</p>
+        <a href="/" class="login-btn">Login Now</a>
+    </div>
+    <script>
+        // Auto-redirect after 2 seconds if user doesn't click
+        setTimeout(function() {
+            window.location.href = '/';
+        }, 2000);
+    </script>
+</body>
+</html>
+        """, status_code=200)
+
+
+@app.get("/captive-portal-success")
+async def captive_portal_success_endpoint(request: Request, session: AsyncSession = Depends(get_session)):
+    """Dedicated endpoint for immediate captive portal success notification."""
+    client_info = get_client_info(request)
+    mac_address = client_info["mac_address"]
+
+    # Check if device is authenticated (handle Android MAC randomization)
+    # First try the current MAC address
+    device = await session.get(Device, mac_address)
+
+    # If not found, check if any device on this IP address is authenticated
+    if not device or not device.is_access_valid:
+        stmt = select(Device).where(Device.ip_address == client_ip, Device.is_access_valid == True)
+        result = await session.execute(stmt)
+        authenticated_device = result.scalar_one_or_none()
+
+        if authenticated_device:
+            logger.info(f"📱 Found authenticated device on IP {client_ip} with different MAC: {authenticated_device.mac_address}")
+            device = authenticated_device
+
+    if device and device.is_access_valid:
+        return JSONResponse({"status": "success", "authenticated": True}, status_code=200)
+    else:
+        return JSONResponse({"status": "pending", "authenticated": False}, status_code=200)
 
 
 @app.get("/hotspot-detect.html")
 @app.get("/library/test/success.html")
-async def captive_portal_apple(request: Request):
-    """Apple iOS captive portal check - optimized for speed (<1 second)."""
-    client_ip = request.client.host  # Fast IP extraction, no full client info
-    logger.info(f"🍎 Fast Apple captive portal from {client_ip}")
+async def captive_portal_apple(request: Request, session: AsyncSession = Depends(get_session)):
+    """Apple iOS captive portal check - authentication-aware for proper captive portal completion."""
+    client_info = get_client_info(request)
+    client_ip = client_info["ip_address"]
+    mac_address = client_info["mac_address"]
 
-    # Immediate redirect with minimal HTML
-    return HTMLResponse('<script>location.href="/"</script>', status_code=200)
+    logger.info(f"🍎 Apple captive portal check from {client_ip}")
+
+    # Check if device is authenticated (handle Android MAC randomization)
+    # First try the current MAC address
+    device = await session.get(Device, mac_address)
+
+    # If not found, check if any device on this IP address is authenticated
+    if not device or not device.is_access_valid:
+        stmt = select(Device).where(Device.ip_address == client_ip, Device.is_access_valid == True)
+        result = await session.execute(stmt)
+        authenticated_device = result.scalar_one_or_none()
+
+        if authenticated_device:
+            logger.info(f"📱 Found authenticated device on IP {client_ip} with different MAC: {authenticated_device.mac_address}")
+            device = authenticated_device
+
+    if device and device.is_access_valid:
+        # Device is authenticated - return Apple's success page with proper headers
+        logger.info(f"🍎 Apple device {client_ip} is authenticated - returning success page")
+
+        # Apple's EXACT expected success page - must match exactly
+        success_html = """<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>"""
+
+        # Return with appropriate headers for Apple detection
+        response = HTMLResponse(success_html, status_code=200)
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        response.headers["Content-Type"] = "text/html"
+
+        # Add timestamp to ensure it's not cached
+        logger.info(f"🍎 Returning Apple success page for {client_ip} at {datetime.utcnow()}")
+        return response
+    else:
+        # Device not authenticated - redirect to captive portal
+        logger.info(f"🍎 Apple device {client_ip} not authenticated - redirecting to captive portal")
+        return HTMLResponse('<script>location.href="/"</script>', status_code=200)
 
 
 @app.get("/connecttest.txt")
 @app.get("/ncsi.txt")
-async def captive_portal_windows(request: Request):
-    """Windows NCSI (Network Connectivity Status Indicator) check."""
+async def captive_portal_windows(request: Request, session: AsyncSession = Depends(get_session)):
+    """Windows NCSI (Network Connectivity Status Indicator) check - authentication-aware."""
     client_info = get_client_info(request)
     client_ip = client_info["ip_address"]
+    mac_address = client_info["mac_address"]
 
     logger.info(f"🪟 Windows captive portal check from {client_ip}")
 
-    # Return different content than expected "Microsoft NCSI" to trigger captive portal
-    return HTMLResponse("Network Login Required", headers={"Content-Type": "text/plain"})
+    # Check if device is authenticated (handle Android MAC randomization)
+    # First try the current MAC address
+    device = await session.get(Device, mac_address)
+
+    # If not found, check if any device on this IP address is authenticated
+    if not device or not device.is_access_valid:
+        stmt = select(Device).where(Device.ip_address == client_ip, Device.is_access_valid == True)
+        result = await session.execute(stmt)
+        authenticated_device = result.scalar_one_or_none()
+
+        if authenticated_device:
+            logger.info(f"📱 Found authenticated device on IP {client_ip} with different MAC: {authenticated_device.mac_address}")
+            device = authenticated_device
+
+    if device and device.is_access_valid:
+        # Device is authenticated - return expected Windows NCSI response
+        logger.info(f"🪟 Windows device {client_ip} is authenticated - returning NCSI success")
+        return HTMLResponse("Microsoft NCSI", headers={"Content-Type": "text/plain"})
+    else:
+        # Device not authenticated - return different content to trigger captive portal
+        logger.info(f"🪟 Windows device {client_ip} not authenticated - triggering captive portal")
+        return HTMLResponse("Network Login Required", headers={"Content-Type": "text/plain"})
 
 
 @app.get("/firefox/connecttest")
-async def captive_portal_firefox(request: Request):
-    """Firefox captive portal detection."""
+async def captive_portal_firefox(request: Request, session: AsyncSession = Depends(get_session)):
+    """Firefox captive portal detection - authentication-aware."""
     client_info = get_client_info(request)
     client_ip = client_info["ip_address"]
+    mac_address = client_info["mac_address"]
 
     logger.info(f"🦊 Firefox captive portal check from {client_ip}")
 
-    # Return redirect instead of expected success response
-    return RedirectResponse(url="/", status_code=302)
+    # Check if device is authenticated (handle Android MAC randomization)
+    # First try the current MAC address
+    device = await session.get(Device, mac_address)
+
+    # If not found, check if any device on this IP address is authenticated
+    if not device or not device.is_access_valid:
+        stmt = select(Device).where(Device.ip_address == client_ip, Device.is_access_valid == True)
+        result = await session.execute(stmt)
+        authenticated_device = result.scalar_one_or_none()
+
+        if authenticated_device:
+            logger.info(f"📱 Found authenticated device on IP {client_ip} with different MAC: {authenticated_device.mac_address}")
+            device = authenticated_device
+
+    if device and device.is_access_valid:
+        # Device is authenticated - return success response Firefox expects
+        logger.info(f"🦊 Firefox device {client_ip} is authenticated - returning success")
+        return HTMLResponse("success", headers={"Content-Type": "text/plain"})
+    else:
+        # Device not authenticated - redirect to captive portal
+        logger.info(f"🦊 Firefox device {client_ip} not authenticated - redirecting to captive portal")
+        return RedirectResponse(url="/", status_code=302)
 
 
 # Catch-all route for automatic authentication redirect
