@@ -1,1 +1,0 @@
-"""Gateway configuration and management module."""
