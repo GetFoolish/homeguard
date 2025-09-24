@@ -101,20 +101,32 @@ class TOTPManager:
     def validate_code(self, code: str) -> Optional[Tuple[str, int]]:
         """
         Validate a TOTP code against all duration generators.
-        
+        Accepts codes from previous, current, and next time windows for better UX.
+
         Args:
             code: The TOTP code to validate
-            
+
         Returns:
             Tuple of (duration_key, duration_seconds) if valid, None otherwise
         """
+        logger.debug(f"Validating TOTP code: {code}")
+
         for duration_key, totp_gen in self._totp_generators.items():
-            if totp_gen.verify(code, valid_window=1):
+            # Use valid_window=2 to accept:
+            # - 2 periods ago (60 seconds ago)
+            # - 1 period ago (30 seconds ago)
+            # - Current period
+            # - 1 period ahead (30 seconds ahead)
+            # - 2 periods ahead (60 seconds ahead)
+            if totp_gen.verify(code, valid_window=2):
                 duration_seconds = self.durations[duration_key]
-                logger.info(f"Valid TOTP code for {duration_key} duration")
+                logger.info(f"✅ Valid TOTP code for {duration_key} duration (window validation)")
                 return (duration_key, duration_seconds)
-        
-        logger.warning(f"Invalid TOTP code provided: {code}")
+
+        logger.warning(f"❌ Invalid TOTP code provided: {code}")
+        # Also log the current valid codes for debugging
+        current_codes = self.generate_current_codes()
+        logger.debug(f"Current valid codes: {current_codes}")
         return None
     
     def get_expiry_time(self, duration_seconds: int) -> Optional[datetime]:
