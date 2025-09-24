@@ -120,16 +120,19 @@ class TrafficMonitor:
         """Restore service state after crash or restart."""
         try:
             logger.info("Restoring service state...")
-            
+
+            restored_devices_count = 0
+            iptables_restored_count = 0
+
             # Restore authorized devices from database
             async with db_manager.session_maker() as session:
                 from sqlalchemy import select
-                
+
                 # Get all authorized devices
                 stmt = select(Device).where(Device.is_authorized == True)
                 result = await session.execute(stmt)
                 devices = result.scalars().all()
-                
+
                 for device in devices:
                     # Check if access is still valid
                     if device.is_access_valid:
@@ -142,22 +145,37 @@ class TrafficMonitor:
                             last_seen=device.last_seen,
                             is_authorized=True
                         )
+                        restored_devices_count += 1
                         logger.info(f"Restored authorized device: {device.mac_address}")
+
+                        # Restore iptables rules for this device if IP address is available
+                        if device.ip_address:
+                            try:
+                                await self.allow_device_traffic(device.mac_address, device.ip_address)
+                                iptables_restored_count += 1
+                                logger.info(f"✅ Restored iptables rules for device {device.mac_address} (IP: {device.ip_address})")
+                            except Exception as e:
+                                logger.error(f"❌ Failed to restore iptables rules for device {device.mac_address} (IP: {device.ip_address}): {e}")
+                        else:
+                            logger.warning(f"⚠️ Device {device.mac_address} has no IP address - cannot restore iptables rules")
                     else:
                         # Revoke expired access
                         device.revoke_access()
                         logger.info(f"Revoked expired access for device: {device.mac_address}")
-                
+
                 await session.commit()
-            
+
             # Restore system configuration from backup
             config_backup = await db_manager.restore_state("service_config")
             if config_backup:
                 config_data = json.loads(config_backup)
                 logger.info(f"Restored service configuration: {len(config_data)} settings")
-            
-            logger.info(f"State restoration complete. {len(self.authorized_devices)} authorized devices restored")
-            
+
+            logger.info(f"✅ State restoration complete: {restored_devices_count} authorized devices restored, {iptables_restored_count} iptables rules restored")
+
+            if restored_devices_count > iptables_restored_count:
+                logger.warning(f"⚠️ {restored_devices_count - iptables_restored_count} devices restored but iptables rules could not be created - users may need to re-authenticate")
+
         except Exception as e:
             logger.error(f"Failed to restore state: {e}")
             # Continue startup even if state restoration fails
