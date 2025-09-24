@@ -14,8 +14,7 @@ from ..auth.totp import totp_manager
 from ..config.settings import settings
 from ..phases.phase_manager import phase_manager
 from .state_manager import state_manager
-from .enhanced_filter import enhanced_filter
-from ..integrations.sheets import sheets_manager
+# Enhanced filter and Google Sheets integration removed from homeguard_dev
 
 logger = logging.getLogger(__name__)
 
@@ -60,11 +59,7 @@ class TrafficMonitor:
             # Initialize phase management system
             await phase_manager.start()
             
-            # Initialize enhanced traffic filtering
-            await enhanced_filter.start()
-            
-            # Initialize Google Sheets integration
-            await sheets_manager.start()
+            # Enhanced filter and Google Sheets integration removed from homeguard_dev
             
             # Restore state from previous session (crash recovery)
             await self._restore_state()
@@ -111,11 +106,7 @@ class TrafficMonitor:
         # Stop phase management system
         await phase_manager.stop()
         
-        # Stop enhanced traffic filtering
-        await enhanced_filter.stop()
-        
-        # Stop Google Sheets integration
-        await sheets_manager.stop()
+        # Enhanced filter and Google Sheets integration removed from homeguard_dev
         
         # Clean up iptables rules
         await self.cleanup_iptables_on_shutdown()
@@ -522,17 +513,12 @@ class TrafficMonitor:
             logger.error(f"Failed to log access attempt: {e}")
 
     async def _setup_traffic_filtering(self):
-        """Set up iptables rules according to CLAUDE.md specification."""
+        """Set up two-chain iptables architecture according to traffic_management_rules.md."""
         try:
-            logger.info(f"Setting up iptables traffic filtering for {settings.gateway_mode} mode...")
+            logger.info(f"Setting up two-chain iptables architecture for {settings.gateway_mode} mode...")
 
-            # Clear existing rules first
-            await self._clear_existing_rules()
-
-            # Create HOMEGUARD_FILTER chain if it doesn't exist
-            await self._run_iptables_command([
-                "iptables", "-t", "filter", "-N", "HOMEGUARD_FILTER"
-            ], ignore_errors=True)
+            # Setup the two-chain architecture
+            await self._setup_two_chain_architecture()
 
             if settings.gateway_mode == "transparent":
                 await self._setup_transparent_mode()
@@ -542,84 +528,104 @@ class TrafficMonitor:
                 logger.warning(f"Unknown gateway mode: {settings.gateway_mode}, defaulting to transparent")
                 await self._setup_transparent_mode()
 
-            logger.info("✅ iptables traffic filtering setup complete")
+            logger.info("✅ Two-chain iptables architecture setup complete")
 
         except Exception as e:
-            logger.error(f"Failed to setup iptables traffic filtering: {e}")
+            logger.error(f"Failed to setup two-chain architecture: {e}")
             raise
 
-    async def _clear_existing_rules(self):
-        """Clear existing rules to ensure clean state."""
-        # Flush HOMEGUARD_FILTER chain
-        await self._run_iptables_command([
-            "iptables", "-t", "filter", "-F", "HOMEGUARD_FILTER"
-        ], ignore_errors=True)
+    async def _setup_two_chain_architecture(self):
+        """Set up the high-performance two-chain iptables architecture."""
+        try:
+            logger.info("Setting up two-chain iptables architecture...")
 
-        # Remove any existing homeguard rules from FORWARD chain
-        # Remove HOMEGUARD_FILTER references
-        await self._run_iptables_command([
-            "iptables", "-t", "filter", "-D", "FORWARD", "-j", "HOMEGUARD_FILTER"
-        ], ignore_errors=True)
-
-        # Remove management rules (multiple iterations to catch duplicates)
-        for i in range(5):
+            # Clean slate - flush FORWARD chain
             await self._run_iptables_command([
-                "iptables", "-t", "filter", "-D", "FORWARD", "-p", "tcp", "-m", "multiport", "--dports", "22,5900,8081", "-j", "ACCEPT"
+                "iptables", "-t", "filter", "-F", "FORWARD"
+            ])
+
+            # Remove legacy and new chains if they exist
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-X", "HOMEGUARD_FILTER"
+            ], ignore_errors=True)
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-X", "HOMEGUARD_ACCEPT"
+            ], ignore_errors=True)
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-X", "HOMEGUARD_BLOCK"
             ], ignore_errors=True)
 
+            # Create new chains (ignore errors if they already exist)
             await self._run_iptables_command([
-                "iptables", "-t", "filter", "-D", "FORWARD", "-p", "tcp", "-m", "multiport", "--sports", "22,5900,8081", "-m", "conntrack", "--ctstate", "RELATED,ESTABLISHED", "-j", "ACCEPT"
+                "iptables", "-t", "filter", "-N", "HOMEGUARD_ACCEPT"
+            ], ignore_errors=True)
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-N", "HOMEGUARD_BLOCK"
             ], ignore_errors=True)
 
-        # Remove transparent mode client rules
-        for i in range(5):
+            # Build FORWARD chain structure
+            # 1. Management access (SSH/VNC/Web)
             await self._run_iptables_command([
-                "iptables", "-t", "filter", "-D", "FORWARD", "-i", "eth1", "-o", "eth0", "-j", "ACCEPT"
-            ], ignore_errors=True)
+                "iptables", "-t", "filter", "-A", "FORWARD", "-p", "tcp",
+                "-m", "multiport", "--dports", "22,5900,8081", "-j", "ACCEPT"
+            ])
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-A", "FORWARD", "-p", "tcp",
+                "-m", "multiport", "--sports", "22,5900,8081",
+                "-m", "conntrack", "--ctstate", "RELATED,ESTABLISHED", "-j", "ACCEPT"
+            ])
 
+            # 2. Fast path for authenticated devices
             await self._run_iptables_command([
-                "iptables", "-t", "filter", "-D", "FORWARD", "-i", "eth0", "-o", "eth1", "-m", "conntrack", "--ctstate", "RELATED,ESTABLISHED", "-j", "ACCEPT"
-            ], ignore_errors=True)
+                "iptables", "-t", "filter", "-A", "FORWARD", "-j", "HOMEGUARD_ACCEPT"
+            ])
 
-        # Remove captive portal NAT rules
-        for i in range(5):
+            # 3. Slow path for unauthenticated devices
             await self._run_iptables_command([
-                "iptables", "-t", "nat", "-D", "PREROUTING", "-i", "eth1", "-p", "tcp", "--dport", "80", "-j", "REDIRECT", "--to-port", "8081"
-            ], ignore_errors=True)
+                "iptables", "-t", "filter", "-A", "FORWARD", "-j", "HOMEGUARD_BLOCK"
+            ])
+
+            # 4. Default transparent rules (LAN→WAN traffic flow)
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-A", "FORWARD", "-i", "eth1", "-o", "eth0", "-j", "ACCEPT"
+            ])
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-A", "FORWARD", "-i", "eth0", "-o", "eth1",
+                "-m", "conntrack", "--ctstate", "RELATED,ESTABLISHED", "-j", "ACCEPT"
+            ])
+
+            logger.info("✅ Two-chain architecture setup complete")
+
+        except Exception as e:
+            logger.error(f"Error setting up two-chain architecture: {e}")
+            raise
 
     async def _setup_transparent_mode(self):
-        """Setup rules for transparent mode - no blocking."""
-        logger.info("🌐 Setting up transparent mode rules")
+        """Configure chains for transparent mode according to traffic_management_rules.md."""
+        logger.info("🌐 Setting up transparent mode - chains will be empty with RETURN")
 
-        # FORWARD Chain rules for transparent mode:
-        # 1. ACCEPT tcp dport 22,5900,8081
+        # Empty chains with RETURN for transparent mode
         await self._run_iptables_command([
-            "iptables", "-t", "filter", "-I", "FORWARD", "1",
-            "-p", "tcp", "-m", "multiport", "--dports", "22,5900,8081", "-j", "ACCEPT"
+            "iptables", "-t", "filter", "-F", "HOMEGUARD_ACCEPT"
+        ])
+        await self._run_iptables_command([
+            "iptables", "-t", "filter", "-F", "HOMEGUARD_BLOCK"
         ])
 
-        # 2. ACCEPT tcp sport 22,5900,8081 ctstate RELATED,ESTABLISHED
+        # Add RETURN rules to both chains (empty chains)
         await self._run_iptables_command([
-            "iptables", "-t", "filter", "-I", "FORWARD", "2",
-            "-p", "tcp", "-m", "multiport", "--sports", "22,5900,8081",
-            "-m", "conntrack", "--ctstate", "RELATED,ESTABLISHED", "-j", "ACCEPT"
+            "iptables", "-t", "filter", "-A", "HOMEGUARD_ACCEPT", "-j", "RETURN"
+        ])
+        await self._run_iptables_command([
+            "iptables", "-t", "filter", "-A", "HOMEGUARD_BLOCK", "-j", "RETURN"
         ])
 
-        # 3. ACCEPT eth1→eth0 (outbound traffic)
+        # Set permissive policy
         await self._run_iptables_command([
-            "iptables", "-t", "filter", "-I", "FORWARD", "3",
-            "-i", "eth1", "-o", "eth0", "-j", "ACCEPT"
+            "iptables", "-t", "filter", "-P", "FORWARD", "ACCEPT"
         ])
 
-        # 4. ACCEPT eth0→eth1 ctstate RELATED,ESTABLISHED (return traffic)
-        await self._run_iptables_command([
-            "iptables", "-t", "filter", "-I", "FORWARD", "4",
-            "-i", "eth0", "-o", "eth1",
-            "-m", "conntrack", "--ctstate", "RELATED,ESTABLISHED", "-j", "ACCEPT"
-        ])
-
-        # HOMEGUARD_FILTER Chain: Empty - not used in transparent mode
-        logger.info("✅ Transparent mode setup complete - HOMEGUARD_FILTER unused")
+        logger.info("✅ Transparent mode: All traffic flows through rules 5-6 after empty chain returns")
 
         # Setup captive portal redirect
         await self._setup_captive_portal()
@@ -661,32 +667,33 @@ class TrafficMonitor:
             # Don't raise - captive portal is nice-to-have, not critical
 
     async def _setup_totp_full_mode(self):
-        """Setup rules for TOTP full mode - hard blocking with management access."""
-        logger.info("🔒 Setting up TOTP full mode rules")
+        """Configure chains for TOTP_FULL mode according to traffic_management_rules.md."""
+        logger.info("🔒 Setting up TOTP_FULL mode - blocking mode with empty accept chain")
 
-        # FORWARD Chain rules for TOTP full mode:
-        # 1. ACCEPT tcp dport 22,5900,8081
+        # Configure chains for TOTP_FULL mode
         await self._run_iptables_command([
-            "iptables", "-t", "filter", "-I", "FORWARD", "1",
-            "-p", "tcp", "-m", "multiport", "--dports", "22,5900,8081", "-j", "ACCEPT"
+            "iptables", "-t", "filter", "-F", "HOMEGUARD_ACCEPT"
+        ])
+        await self._run_iptables_command([
+            "iptables", "-t", "filter", "-F", "HOMEGUARD_BLOCK"
         ])
 
-        # 2. ACCEPT tcp sport 22,5900,8081 ctstate RELATED,ESTABLISHED
+        # Empty accept chain initially (users will be added when authenticated)
         await self._run_iptables_command([
-            "iptables", "-t", "filter", "-I", "FORWARD", "2",
-            "-p", "tcp", "-m", "multiport", "--sports", "22,5900,8081",
-            "-m", "conntrack", "--ctstate", "RELATED,ESTABLISHED", "-j", "ACCEPT"
+            "iptables", "-t", "filter", "-A", "HOMEGUARD_ACCEPT", "-j", "RETURN"
         ])
 
-        # 3. HOMEGUARD_FILTER (for client traffic policing - handles both blocking and allowing)
+        # Block all in slow path
         await self._run_iptables_command([
-            "iptables", "-t", "filter", "-I", "FORWARD", "3", "-j", "HOMEGUARD_FILTER"
+            "iptables", "-t", "filter", "-A", "HOMEGUARD_BLOCK", "-j", "DROP"
         ])
 
-        # HOMEGUARD_FILTER Chain: Empty initially, will contain:
-        # - ACCEPT rules for authenticated devices (added when TOTP succeeds)
-        # - No default rules = traffic gets dropped by FORWARD policy
-        logger.info("✅ TOTP full mode setup complete - HOMEGUARD_FILTER will control all client traffic")
+        # Set restrictive policy
+        await self._run_iptables_command([
+            "iptables", "-t", "filter", "-P", "FORWARD", "DROP"
+        ])
+
+        logger.info("✅ TOTP_FULL mode: Non-management traffic hits HOMEGUARD_BLOCK and gets dropped")
 
         # Setup captive portal redirect
         await self._setup_captive_portal()
@@ -704,47 +711,44 @@ class TrafficMonitor:
             return False
 
     async def allow_device_traffic(self, mac_address: str, ip_address: str):
-        """Allow traffic for an authenticated device by adding ACCEPT rules to HOMEGUARD_FILTER."""
+        """Add device to HOMEGUARD_ACCEPT fast path for high-performance access."""
         try:
-            # Remove any existing rules for this IP first
-            await self._run_iptables_command([
-                "iptables", "-t", "filter", "-D", "HOMEGUARD_FILTER", "-s", ip_address, "-j", "ACCEPT"
-            ], ignore_errors=True)
-            await self._run_iptables_command([
-                "iptables", "-t", "filter", "-D", "HOMEGUARD_FILTER", "-d", ip_address, "-m", "conntrack", "--ctstate", "RELATED,ESTABLISHED", "-j", "ACCEPT"
-            ], ignore_errors=True)
+            # Remove from block list first (idempotent)
+            await self.block_device_traffic(mac_address, ip_address)
 
-            # Add outbound traffic rule (device → internet)
+            # Add to accept list (both directions) for fast-path processing
             await self._run_iptables_command([
-                "iptables", "-t", "filter", "-A", "HOMEGUARD_FILTER", "-s", ip_address, "-j", "ACCEPT"
+                "iptables", "-t", "filter", "-I", "HOMEGUARD_ACCEPT", "1",
+                "-s", ip_address, "-j", "ACCEPT"
             ])
-
-            # Add return traffic rule (internet → device, established connections only)
             await self._run_iptables_command([
-                "iptables", "-t", "filter", "-A", "HOMEGUARD_FILTER", "-d", ip_address, "-m", "conntrack", "--ctstate", "RELATED,ESTABLISHED", "-j", "ACCEPT"
+                "iptables", "-t", "filter", "-I", "HOMEGUARD_ACCEPT", "2",
+                "-d", ip_address, "-m", "conntrack",
+                "--ctstate", "RELATED,ESTABLISHED", "-j", "ACCEPT"
             ])
 
             await self._log_access_attempt(mac_address, "traffic_allowed", f"IP {ip_address}")
-            logger.info(f"✅ Internet access granted for IP {ip_address} (MAC: {mac_address}) - outbound + return traffic")
+            logger.info(f"✅ Device {ip_address} (MAC: {mac_address}) added to fast path - high-performance internet access")
 
         except Exception as e:
             logger.error(f"Failed to allow traffic for IP {ip_address}: {e}")
 
     async def block_device_traffic(self, mac_address: str, ip_address: str):
-        """Block traffic for a device by removing its ACCEPT rules from HOMEGUARD_FILTER."""
+        """Remove device from HOMEGUARD_ACCEPT fast path, forcing it to slow path blocking."""
         try:
-            # Remove the device's outbound traffic rule
+            # Remove from accept list (both directions)
             await self._run_iptables_command([
-                "iptables", "-t", "filter", "-D", "HOMEGUARD_FILTER", "-s", ip_address, "-j", "ACCEPT"
+                "iptables", "-t", "filter", "-D", "HOMEGUARD_ACCEPT",
+                "-s", ip_address, "-j", "ACCEPT"
             ], ignore_errors=True)
-
-            # Remove the device's return traffic rule
             await self._run_iptables_command([
-                "iptables", "-t", "filter", "-D", "HOMEGUARD_FILTER", "-d", ip_address, "-m", "conntrack", "--ctstate", "RELATED,ESTABLISHED", "-j", "ACCEPT"
+                "iptables", "-t", "filter", "-D", "HOMEGUARD_ACCEPT",
+                "-d", ip_address, "-m", "conntrack",
+                "--ctstate", "RELATED,ESTABLISHED", "-j", "ACCEPT"
             ], ignore_errors=True)
 
             await self._log_access_attempt(mac_address, "traffic_blocked", f"IP {ip_address}")
-            logger.info(f"❌ Internet access revoked for IP {ip_address} (MAC: {mac_address}) - outbound + return traffic")
+            logger.info(f"❌ Device {ip_address} (MAC: {mac_address}) removed from fast path - will hit slow path blocking")
 
         except Exception as e:
             logger.error(f"Failed to block traffic for IP {ip_address}: {e}")

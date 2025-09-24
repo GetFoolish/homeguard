@@ -241,134 +241,169 @@ class PhaseManager:
             raise
     
     async def _setup_allow_policy(self):
-        """Set up iptables for default allow policy (Phases 1-5)."""
+        """Set up iptables for default allow policy (Transparent mode)."""
         try:
-            # Ensure HOMEGUARD_FILTER chain exists
+            # Setup two-chain architecture for transparent mode
+            await self._setup_two_chain_architecture()
+
+            # Empty chains with RETURN for transparent mode
             await self._run_iptables_command([
-                "iptables", "-t", "filter", "-N", "HOMEGUARD_FILTER"
-            ], ignore_errors=True)
-            
-            # Clear the chain
-            await self._run_iptables_command([
-                "iptables", "-t", "filter", "-F", "HOMEGUARD_FILTER"
+                "iptables", "-t", "filter", "-F", "HOMEGUARD_ACCEPT"
             ])
-            
-            # Allow established and related connections
             await self._run_iptables_command([
-                "iptables", "-t", "filter", "-A", "HOMEGUARD_FILTER",
-                "-m", "state", "--state", "ESTABLISHED,RELATED", "-j", "ACCEPT"
+                "iptables", "-t", "filter", "-F", "HOMEGUARD_BLOCK"
             ])
-            
-            # Allow loopback
+
+            # Add RETURN rules to both chains
             await self._run_iptables_command([
-                "iptables", "-t", "filter", "-A", "HOMEGUARD_FILTER",
-                "-i", "lo", "-j", "ACCEPT"
+                "iptables", "-t", "filter", "-A", "HOMEGUARD_ACCEPT", "-j", "RETURN"
             ])
-            
-            # Default allow (will be overridden by specific block rules)
             await self._run_iptables_command([
-                "iptables", "-t", "filter", "-A", "HOMEGUARD_FILTER", "-j", "ACCEPT"
+                "iptables", "-t", "filter", "-A", "HOMEGUARD_BLOCK", "-j", "RETURN"
             ])
-            
-            logger.info("✅ Allow policy setup complete")
-            
+
+            # Set permissive policy
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-P", "FORWARD", "ACCEPT"
+            ])
+
+            logger.info("✅ Transparent mode (allow policy) setup complete")
+
         except Exception as e:
             logger.error(f"Error setting up allow policy: {e}")
             raise
     
     async def _setup_drop_policy(self):
-        """Set up iptables for default drop policy (Phase 6)."""
+        """Set up iptables for default drop policy (TOTP_FULL mode)."""
         try:
-            # Ensure HOMEGUARD_FILTER chain exists
+            # Setup two-chain architecture for TOTP mode
+            await self._setup_two_chain_architecture()
+
+            # Configure chains for TOTP_FULL mode
             await self._run_iptables_command([
-                "iptables", "-t", "filter", "-N", "HOMEGUARD_FILTER"
-            ], ignore_errors=True)
-            
-            # Clear the chain
-            await self._run_iptables_command([
-                "iptables", "-t", "filter", "-F", "HOMEGUARD_FILTER"
+                "iptables", "-t", "filter", "-F", "HOMEGUARD_ACCEPT"
             ])
-            
-            # Allow established and related connections
             await self._run_iptables_command([
-                "iptables", "-t", "filter", "-A", "HOMEGUARD_FILTER",
-                "-m", "state", "--state", "ESTABLISHED,RELATED", "-j", "ACCEPT"
+                "iptables", "-t", "filter", "-F", "HOMEGUARD_BLOCK"
             ])
-            
-            # Allow loopback
+
+            # Empty accept chain initially (users will be added when authenticated)
             await self._run_iptables_command([
-                "iptables", "-t", "filter", "-A", "HOMEGUARD_FILTER",
-                "-i", "lo", "-j", "ACCEPT"
+                "iptables", "-t", "filter", "-A", "HOMEGUARD_ACCEPT", "-j", "RETURN"
             ])
-            
-            # Default drop (authenticated devices will be allowed by traffic monitor)
+
+            # Block all in slow path
             await self._run_iptables_command([
-                "iptables", "-t", "filter", "-A", "HOMEGUARD_FILTER", "-j", "DROP"
+                "iptables", "-t", "filter", "-A", "HOMEGUARD_BLOCK", "-j", "DROP"
             ])
-            
-            logger.info("✅ Drop policy setup complete")
-            
+
+            # Set restrictive policy
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-P", "FORWARD", "DROP"
+            ])
+
+            logger.info("✅ TOTP_FULL mode (drop policy) setup complete")
+
         except Exception as e:
             logger.error(f"Error setting up drop policy: {e}")
             raise
-    
-    async def _apply_pi_exemption_rules(self):
-        """Apply Pi self-exemption rules (always active)."""
+
+    async def _setup_two_chain_architecture(self):
+        """Set up the high-performance two-chain iptables architecture."""
         try:
-            # Pi IP addresses to exempt
-            pi_ips = ["192.168.1.100", "192.168.4.100", "192.168.4.65"]
-            
-            for ip in pi_ips:
-                # Allow all traffic from Pi IPs
-                await self._run_iptables_command([
-                    "iptables", "-t", "filter", "-I", "HOMEGUARD_FILTER", "1",
-                    "-s", ip, "-j", "ACCEPT"
-                ], ignore_errors=True)
-                
-                await self._run_iptables_command([
-                    "iptables", "-t", "filter", "-I", "HOMEGUARD_FILTER", "1",
-                    "-d", ip, "-j", "ACCEPT"
-                ], ignore_errors=True)
-            
-            # Allow SSH (port 22)
+            logger.info("Setting up two-chain iptables architecture...")
+
+            # Clean slate - flush FORWARD chain
             await self._run_iptables_command([
-                "iptables", "-t", "filter", "-I", "HOMEGUARD_FILTER", "1",
-                "-p", "tcp", "--dport", "22", "-j", "ACCEPT"
-            ], ignore_errors=True)
-            
-            # Allow admin web interface (port 8080)
+                "iptables", "-t", "filter", "-F", "FORWARD"
+            ])
+
+            # Remove legacy and new chains if they exist
             await self._run_iptables_command([
-                "iptables", "-t", "filter", "-I", "HOMEGUARD_FILTER", "1",
-                "-p", "tcp", "--dport", "8080", "-j", "ACCEPT"
+                "iptables", "-t", "filter", "-X", "HOMEGUARD_FILTER"
             ], ignore_errors=True)
-            
-            # Allow DNS (port 53)
             await self._run_iptables_command([
-                "iptables", "-t", "filter", "-I", "HOMEGUARD_FILTER", "1",
-                "-p", "udp", "--dport", "53", "-s", "192.168.4.100", "-j", "ACCEPT"
+                "iptables", "-t", "filter", "-X", "HOMEGUARD_ACCEPT"
             ], ignore_errors=True)
-            
-            # Allow NTP (port 123)
             await self._run_iptables_command([
-                "iptables", "-t", "filter", "-I", "HOMEGUARD_FILTER", "1",
-                "-p", "udp", "--dport", "123", "-s", "192.168.4.100", "-j", "ACCEPT"
+                "iptables", "-t", "filter", "-X", "HOMEGUARD_BLOCK"
             ], ignore_errors=True)
-            
-            logger.info("✅ Pi self-exemption rules applied")
-            
+
+            # Create new chains
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-N", "HOMEGUARD_ACCEPT"
+            ])
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-N", "HOMEGUARD_BLOCK"
+            ])
+
+            # Build FORWARD chain structure
+            # 1. Management access (SSH/VNC/Web)
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-A", "FORWARD", "-p", "tcp",
+                "-m", "multiport", "--dports", "22,5900,8081", "-j", "ACCEPT"
+            ])
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-A", "FORWARD", "-p", "tcp",
+                "-m", "multiport", "--sports", "22,5900,8081",
+                "-m", "conntrack", "--ctstate", "RELATED,ESTABLISHED", "-j", "ACCEPT"
+            ])
+
+            # 2. Fast path for authenticated devices
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-A", "FORWARD", "-j", "HOMEGUARD_ACCEPT"
+            ])
+
+            # 3. Slow path for unauthenticated devices
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-A", "FORWARD", "-j", "HOMEGUARD_BLOCK"
+            ])
+
+            # 4. Default transparent rules (LAN→WAN traffic flow)
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-A", "FORWARD", "-i", "eth1", "-o", "eth0", "-j", "ACCEPT"
+            ])
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-A", "FORWARD", "-i", "eth0", "-o", "eth1",
+                "-m", "conntrack", "--ctstate", "RELATED,ESTABLISHED", "-j", "ACCEPT"
+            ])
+
+            logger.info("✅ Two-chain architecture setup complete")
+
+        except Exception as e:
+            logger.error(f"Error setting up two-chain architecture: {e}")
+            raise
+
+    async def _apply_pi_exemption_rules(self):
+        """Apply Pi self-exemption rules (built into FORWARD chain now)."""
+        try:
+            # Pi exemption is now handled by the management access rules in FORWARD chain
+            # SSH (22), VNC (5900), and Web (8081) are always allowed in FORWARD chain
+            # No additional rules needed in the custom chains
+
+            logger.info("✅ Pi self-exemption rules active (via FORWARD chain management rules)")
+
         except Exception as e:
             logger.error(f"Error applying Pi exemption rules: {e}")
     
     async def _cleanup_phase_iptables(self):
         """Clean up phase-specific iptables rules."""
         try:
-            # Flush HOMEGUARD_FILTER chain
+            # Flush both new chains
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-F", "HOMEGUARD_ACCEPT"
+            ], ignore_errors=True)
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-F", "HOMEGUARD_BLOCK"
+            ], ignore_errors=True)
+
+            # Also clean up legacy chain if it exists
             await self._run_iptables_command([
                 "iptables", "-t", "filter", "-F", "HOMEGUARD_FILTER"
             ], ignore_errors=True)
-            
+
             logger.debug("Phase-specific iptables rules cleaned up")
-            
+
         except Exception as e:
             logger.error(f"Error cleaning up phase iptables: {e}")
     
