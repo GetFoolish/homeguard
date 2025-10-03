@@ -1,1 +1,1 @@
-"""Database models and operations."""
+"""Database package for Homeguard."""

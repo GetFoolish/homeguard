@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homeguard - Device Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-granted {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-blocked {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-iot {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            font-size: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .action-btn.grant {
+            background: #28a745;
+            color: white;
+        }
+
+        .action-btn.block {
+            background: #dc3545;
+            color: white;
+        }
+
+        .action-btn.iot {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+
+        .totp-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .totp-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .totp-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .status-bar {
+            background: #e9ecef;
+            padding: 10px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .mode-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mode-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .mode-dot.transparent {
+            background: #28a745;
+        }
+
+        .mode-dot.totp {
+            background: #dc3545;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ Homeguard Device Management</h1>
+            <p>Control network access for all devices</p>
+        </div>
+
+        <div class="status-bar">
+            <div class="mode-indicator">
+                <span class="mode-dot" id="modeIndicator"></span>
+                <span>Mode: <strong id="currentMode">Loading...</strong></span>
+            </div>
+            <div>
+                <span>Execution: <strong id="executionMode">TESTING</strong></span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="scanNetwork()">🔍 Scan Network</button>
+            <button class="btn btn-success" onclick="setTransparentMode()">✅ Set Transparent Mode</button>
+            <button class="btn btn-danger" onclick="setTOTPMode()">🔒 Set TOTP Mode</button>
+            <button class="btn btn-secondary" onclick="refreshDevices()">🔄 Refresh</button>
+        </div>
+
+        <div class="content">
+            <div id="devicesList">
+                <div class="empty-state">
+                    <h3>No devices found</h3>
+                    <p>Click "Scan Network" to discover devices</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let devices = [];
+
+        // Load devices on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadSystemStatus();
+            refreshDevices();
+        });
+
+        async function loadSystemStatus() {
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+
+                document.getElementById('currentMode').textContent = data.mode.toUpperCase();
+                document.getElementById('executionMode').textContent = data.execution_mode.toUpperCase();
+
+                const indicator = document.getElementById('modeIndicator');
+                indicator.className = `mode-dot ${data.mode}`;
+            } catch (error) {
+                console.error('Error loading system status:', error);
+            }
+        }
+
+        async function scanNetwork() {
+            try {
+                const response = await fetch('/scan_network');
+                const data = await response.json();
+                alert(`Network scan complete! Found ${data.devices_found} devices`);
+                refreshDevices();
+            } catch (error) {
+                alert('Error scanning network: ' + error.message);
+            }
+        }
+
+        async function refreshDevices() {
+            try {
+                const response = await fetch('/devices');
+                const data = await response.json();
+                devices = data.devices;
+                renderDevices();
+            } catch (error) {
+                console.error('Error loading devices:', error);
+            }
+        }
+
+        function renderDevices() {
+            const container = document.getElementById('devicesList');
+
+            if (devices.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No devices found</h3>
+                        <p>Click "Scan Network" to discover devices</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>IP Address</th>
+                            <th>MAC Address</th>
+                            <th>Hostname</th>
+                            <th>Access Status</th>
+                            <th>Last Seen</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            devices.forEach(device => {
+                const statusClass = `status-${device.access_status}`;
+                const lastSeen = device.last_seen ? new Date(device.last_seen).toLocaleString() : 'Never';
+
+                html += `
+                    <tr>
+                        <td><strong>${device.ip_address || 'N/A'}</strong></td>
+                        <td><code>${device.mac_address}</code></td>
+                        <td>${device.hostname || 'Unknown'}</td>
+                        <td><span class="status-badge ${statusClass}">${device.access_status}</span></td>
+                        <td>${lastSeen}</td>
+                        <td>
+                            <div class="button-group">
+                                <button class="action-btn grant" onclick="grantAccess('${device.ip_address}')">Grant</button>
+                                <button class="action-btn block" onclick="blockAccess('${device.ip_address}')">Block</button>
+                                <button class="action-btn iot" onclick="setIOT('${device.ip_address}')">IOT</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        async function grantAccess(ipAddress) {
+            const totpCode = prompt('Enter TOTP code to grant access:');
+            if (!totpCode) return;
+
+            try {
+                const response = await fetch(`/grant_access_to_ip?ip_address=${ipAddress}&totp_code=${totpCode}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    alert(`Access granted to ${ipAddress} for ${data.duration}`);
+                    refreshDevices();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                alert('Error granting access: ' + error.message);
+            }
+        }
+
+        async function blockAccess(ipAddress) {
+            if (!confirm(`Block access for ${ipAddress}?`)) return;
+
+            try {
+                const response = await fetch(`/block_access_to_ip?ip_address=${ipAddress}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    alert(`Access blocked for ${ipAddress}`);
+                    refreshDevices();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                alert('Error blocking access: ' + error.message);
+            }
+        }
+
+        async function setIOT(ipAddress) {
+            if (!confirm(`Set ${ipAddress} as IOT device?`)) return;
+
+            try {
+                const response = await fetch(`/grant_access_to_IOT?ip_address=${ipAddress}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    alert(`${ipAddress} added to IOT proxy`);
+                    refreshDevices();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                alert('Error setting IOT: ' + error.message);
+            }
+        }
+
+        async function setTransparentMode() {
+            if (!confirm('Set system to TRANSPARENT mode? (All traffic allowed)')) return;
+
+            try {
+                const response = await fetch('/set_mode_to_transparent', { method: 'POST' });
+                const data = await response.json();
+                alert('System set to TRANSPARENT mode');
+                loadSystemStatus();
+            } catch (error) {
+                alert('Error setting transparent mode: ' + error.message);
+            }
+        }
+
+        async function setTOTPMode() {
+            if (!confirm('Set system to TOTP mode? (Only authenticated devices allowed)')) return;
+
+            try {
+                const response = await fetch('/set_mode_to_totp', { method: 'POST' });
+                const data = await response.json();
+                alert(`System set to TOTP mode (IOT: ${data.iot_devices}, Granted: ${data.granted_devices})`);
+                loadSystemStatus();
+            } catch (error) {
+                alert('Error setting TOTP mode: ' + error.message);
+            }
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(refreshDevices, 30000);
+    </script>
+</body>
+</html>
