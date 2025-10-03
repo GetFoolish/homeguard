@@ -168,10 +168,12 @@ class TOTPManager:
         """
         uris = {}
         for duration_key, totp_gen in self._totp_generators.items():
-            account_name = f"HomeguardGuard-{duration_key}"
+            # Format duration key for display (e.g., "forever" -> "Forever", "15min" -> "15min")
+            duration_display = duration_key.replace('_', ' ').title() if duration_key != "forever" else "Forever"
+            account_name = f"{duration_display}: Homeguard"
             uri = totp_gen.provisioning_uri(
                 name=account_name,
-                issuer_name=issuer
+                issuer_name=""  # Empty issuer to avoid duplication
             )
             uris[duration_key] = uri
         return uris

@@ -1,6 +1,7 @@
 """FastAPI web application for HomeguardGuard captive portal and admin interface."""
 
 import hashlib
+import json
 import logging
 import secrets
 from fastapi import FastAPI, Request, Depends, HTTPException, Form, Cookie
@@ -244,11 +245,15 @@ async def revoke_device_access(
     _: None = Depends(require_admin_auth)
 ):
     """Revoke access for a specific device by IP address."""
-    # Find device by IP address
-    result = await session.execute(select(Device).where(Device.ip_address == ip_address))
-    device = result.scalar_one_or_none()
+    try:
+        # Find device by IP address (get the first one if there are duplicates)
+        result = await session.execute(select(Device).where(Device.ip_address == ip_address))
+        device = result.scalars().first()
 
-    if device:
+        if not device:
+            return JSONResponse({"status": "error", "message": "Device not found"}, status_code=404)
+
+        # Revoke access
         device.revoke_access()
         await session.commit()
 
@@ -261,7 +266,9 @@ async def revoke_device_access(
 
         return JSONResponse({"status": "success", "message": "Device access revoked"})
 
-    return JSONResponse({"status": "error", "message": "Device not found"}, status_code=404)
+    except Exception as e:
+        logger.error(f"Error revoking access for {ip_address}: {e}")
+        return JSONResponse({"status": "error", "message": "Internal server error"}, status_code=500)
 
 
 def generate_devices_html(devices):
@@ -604,6 +611,44 @@ async def admin_dashboard(
                 font-size: 12px;
                 margin-top: 8px;
             }}
+            .qr-selector-container {{
+                margin-bottom: 24px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }}
+            .qr-selector-label {{
+                font-weight: 600;
+                color: #2c3e50;
+                font-size: 14px;
+            }}
+            .qr-selector {{
+                padding: 8px 12px;
+                border: 2px solid #e1e8ed;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 500;
+                background: white;
+                min-width: 160px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }}
+            .qr-selector:hover {{
+                border-color: #667eea;
+            }}
+            .qr-selector:focus {{
+                outline: none;
+                border-color: #667eea;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            }}
+            .selected-qr-container {{
+                display: flex;
+                justify-content: center;
+            }}
+            .qr-item.single {{
+                max-width: 300px;
+                margin: 0 auto;
+            }}
 
             /* Responsive */
             @media (max-width: 768px) {{
@@ -711,7 +756,13 @@ async def admin_dashboard(
                     <div class="card">
                         <div class="card-header">📱 TOTP QR Codes</div>
                         <div class="card-body">
-                            <div class="qr-grid">
+                            <div class="qr-selector-container">
+                                <label for="qr-selector" class="qr-selector-label">Select Duration:</label>
+                                <select id="qr-selector" class="qr-selector">
+                                    {qr_options_html}
+                                </select>
+                            </div>
+                            <div id="selected-qr-container" class="selected-qr-container">
                                 {qr_codes_html}
                             </div>
                         </div>
@@ -756,6 +807,44 @@ async def admin_dashboard(
                 }}
             }}
 
+            // QR Code selector functionality
+            const qrData = {qr_codes_json};
+
+            function updateQRDisplay() {{
+                const selector = document.getElementById('qr-selector');
+                const container = document.getElementById('selected-qr-container');
+
+                if (!selector || !container) return;
+
+                const selectedDuration = selector.value;
+                const qrCode = qrData[selectedDuration];
+
+                if (qrCode) {{
+                    const durationTitle = selectedDuration.replace('_', ' ').split(' ').map(word =>
+                        word.charAt(0).toUpperCase() + word.slice(1)
+                    ).join(' ');
+
+                    container.innerHTML = `
+                        <div class="qr-item single">
+                            <div class="qr-title">${{durationTitle}}: HomeGuard</div>
+                            <div class="qr-code">
+                                <img src="data:image/png;base64,${{qrCode}}" alt="QR Code for ${{selectedDuration}}">
+                            </div>
+                            <div class="qr-subtitle">Scan with your authenticator app</div>
+                        </div>
+                    `;
+                }}
+            }}
+
+            // Initialize QR selector when page loads
+            document.addEventListener('DOMContentLoaded', () => {{
+                const selector = document.getElementById('qr-selector');
+                if (selector) {{
+                    selector.addEventListener('change', updateQRDisplay);
+                    updateQRDisplay(); // Show first option by default
+                }}
+            }});
+
             // Auto-refresh TOTP codes every 30 seconds
             setInterval(() => {{
                 if (document.getElementById('totp').classList.contains('active')) {{
@@ -783,15 +872,12 @@ async def admin_dashboard(
             </div>''' for duration_key, code in current_codes.items()
         ]),
         devices_html=generate_devices_html(devices),
-        qr_codes_html=''.join([
-            f'''<div class="qr-item">
-                <div class="qr-title">{duration_key.replace('_', ' ').title()}: HomeguardGuard</div>
-                <div class="qr-code">
-                    <img src="data:image/png;base64,{qr_code}" alt="QR Code for {duration_key}">
-                </div>
-                <div class="qr-subtitle">Scan with your authenticator app</div>
-            </div>''' for duration_key, qr_code in qr_codes.items()
-        ])
+        qr_options_html=''.join([
+            f'<option value="{duration_key}">{duration_key.replace("_", " ").title()}</option>'
+            for duration_key in qr_codes.keys()
+        ]),
+        qr_codes_html='', # Will be populated by JavaScript
+        qr_codes_json=json.dumps(qr_codes)
     ))
 
 

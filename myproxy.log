@@ -456,3 +456,1294 @@
 2025-09-23 23:55:31,562 - homeguard.network.traffic_monitor - INFO - TrafficMonitor service stopped gracefully
 2025-09-23 23:55:31,562 - homeguard.proxy.http_proxy - INFO - Stopping HTTP proxy server...
 2025-09-23 23:55:31,758 - homeguard.web.app - INFO - Shutting down HomeguardGuard web application
+2025-09-24 01:32:15,694 - __main__ - INFO - HomeguardGuard Network Gateway starting...
+2025-09-24 01:32:15,694 - __main__ - INFO - ==================================================
+2025-09-24 01:32:15,694 - __main__ - INFO - 🔧 Configuration loaded from: /etc/homeguard/config.yaml
+2025-09-24 01:32:15,694 - __main__ - INFO - 🚀 Operational Mode: TOTP_FULL
+2025-09-24 01:32:15,694 - __main__ - INFO - 📝 Mode: TOTP FULL - All devices blocked until TOTP authentication
+2025-09-24 01:32:15,694 - __main__ - INFO - 🌐 Gateway: 192.168.2.1:8081
+2025-09-24 01:32:15,694 - __main__ - INFO - 🔧 Debug mode: False
+2025-09-24 01:32:15,694 - __main__ - INFO - 🔄 Auto recovery: True
+2025-09-24 01:32:15,694 - __main__ - INFO - ==================================================
+2025-09-24 01:32:15,695 - __main__ - INFO - Starting MyProxy services...
+2025-09-24 01:32:15,696 - __main__ - INFO - TrafficMonitor started
+2025-09-24 01:32:15,696 - __main__ - INFO - HTTP Proxy started
+2025-09-24 01:32:15,696 - __main__ - INFO - Starting web server on 0.0.0.0:8081
+2025-09-24 01:32:15,696 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 01:32:15,697 - homeguard.proxy.http_proxy - INFO - Starting HTTP proxy server on 0.0.0.0:8888
+2025-09-24 01:32:15,697 - homeguard.proxy.http_proxy - INFO - Blocked domains: youtube.com, www.youtube.com, m.youtube.com, youtu.be, googlevideo.com
+2025-09-24 01:32:15,717 - homeguard.web.app - INFO - Starting HomeguardGuard Web Application with gateway_mode=totp_full
+2025-09-24 01:32:15,718 - homeguard.proxy.http_proxy - INFO - ✅ HTTP proxy server started on http://0.0.0.0:8888
+2025-09-24 01:32:15,718 - homeguard.proxy.http_proxy - INFO - Configure your browser to use this as HTTP proxy for testing
+2025-09-24 01:32:15,721 - homeguard.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-24 01:32:15,725 - homeguard.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-24 01:32:15,726 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 01:32:15,726 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 01:32:15,726 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 01:32:15,726 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 01:32:15,726 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 01:32:15,726 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 01:32:15,729 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 01:32:15,731 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 01:32:15,731 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:15,731 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:15,731 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:15,731 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:15,731 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:15,731 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:15,731 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:15,731 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (1/3)
+2025-09-24 01:32:15,734 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 01:32:15,734 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 01:32:20,732 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 01:32:20,735 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 01:32:20,735 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 01:32:20,735 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 01:32:20,735 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 01:32:20,736 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 01:32:20,736 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 01:32:20,739 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 01:32:20,741 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 01:32:20,741 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:20,741 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:20,741 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:20,741 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:20,741 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:20,741 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:20,741 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:20,741 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (2/3)
+2025-09-24 01:32:25,742 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 01:32:25,748 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 01:32:25,748 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 01:32:25,748 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 01:32:25,749 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 01:32:25,749 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 01:32:25,749 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 01:32:25,752 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 01:32:25,753 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 01:32:25,754 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:25,754 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:25,754 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:25,754 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:25,754 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:25,754 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:25,754 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:25,754 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (3/3)
+2025-09-24 01:32:27,483 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 01:32:27,484 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:32:27,484 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 01:32:27,484 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 01:32:30,755 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 01:32:30,757 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 01:32:30,757 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 01:32:30,757 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 01:32:30,757 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 01:32:30,757 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 01:32:30,757 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 01:32:30,760 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 01:32:30,761 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 01:32:30,761 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:30,762 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:30,762 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:30,762 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:30,762 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:30,762 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:30,762 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:30,762 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:30,762 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 01:32:30,762 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:30,762 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 01:32:30,762 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:32:30,762 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 01:32:30,791 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 01:32:30,791 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:32:30,791 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 01:32:30,791 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 01:32:33,212 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 01:32:33,213 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:32:33,213 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 01:32:33,213 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 01:32:56,530 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.62 - likely behind NAT
+2025-09-24 01:32:56,533 - homeguard.web.routes.connectivity - INFO - ✅ Generic connectivity check: Device http:45:56:d8:ca:f3:a3 not authenticated - redirecting
+2025-09-24 01:32:56,715 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.62 - likely behind NAT
+2025-09-24 01:32:56,715 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:32:56,715 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.62 - TOTP enforcement check: True
+2025-09-24 01:32:56,715 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.62 - TOTP enforcement active
+2025-09-24 01:33:03,846 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.62 - likely behind NAT
+2025-09-24 01:33:03,846 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:33:03,847 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.62 - TOTP enforcement check: True
+2025-09-24 01:33:03,847 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.62 - TOTP enforcement active
+2025-09-24 01:33:06,965 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.62 - likely behind NAT
+2025-09-24 01:33:06,967 - homeguard.web.routes.connectivity - INFO - ✅ Generic connectivity check: Device http:45:56:d8:ca:f3:a3 not authenticated - redirecting
+2025-09-24 01:33:06,982 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.62 - likely behind NAT
+2025-09-24 01:33:06,982 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:33:06,982 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.62 - TOTP enforcement check: True
+2025-09-24 01:33:06,982 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.62 - TOTP enforcement active
+2025-09-24 01:34:20,369 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 01:34:20,369 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:34:20,369 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 01:34:20,369 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 01:34:30,536 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 01:34:30,538 - homeguard.auth.totp - WARNING - Invalid TOTP code provided: 789783
+2025-09-24 01:34:32,819 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 01:34:32,819 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:34:32,819 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 01:34:32,819 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 01:34:40,886 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 01:34:40,887 - homeguard.auth.totp - WARNING - Invalid TOTP code provided: 517 278
+2025-09-24 01:34:42,937 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 01:34:42,937 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:34:42,938 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 01:34:42,938 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 01:36:09,205 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 01:36:09,206 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:36:09,206 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 01:36:09,206 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 01:36:10,651 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 01:36:10,651 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:36:10,652 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 01:36:10,652 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 01:36:18,157 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 01:36:18,157 - homeguard.auth.totp - INFO - Valid TOTP code for 15min duration
+2025-09-24 01:36:18,170 - homeguard.network.traffic_monitor - INFO - ❌ Device 192.168.2.61 (MAC: http:d9:a7:f4:ae:bf:41) removed from fast path - will hit slow path blocking
+2025-09-24 01:36:18,171 - homeguard.network.traffic_monitor - ERROR - iptables command failed: iptables -t filter -I HOMEGUARD_ACCEPT 1 -s 192.168.2.61 -j ACCEPT
+2025-09-24 01:36:18,172 - homeguard.network.traffic_monitor - ERROR - Error: Command '['iptables', '-t', 'filter', '-I', 'HOMEGUARD_ACCEPT', '1', '-s', '192.168.2.61', '-j', 'ACCEPT']' returned non-zero exit status 4.
+2025-09-24 01:36:18,172 - homeguard.network.traffic_monitor - ERROR - Failed to allow traffic for IP 192.168.2.61: Command '['iptables', '-t', 'filter', '-I', 'HOMEGUARD_ACCEPT', '1', '-s', '192.168.2.61', '-j', 'ACCEPT']' returned non-zero exit status 4.
+2025-09-24 01:36:18,172 - homeguard.network.traffic_monitor - INFO - ✅ Allowed traffic for device http:d9:a7:f4:ae:bf:41 using provided IP 192.168.2.61
+2025-09-24 01:37:09,743 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 01:37:09,743 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:37:09,744 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 01:37:09,744 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 01:37:14,087 - homeguard.database.connection - ERROR - Database session error: 302: Found
+2025-09-24 01:37:27,430 - homeguard.auth.totp - INFO - Valid TOTP code for forever duration
+2025-09-24 01:37:27,440 - homeguard.database.connection - ERROR - Database session error: 'Select' object has no attribute 'count'
+2025-09-24 01:37:44,502 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:37:44,504 - homeguard.web.routes.connectivity - INFO - 📱 Android connectivity check: Device http:d2:a8:b7:2e:57:e7 not authenticated - redirecting
+2025-09-24 01:37:47,494 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:37:47,496 - homeguard.web.routes.connectivity - INFO - 📱 Android connectivity check: Device http:d2:a8:b7:2e:57:e7 not authenticated - redirecting
+2025-09-24 01:37:47,517 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:37:47,518 - homeguard.web.routes.connectivity - INFO - 📱 Android connectivity check: Device http:d2:a8:b7:2e:57:e7 not authenticated - redirecting
+2025-09-24 01:37:48,057 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:37:48,059 - homeguard.web.routes.connectivity - INFO - 📱 Android connectivity check: Device http:d2:a8:b7:2e:57:e7 not authenticated - redirecting
+2025-09-24 01:37:48,519 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:37:48,521 - homeguard.web.routes.connectivity - INFO - 📱 Android connectivity check: Device http:d2:a8:b7:2e:57:e7 not authenticated - redirecting
+2025-09-24 01:37:48,634 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:37:48,636 - homeguard.web.routes.connectivity - INFO - 📱 Android connectivity check: Device http:d2:a8:b7:2e:57:e7 not authenticated - redirecting
+2025-09-24 01:37:49,834 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:37:49,836 - homeguard.web.routes.connectivity - INFO - 📱 Android connectivity check: Device http:d2:a8:b7:2e:57:e7 not authenticated - redirecting
+2025-09-24 01:37:49,983 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:37:49,984 - homeguard.web.routes.connectivity - INFO - 📱 Android connectivity check: Device http:d2:a8:b7:2e:57:e7 not authenticated - redirecting
+2025-09-24 01:37:51,159 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:37:51,161 - homeguard.web.routes.connectivity - INFO - 📱 Android connectivity check: Device http:d2:a8:b7:2e:57:e7 not authenticated - redirecting
+2025-09-24 01:37:51,200 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:37:51,205 - homeguard.web.routes.connectivity - INFO - 📱 Android connectivity check: Device http:d2:a8:b7:2e:57:e7 not authenticated - redirecting
+2025-09-24 01:37:52,555 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:37:52,555 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:37:52,555 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.52 - TOTP enforcement check: True
+2025-09-24 01:37:52,555 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.52 - TOTP enforcement active
+2025-09-24 01:37:52,604 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:37:52,606 - homeguard.web.routes.connectivity - INFO - 📱 Android connectivity check: Device http:d2:a8:b7:2e:57:e7 not authenticated - redirecting
+2025-09-24 01:37:52,626 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:37:52,628 - homeguard.web.routes.connectivity - INFO - 📱 Android connectivity check: Device http:d2:a8:b7:2e:57:e7 not authenticated - redirecting
+2025-09-24 01:37:56,177 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:37:56,178 - homeguard.auth.totp - INFO - Valid TOTP code for 15min duration
+2025-09-24 01:37:56,187 - homeguard.network.traffic_monitor - INFO - ❌ Device 192.168.2.52 (MAC: http:d2:a8:b7:2e:57:e7) removed from fast path - will hit slow path blocking
+2025-09-24 01:37:56,188 - homeguard.network.traffic_monitor - ERROR - iptables command failed: iptables -t filter -I HOMEGUARD_ACCEPT 1 -s 192.168.2.52 -j ACCEPT
+2025-09-24 01:37:56,188 - homeguard.network.traffic_monitor - ERROR - Error: Command '['iptables', '-t', 'filter', '-I', 'HOMEGUARD_ACCEPT', '1', '-s', '192.168.2.52', '-j', 'ACCEPT']' returned non-zero exit status 4.
+2025-09-24 01:37:56,188 - homeguard.network.traffic_monitor - ERROR - Failed to allow traffic for IP 192.168.2.52: Command '['iptables', '-t', 'filter', '-I', 'HOMEGUARD_ACCEPT', '1', '-s', '192.168.2.52', '-j', 'ACCEPT']' returned non-zero exit status 4.
+2025-09-24 01:37:56,188 - homeguard.network.traffic_monitor - INFO - ✅ Allowed traffic for device http:d2:a8:b7:2e:57:e7 using provided IP 192.168.2.52
+2025-09-24 01:37:56,259 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:37:56,260 - homeguard.web.routes.connectivity - INFO - 📱 Android connectivity check: Device http:d2:a8:b7:2e:57:e7 authenticated - returning 204
+2025-09-24 01:37:56,445 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:37:56,447 - homeguard.web.routes.connectivity - INFO - 📱 Android connectivity check: Device http:d2:a8:b7:2e:57:e7 authenticated - returning 204
+2025-09-24 01:37:56,657 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:37:56,657 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:37:56,657 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.52 - TOTP enforcement check: True
+2025-09-24 01:37:56,657 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.52 - TOTP enforcement active
+2025-09-24 01:37:56,661 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:37:56,664 - homeguard.web.routes.connectivity - INFO - 📱 Android connectivity check: Device http:d2:a8:b7:2e:57:e7 authenticated - returning 204
+2025-09-24 01:37:56,720 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:37:56,720 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:37:56,721 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.52 - TOTP enforcement check: True
+2025-09-24 01:37:56,721 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.52 - TOTP enforcement active
+2025-09-24 01:37:56,917 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:37:56,917 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:37:56,918 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.52 - TOTP enforcement check: True
+2025-09-24 01:37:56,918 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.52 - TOTP enforcement active
+2025-09-24 01:38:16,964 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:38:16,965 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:38:16,965 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.52 - TOTP enforcement check: True
+2025-09-24 01:38:16,965 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.52 - TOTP enforcement active
+2025-09-24 01:38:17,157 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:38:17,157 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:38:17,157 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.52 - TOTP enforcement check: True
+2025-09-24 01:38:17,158 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.52 - TOTP enforcement active
+2025-09-24 01:38:17,408 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:38:17,408 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:38:17,408 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.52 - TOTP enforcement check: True
+2025-09-24 01:38:17,408 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.52 - TOTP enforcement active
+2025-09-24 01:38:37,627 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:38:37,627 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:38:37,627 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.52 - TOTP enforcement check: True
+2025-09-24 01:38:37,628 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.52 - TOTP enforcement active
+2025-09-24 01:38:37,895 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:38:37,895 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:38:37,896 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.52 - TOTP enforcement check: True
+2025-09-24 01:38:37,896 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.52 - TOTP enforcement active
+2025-09-24 01:38:38,161 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:38:38,162 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:38:38,162 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.52 - TOTP enforcement check: True
+2025-09-24 01:38:38,162 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.52 - TOTP enforcement active
+2025-09-24 01:39:20,265 - homeguard.database.connection - ERROR - Database session error: 'Select' object has no attribute 'count'
+2025-09-24 01:39:23,983 - homeguard.database.connection - ERROR - Database session error: 'Select' object has no attribute 'count'
+2025-09-24 01:39:24,676 - homeguard.database.connection - ERROR - Database session error: 'Select' object has no attribute 'count'
+2025-09-24 01:39:24,911 - homeguard.database.connection - ERROR - Database session error: 'Select' object has no attribute 'count'
+2025-09-24 01:39:25,120 - homeguard.database.connection - ERROR - Database session error: 'Select' object has no attribute 'count'
+2025-09-24 01:39:25,314 - homeguard.database.connection - ERROR - Database session error: 'Select' object has no attribute 'count'
+2025-09-24 01:39:25,536 - homeguard.database.connection - ERROR - Database session error: 'Select' object has no attribute 'count'
+2025-09-24 01:39:32,963 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 01:39:32,963 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:39:32,963 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 01:39:32,963 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 01:39:34,614 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 01:39:34,614 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:39:34,614 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 01:39:34,615 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 01:39:41,131 - homeguard.database.connection - ERROR - Database session error: 'Select' object has no attribute 'count'
+2025-09-24 01:40:47,146 - __main__ - INFO - HomeguardGuard Network Gateway starting...
+2025-09-24 01:40:47,146 - __main__ - INFO - ==================================================
+2025-09-24 01:40:47,146 - __main__ - INFO - 🔧 Configuration loaded from: /etc/homeguard/config.yaml
+2025-09-24 01:40:47,146 - __main__ - INFO - 🚀 Operational Mode: TOTP_FULL
+2025-09-24 01:40:47,146 - __main__ - INFO - 📝 Mode: TOTP FULL - All devices blocked until TOTP authentication
+2025-09-24 01:40:47,146 - __main__ - INFO - 🌐 Gateway: 192.168.2.1:8081
+2025-09-24 01:40:47,146 - __main__ - INFO - 🔧 Debug mode: False
+2025-09-24 01:40:47,146 - __main__ - INFO - 🔄 Auto recovery: True
+2025-09-24 01:40:47,146 - __main__ - INFO - ==================================================
+2025-09-24 01:40:47,147 - __main__ - INFO - Starting MyProxy services...
+2025-09-24 01:40:47,147 - __main__ - INFO - TrafficMonitor started
+2025-09-24 01:40:47,147 - __main__ - INFO - HTTP Proxy started
+2025-09-24 01:40:47,148 - __main__ - INFO - Starting web server on 0.0.0.0:8081
+2025-09-24 01:40:47,148 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 01:40:47,149 - homeguard.proxy.http_proxy - INFO - Starting HTTP proxy server on 0.0.0.0:8888
+2025-09-24 01:40:47,149 - homeguard.proxy.http_proxy - INFO - Blocked domains: youtube.com, www.youtube.com, m.youtube.com, youtu.be, googlevideo.com
+2025-09-24 01:40:47,164 - homeguard.web.app - INFO - Starting HomeguardGuard Web Application with gateway_mode=totp_full
+2025-09-24 01:40:47,165 - homeguard.proxy.http_proxy - INFO - ✅ HTTP proxy server started on http://0.0.0.0:8888
+2025-09-24 01:40:47,165 - homeguard.proxy.http_proxy - INFO - Configure your browser to use this as HTTP proxy for testing
+2025-09-24 01:40:47,168 - homeguard.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-24 01:40:47,171 - homeguard.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-24 01:40:47,173 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 01:40:47,173 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 01:40:47,173 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 01:40:47,174 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 01:40:47,174 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 01:40:47,174 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 01:40:47,183 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 01:40:47,185 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 01:40:47,185 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:40:47,185 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:40:47,185 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:40:47,185 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:40:47,185 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:40:47,185 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:40:47,185 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:40:47,185 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (1/3)
+2025-09-24 01:40:47,187 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 01:40:47,187 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 01:40:51,854 - homeguard.database.connection - ERROR - Database session error: 302: Found
+2025-09-24 01:40:52,186 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 01:40:52,189 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 01:40:52,189 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 01:40:52,189 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 01:40:52,189 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 01:40:52,189 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 01:40:52,189 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 01:40:52,192 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 01:40:52,193 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 01:40:52,193 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:40:52,193 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:40:52,193 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:40:52,193 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:40:52,194 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:40:52,194 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:40:52,194 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:40:52,194 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (2/3)
+2025-09-24 01:40:57,194 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 01:40:57,198 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 01:40:57,198 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 01:40:57,198 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 01:40:57,198 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 01:40:57,198 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 01:40:57,198 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 01:40:57,202 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 01:40:57,204 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 01:40:57,204 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:40:57,204 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:40:57,204 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:40:57,204 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:40:57,204 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:40:57,204 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:40:57,204 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:40:57,204 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (3/3)
+2025-09-24 01:41:02,205 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 01:41:02,208 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 01:41:02,208 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 01:41:02,208 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 01:41:02,208 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 01:41:02,208 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 01:41:02,208 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 01:41:02,211 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 01:41:02,212 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 01:41:02,213 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:41:02,213 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:41:02,213 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:41:02,213 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:41:02,213 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:41:02,213 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:41:02,213 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:41:02,213 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:41:02,213 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 01:41:02,213 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:41:02,213 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 01:41:02,213 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:41:02,213 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 01:41:14,530 - homeguard.auth.totp - INFO - ✅ Valid TOTP code for forever duration (window validation)
+2025-09-24 01:41:14,538 - homeguard.database.connection - ERROR - Database session error: type object 'Device' has no attribute 'id'
+2025-09-24 01:41:40,868 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 01:41:40,868 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 01:41:40,869 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 01:41:40,869 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 01:42:32,741 - __main__ - INFO - HomeguardGuard Network Gateway starting...
+2025-09-24 01:42:32,741 - __main__ - INFO - ==================================================
+2025-09-24 01:42:32,741 - __main__ - INFO - 🔧 Configuration loaded from: /etc/homeguard/config.yaml
+2025-09-24 01:42:32,741 - __main__ - INFO - 🚀 Operational Mode: TOTP_FULL
+2025-09-24 01:42:32,742 - __main__ - INFO - 📝 Mode: TOTP FULL - All devices blocked until TOTP authentication
+2025-09-24 01:42:32,742 - __main__ - INFO - 🌐 Gateway: 192.168.2.1:8081
+2025-09-24 01:42:32,742 - __main__ - INFO - 🔧 Debug mode: False
+2025-09-24 01:42:32,742 - __main__ - INFO - 🔄 Auto recovery: True
+2025-09-24 01:42:32,742 - __main__ - INFO - ==================================================
+2025-09-24 01:42:32,742 - __main__ - INFO - Starting MyProxy services...
+2025-09-24 01:42:32,743 - __main__ - INFO - TrafficMonitor started
+2025-09-24 01:42:32,743 - __main__ - INFO - HTTP Proxy started
+2025-09-24 01:42:32,743 - __main__ - INFO - Starting web server on 0.0.0.0:8081
+2025-09-24 01:42:32,744 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 01:42:32,744 - homeguard.proxy.http_proxy - INFO - Starting HTTP proxy server on 0.0.0.0:8888
+2025-09-24 01:42:32,744 - homeguard.proxy.http_proxy - INFO - Blocked domains: youtube.com, www.youtube.com, m.youtube.com, youtu.be, googlevideo.com
+2025-09-24 01:42:32,758 - homeguard.web.app - INFO - Starting HomeguardGuard Web Application with gateway_mode=totp_full
+2025-09-24 01:42:32,760 - homeguard.proxy.http_proxy - INFO - ✅ HTTP proxy server started on http://0.0.0.0:8888
+2025-09-24 01:42:32,760 - homeguard.proxy.http_proxy - INFO - Configure your browser to use this as HTTP proxy for testing
+2025-09-24 01:42:32,763 - homeguard.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-24 01:42:32,766 - homeguard.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-24 01:42:32,769 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 01:42:32,769 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 01:42:32,769 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 01:42:32,769 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 01:42:32,770 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 01:42:32,770 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 01:42:32,774 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 01:42:32,776 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 01:42:32,776 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:32,776 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:32,776 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:32,776 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:32,776 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:32,776 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:32,776 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:32,776 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (1/3)
+2025-09-24 01:42:32,778 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 01:42:32,778 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 01:42:36,993 - homeguard.database.connection - ERROR - Database session error: 302: Found
+2025-09-24 01:42:37,777 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 01:42:37,780 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 01:42:37,780 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 01:42:37,780 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 01:42:37,780 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 01:42:37,780 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 01:42:37,780 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 01:42:37,784 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 01:42:37,785 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 01:42:37,786 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:37,786 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:37,786 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:37,786 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:37,786 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:37,786 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:37,786 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:37,786 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (2/3)
+2025-09-24 01:42:42,787 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 01:42:42,790 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 01:42:42,790 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 01:42:42,790 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 01:42:42,790 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 01:42:42,790 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 01:42:42,790 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 01:42:42,794 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 01:42:42,795 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 01:42:42,795 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:42,795 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:42,795 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:42,795 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:42,795 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:42,796 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:42,796 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:42,796 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (3/3)
+2025-09-24 01:42:46,292 - homeguard.auth.totp - INFO - ✅ Valid TOTP code for forever duration (window validation)
+2025-09-24 01:42:47,798 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 01:42:47,801 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 01:42:47,801 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 01:42:47,801 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 01:42:47,801 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 01:42:47,801 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 01:42:47,801 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 01:42:47,804 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 01:42:47,806 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 01:42:47,806 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:47,806 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:47,806 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:47,806 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:47,806 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:47,806 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:47,806 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:47,806 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:47,806 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 01:42:47,806 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:47,806 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 01:42:47,806 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 01:42:47,806 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 01:45:04,092 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 01:45:04,096 - homeguard.web.routes.connectivity - INFO - 📱 Android connectivity check: Device http:d2:a8:b7:2e:57:e7 authenticated - returning 204
+2025-09-24 02:00:40,206 - __main__ - INFO - HomeguardGuard Network Gateway starting...
+2025-09-24 02:00:40,206 - __main__ - INFO - ==================================================
+2025-09-24 02:00:40,206 - __main__ - INFO - 🔧 Configuration loaded from: /etc/homeguard/config.yaml
+2025-09-24 02:00:40,206 - __main__ - INFO - 🚀 Operational Mode: TOTP_FULL
+2025-09-24 02:00:40,206 - __main__ - INFO - 📝 Mode: TOTP FULL - All devices blocked until TOTP authentication
+2025-09-24 02:00:40,206 - __main__ - INFO - 🌐 Gateway: 192.168.2.1:8081
+2025-09-24 02:00:40,206 - __main__ - INFO - 🔧 Debug mode: False
+2025-09-24 02:00:40,206 - __main__ - INFO - 🔄 Auto recovery: True
+2025-09-24 02:00:40,206 - __main__ - INFO - ==================================================
+2025-09-24 02:00:40,207 - __main__ - INFO - Starting MyProxy services...
+2025-09-24 02:00:40,208 - __main__ - INFO - TrafficMonitor started
+2025-09-24 02:00:40,208 - __main__ - INFO - HTTP Proxy started
+2025-09-24 02:00:40,208 - __main__ - INFO - Starting web server on 0.0.0.0:8081
+2025-09-24 02:00:40,208 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:00:40,209 - homeguard.proxy.http_proxy - INFO - Starting HTTP proxy server on 0.0.0.0:8888
+2025-09-24 02:00:40,209 - homeguard.proxy.http_proxy - INFO - Blocked domains: youtube.com, www.youtube.com, m.youtube.com, youtu.be, googlevideo.com
+2025-09-24 02:00:40,224 - homeguard.web.app - INFO - Starting HomeguardGuard Web Application with gateway_mode=totp_full
+2025-09-24 02:00:40,228 - homeguard.proxy.http_proxy - INFO - ✅ HTTP proxy server started on http://0.0.0.0:8888
+2025-09-24 02:00:40,228 - homeguard.proxy.http_proxy - INFO - Configure your browser to use this as HTTP proxy for testing
+2025-09-24 02:00:40,231 - homeguard.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-24 02:00:40,235 - homeguard.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-24 02:00:40,237 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:00:40,237 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:00:40,237 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 02:00:40,237 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 02:00:40,237 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 02:00:40,238 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 02:00:40,241 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 02:00:40,243 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 02:00:40,243 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:40,243 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:40,243 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:40,243 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:40,243 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:40,243 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:40,243 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:40,243 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (1/3)
+2025-09-24 02:00:40,245 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:00:40,245 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:00:45,244 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:00:45,246 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:00:45,246 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:00:45,246 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 02:00:45,246 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 02:00:45,247 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 02:00:45,247 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 02:00:45,250 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 02:00:45,251 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 02:00:45,251 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:45,251 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:45,251 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:45,251 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:45,251 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:45,251 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:45,251 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:45,251 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (2/3)
+2025-09-24 02:00:47,067 - homeguard.database.connection - ERROR - Database session error: 302: Found
+2025-09-24 02:00:50,252 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:00:50,256 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:00:50,256 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:00:50,256 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 02:00:50,257 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 02:00:50,257 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 02:00:50,257 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 02:00:50,261 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 02:00:50,263 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 02:00:50,263 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:50,263 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:50,263 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:50,264 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:50,264 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:50,264 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:50,264 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:50,264 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (3/3)
+2025-09-24 02:00:55,264 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:00:55,268 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:00:55,268 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:00:55,268 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 02:00:55,268 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 02:00:55,268 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 02:00:55,269 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 02:00:55,271 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 02:00:55,273 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 02:00:55,273 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:55,273 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:55,273 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:55,273 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:55,273 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:55,273 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:55,273 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:55,273 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:55,273 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 02:00:55,273 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:55,273 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 02:00:55,273 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:00:55,273 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 02:01:00,147 - homeguard.auth.totp - INFO - ✅ Valid TOTP code for forever duration (window validation)
+2025-09-24 02:01:00,186 - homeguard.database.connection - ERROR - Database session error: No module named 'PIL'
+2025-09-24 02:01:02,819 - homeguard.database.connection - ERROR - Database session error: No module named 'PIL'
+2025-09-24 02:01:18,173 - homeguard.database.connection - ERROR - Database session error: No module named 'PIL'
+2025-09-24 02:01:19,103 - homeguard.database.connection - ERROR - Database session error: No module named 'PIL'
+2025-09-24 02:02:21,907 - __main__ - INFO - HomeguardGuard Network Gateway starting...
+2025-09-24 02:02:21,907 - __main__ - INFO - ==================================================
+2025-09-24 02:02:21,907 - __main__ - INFO - 🔧 Configuration loaded from: /etc/homeguard/config.yaml
+2025-09-24 02:02:21,907 - __main__ - INFO - 🚀 Operational Mode: TOTP_FULL
+2025-09-24 02:02:21,907 - __main__ - INFO - 📝 Mode: TOTP FULL - All devices blocked until TOTP authentication
+2025-09-24 02:02:21,907 - __main__ - INFO - 🌐 Gateway: 192.168.2.1:8081
+2025-09-24 02:02:21,907 - __main__ - INFO - 🔧 Debug mode: False
+2025-09-24 02:02:21,908 - __main__ - INFO - 🔄 Auto recovery: True
+2025-09-24 02:02:21,908 - __main__ - INFO - ==================================================
+2025-09-24 02:02:21,908 - __main__ - INFO - Starting MyProxy services...
+2025-09-24 02:02:21,909 - __main__ - INFO - TrafficMonitor started
+2025-09-24 02:02:21,909 - __main__ - INFO - HTTP Proxy started
+2025-09-24 02:02:21,909 - __main__ - INFO - Starting web server on 0.0.0.0:8081
+2025-09-24 02:02:21,909 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:02:21,910 - homeguard.proxy.http_proxy - INFO - Starting HTTP proxy server on 0.0.0.0:8888
+2025-09-24 02:02:21,910 - homeguard.proxy.http_proxy - INFO - Blocked domains: youtube.com, www.youtube.com, m.youtube.com, youtu.be, googlevideo.com
+2025-09-24 02:02:21,925 - homeguard.web.app - INFO - Starting HomeguardGuard Web Application with gateway_mode=totp_full
+2025-09-24 02:02:21,926 - homeguard.proxy.http_proxy - INFO - ✅ HTTP proxy server started on http://0.0.0.0:8888
+2025-09-24 02:02:21,926 - homeguard.proxy.http_proxy - INFO - Configure your browser to use this as HTTP proxy for testing
+2025-09-24 02:02:21,931 - homeguard.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-24 02:02:21,937 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:02:21,938 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:02:21,938 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 02:02:21,938 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 02:02:21,938 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 02:02:21,938 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 02:02:21,942 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 02:02:21,944 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 02:02:21,944 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:21,944 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:21,944 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:21,945 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:21,945 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:21,945 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:21,945 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:21,945 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (1/3)
+2025-09-24 02:02:21,946 - homeguard.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-24 02:02:21,949 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:02:21,949 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:02:24,965 - homeguard.database.connection - ERROR - Database session error: 302: Found
+2025-09-24 02:02:26,946 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:02:26,949 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:02:26,950 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:02:26,950 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 02:02:26,950 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 02:02:26,950 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 02:02:26,950 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 02:02:26,954 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 02:02:26,955 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 02:02:26,955 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:26,955 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:26,955 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:26,956 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:26,956 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:26,956 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:26,956 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:26,956 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (2/3)
+2025-09-24 02:02:31,957 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:02:31,959 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:02:31,960 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:02:31,960 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 02:02:31,960 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 02:02:31,960 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 02:02:31,960 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 02:02:31,963 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 02:02:31,964 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 02:02:31,964 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:31,964 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:31,964 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:31,964 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:31,964 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:31,964 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:31,964 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:31,964 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (3/3)
+2025-09-24 02:02:36,965 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:02:36,969 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:02:36,969 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:02:36,969 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 02:02:36,969 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 02:02:36,969 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 02:02:36,969 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 02:02:36,973 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 02:02:36,975 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 02:02:36,975 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:36,975 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:36,975 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:36,975 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:36,975 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:36,976 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:36,976 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:36,976 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:36,976 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 02:02:36,976 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:36,976 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 02:02:36,976 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:02:36,976 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 02:02:38,152 - homeguard.auth.totp - INFO - ✅ Valid TOTP code for forever duration (window validation)
+2025-09-24 02:03:30,502 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:03:30,502 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:03:30,502 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 02:03:30,502 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 02:03:52,850 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:03:52,850 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:03:52,850 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 02:03:52,850 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 02:08:16,864 - __main__ - INFO - HomeguardGuard Network Gateway starting...
+2025-09-24 02:08:16,864 - __main__ - INFO - ==================================================
+2025-09-24 02:08:16,864 - __main__ - INFO - 🔧 Configuration loaded from: /etc/homeguard/config.yaml
+2025-09-24 02:08:16,864 - __main__ - INFO - 🚀 Operational Mode: TOTP_FULL
+2025-09-24 02:08:16,864 - __main__ - INFO - 📝 Mode: TOTP FULL - All devices blocked until TOTP authentication
+2025-09-24 02:08:16,864 - __main__ - INFO - 🌐 Gateway: 192.168.2.1:8081
+2025-09-24 02:08:16,864 - __main__ - INFO - 🔧 Debug mode: False
+2025-09-24 02:08:16,865 - __main__ - INFO - 🔄 Auto recovery: True
+2025-09-24 02:08:16,865 - __main__ - INFO - ==================================================
+2025-09-24 02:08:16,865 - __main__ - INFO - Starting MyProxy services...
+2025-09-24 02:08:16,866 - __main__ - INFO - TrafficMonitor started
+2025-09-24 02:08:16,866 - __main__ - INFO - HTTP Proxy started
+2025-09-24 02:08:16,866 - __main__ - INFO - Starting web server on 0.0.0.0:8081
+2025-09-24 02:08:16,866 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:08:16,867 - homeguard.proxy.http_proxy - INFO - Starting HTTP proxy server on 0.0.0.0:8888
+2025-09-24 02:08:16,867 - homeguard.proxy.http_proxy - INFO - Blocked domains: youtube.com, www.youtube.com, m.youtube.com, youtu.be, googlevideo.com
+2025-09-24 02:08:16,882 - homeguard.web.app - INFO - Starting HomeguardGuard Web Application with gateway_mode=totp_full
+2025-09-24 02:08:16,883 - homeguard.proxy.http_proxy - INFO - ✅ HTTP proxy server started on http://0.0.0.0:8888
+2025-09-24 02:08:16,883 - homeguard.proxy.http_proxy - INFO - Configure your browser to use this as HTTP proxy for testing
+2025-09-24 02:08:16,886 - homeguard.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-24 02:08:16,890 - homeguard.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-24 02:08:16,891 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:08:16,892 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:08:16,892 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 02:08:16,892 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 02:08:16,892 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 02:08:16,892 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 02:08:16,895 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 02:08:16,897 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 02:08:16,897 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:16,897 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:16,897 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:16,897 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:16,897 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:16,898 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:16,898 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:16,898 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (1/3)
+2025-09-24 02:08:16,901 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:08:16,901 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:08:21,899 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:08:21,902 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:08:21,902 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:08:21,902 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 02:08:21,902 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 02:08:21,902 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 02:08:21,902 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 02:08:21,906 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 02:08:21,907 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 02:08:21,907 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:21,907 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:21,907 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:21,907 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:21,907 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:21,907 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:21,907 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:21,907 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (2/3)
+2025-09-24 02:08:24,977 - homeguard.database.connection - ERROR - Database session error: 302: Found
+2025-09-24 02:08:26,908 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:08:26,911 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:08:26,911 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:08:26,911 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 02:08:26,911 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 02:08:26,911 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 02:08:26,912 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 02:08:26,915 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 02:08:26,916 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 02:08:26,916 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:26,917 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:26,917 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:26,917 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:26,917 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:26,917 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:26,917 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:26,917 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (3/3)
+2025-09-24 02:08:31,917 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:08:31,920 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:08:31,920 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:08:31,920 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 02:08:31,920 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 02:08:31,920 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 02:08:31,920 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 02:08:31,923 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 02:08:31,924 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 02:08:31,924 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:31,924 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:31,924 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:31,924 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:31,924 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:31,924 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:31,924 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:31,924 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:31,924 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 02:08:31,924 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:31,924 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 02:08:31,924 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:08:31,924 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 02:08:36,645 - homeguard.auth.totp - INFO - ✅ Valid TOTP code for forever duration (window validation)
+2025-09-24 02:11:32,921 - __main__ - INFO - HomeguardGuard Network Gateway starting...
+2025-09-24 02:11:32,921 - __main__ - INFO - ==================================================
+2025-09-24 02:11:32,921 - __main__ - INFO - 🔧 Configuration loaded from: /etc/homeguard/config.yaml
+2025-09-24 02:11:32,921 - __main__ - INFO - 🚀 Operational Mode: TOTP_FULL
+2025-09-24 02:11:32,921 - __main__ - INFO - 📝 Mode: TOTP FULL - All devices blocked until TOTP authentication
+2025-09-24 02:11:32,921 - __main__ - INFO - 🌐 Gateway: 192.168.2.1:8081
+2025-09-24 02:11:32,922 - __main__ - INFO - 🔧 Debug mode: False
+2025-09-24 02:11:32,922 - __main__ - INFO - 🔄 Auto recovery: True
+2025-09-24 02:11:32,922 - __main__ - INFO - ==================================================
+2025-09-24 02:11:32,922 - __main__ - INFO - Starting MyProxy services...
+2025-09-24 02:11:32,923 - __main__ - INFO - TrafficMonitor started
+2025-09-24 02:11:32,923 - __main__ - INFO - HTTP Proxy started
+2025-09-24 02:11:32,923 - __main__ - INFO - Starting web server on 0.0.0.0:8081
+2025-09-24 02:11:32,923 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:11:32,924 - homeguard.proxy.http_proxy - INFO - Starting HTTP proxy server on 0.0.0.0:8888
+2025-09-24 02:11:32,924 - homeguard.proxy.http_proxy - INFO - Blocked domains: youtube.com, www.youtube.com, m.youtube.com, youtu.be, googlevideo.com
+2025-09-24 02:11:32,937 - homeguard.web.app - INFO - Starting HomeguardGuard Web Application with gateway_mode=totp_full
+2025-09-24 02:11:32,938 - homeguard.proxy.http_proxy - INFO - ✅ HTTP proxy server started on http://0.0.0.0:8888
+2025-09-24 02:11:32,938 - homeguard.proxy.http_proxy - INFO - Configure your browser to use this as HTTP proxy for testing
+2025-09-24 02:11:32,941 - homeguard.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-24 02:11:32,944 - homeguard.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-24 02:11:32,945 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:11:32,945 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:11:32,945 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 02:11:32,946 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 02:11:32,946 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 02:11:32,946 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 02:11:32,949 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 02:11:32,950 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 02:11:32,951 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:32,951 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:32,951 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:32,951 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:32,951 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:32,951 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:32,951 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:32,951 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (1/3)
+2025-09-24 02:11:32,954 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:11:32,954 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:11:37,953 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:11:37,956 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:11:37,956 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:11:37,956 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 02:11:37,956 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 02:11:37,957 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 02:11:37,957 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 02:11:37,960 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 02:11:37,962 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 02:11:37,962 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:37,962 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:37,962 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:37,962 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:37,962 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:37,962 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:37,962 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:37,962 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (2/3)
+2025-09-24 02:11:38,549 - homeguard.database.connection - ERROR - Database session error: 302: Found
+2025-09-24 02:11:42,963 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:11:42,966 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:11:42,966 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:11:42,966 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 02:11:42,966 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 02:11:42,966 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 02:11:42,966 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 02:11:42,969 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 02:11:42,970 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 02:11:42,970 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:42,970 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:42,970 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:42,970 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:42,970 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:42,970 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:42,970 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:42,970 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (3/3)
+2025-09-24 02:11:47,971 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:11:47,973 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:11:47,974 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:11:47,974 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 02:11:47,974 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 02:11:47,974 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 02:11:47,974 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 02:11:47,977 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 02:11:47,978 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 02:11:47,978 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:47,978 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:47,978 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:47,978 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:47,978 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:47,978 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:47,978 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:47,978 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:47,978 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 02:11:47,978 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:47,978 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 02:11:47,978 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:11:47,978 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 02:11:49,480 - homeguard.auth.totp - INFO - ✅ Valid TOTP code for forever duration (window validation)
+2025-09-24 02:13:49,572 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:13:49,574 - homeguard.auth.totp - WARNING - ❌ Invalid TOTP code provided: 161731
+2025-09-24 02:13:52,269 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:13:52,269 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:13:52,269 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 02:13:52,269 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 02:14:06,376 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:14:06,377 - homeguard.auth.totp - INFO - ✅ Valid TOTP code for 1hr duration (window validation)
+2025-09-24 02:14:06,388 - homeguard.network.traffic_monitor - INFO - ❌ Device 192.168.2.61 (MAC: http:d9:a7:f4:ae:bf:41) removed from fast path - will hit slow path blocking
+2025-09-24 02:14:06,390 - homeguard.network.traffic_monitor - ERROR - iptables command failed: iptables -t filter -I HOMEGUARD_ACCEPT 1 -s 192.168.2.61 -j ACCEPT
+2025-09-24 02:14:06,390 - homeguard.network.traffic_monitor - ERROR - Error: Command '['iptables', '-t', 'filter', '-I', 'HOMEGUARD_ACCEPT', '1', '-s', '192.168.2.61', '-j', 'ACCEPT']' returned non-zero exit status 4.
+2025-09-24 02:14:06,390 - homeguard.network.traffic_monitor - ERROR - Failed to allow traffic for IP 192.168.2.61: Command '['iptables', '-t', 'filter', '-I', 'HOMEGUARD_ACCEPT', '1', '-s', '192.168.2.61', '-j', 'ACCEPT']' returned non-zero exit status 4.
+2025-09-24 02:14:06,390 - homeguard.network.traffic_monitor - INFO - ✅ Allowed traffic for device http:d9:a7:f4:ae:bf:41 using provided IP 192.168.2.61
+2025-09-24 02:14:41,991 - homeguard.database.connection - ERROR - Database session error: Multiple rows were found when one or none was required
+2025-09-24 02:18:33,351 - __main__ - INFO - HomeguardGuard Network Gateway starting...
+2025-09-24 02:18:33,351 - __main__ - INFO - ==================================================
+2025-09-24 02:18:33,351 - __main__ - INFO - 🔧 Configuration loaded from: /etc/homeguard/config.yaml
+2025-09-24 02:18:33,352 - __main__ - INFO - 🚀 Operational Mode: TOTP_FULL
+2025-09-24 02:18:33,352 - __main__ - INFO - 📝 Mode: TOTP FULL - All devices blocked until TOTP authentication
+2025-09-24 02:18:33,352 - __main__ - INFO - 🌐 Gateway: 192.168.2.1:8081
+2025-09-24 02:18:33,352 - __main__ - INFO - 🔧 Debug mode: False
+2025-09-24 02:18:33,352 - __main__ - INFO - 🔄 Auto recovery: True
+2025-09-24 02:18:33,352 - __main__ - INFO - ==================================================
+2025-09-24 02:18:33,353 - __main__ - INFO - Starting MyProxy services...
+2025-09-24 02:18:33,353 - __main__ - INFO - TrafficMonitor started
+2025-09-24 02:18:33,353 - __main__ - INFO - HTTP Proxy started
+2025-09-24 02:18:33,354 - __main__ - INFO - Starting web server on 0.0.0.0:8081
+2025-09-24 02:18:33,354 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:18:33,355 - homeguard.proxy.http_proxy - INFO - Starting HTTP proxy server on 0.0.0.0:8888
+2025-09-24 02:18:33,355 - homeguard.proxy.http_proxy - INFO - Blocked domains: youtube.com, www.youtube.com, m.youtube.com, youtu.be, googlevideo.com
+2025-09-24 02:18:33,369 - homeguard.web.app - INFO - Starting HomeguardGuard Web Application with gateway_mode=totp_full
+2025-09-24 02:18:33,370 - homeguard.proxy.http_proxy - INFO - ✅ HTTP proxy server started on http://0.0.0.0:8888
+2025-09-24 02:18:33,370 - homeguard.proxy.http_proxy - INFO - Configure your browser to use this as HTTP proxy for testing
+2025-09-24 02:18:33,373 - homeguard.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-24 02:18:33,376 - homeguard.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-24 02:18:33,378 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:18:33,379 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:18:33,379 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 02:18:33,379 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 02:18:33,379 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 02:18:33,379 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 02:18:33,382 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 02:18:33,383 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 02:18:33,384 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:33,384 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:33,384 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:33,384 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:33,384 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:33,384 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:33,384 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:33,384 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (1/3)
+2025-09-24 02:18:33,386 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:18:33,386 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:18:38,386 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:18:38,389 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:18:38,389 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:18:38,389 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 02:18:38,389 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 02:18:38,389 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 02:18:38,389 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 02:18:38,393 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 02:18:38,394 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 02:18:38,395 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:38,395 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:38,395 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:38,395 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:38,395 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:38,395 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:38,395 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:38,395 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (2/3)
+2025-09-24 02:18:43,397 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:18:43,400 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:18:43,400 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:18:43,400 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 02:18:43,401 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 02:18:43,401 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 02:18:43,401 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 02:18:43,404 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 02:18:43,405 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 02:18:43,405 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:43,405 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:43,406 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:43,406 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:43,406 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:43,406 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:43,406 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:43,406 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (3/3)
+2025-09-24 02:18:46,277 - homeguard.database.connection - ERROR - Database session error: 302: Found
+2025-09-24 02:18:48,407 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:18:48,409 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:18:48,410 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:18:48,410 - homeguard.phases.phase_manager - INFO - Starting Phase Management System...
+2025-09-24 02:18:48,410 - homeguard.phases.phase_manager - INFO - Current Phase: 1 - Transparent Bridge
+2025-09-24 02:18:48,410 - homeguard.phases.phase_manager - INFO - Description: Pass all traffic through without filtering - verify connectivity
+2025-09-24 02:18:48,410 - homeguard.phases.phase_manager - INFO - Applying rules for Phase 1: Transparent Bridge
+2025-09-24 02:18:48,413 - homeguard.phases.phase_manager - INFO - Setting up two-chain iptables architecture...
+2025-09-24 02:18:48,414 - homeguard.phases.phase_manager - ERROR - iptables command failed: iptables -t filter -F FORWARD
+2025-09-24 02:18:48,414 - homeguard.phases.phase_manager - ERROR - Error: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:48,414 - homeguard.phases.phase_manager - ERROR - Error setting up two-chain architecture: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:48,415 - homeguard.phases.phase_manager - ERROR - Error setting up allow policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:48,415 - homeguard.phases.phase_manager - ERROR - Error applying iptables policy: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:48,415 - homeguard.phases.phase_manager - ERROR - Error applying phase 1 rules: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:48,415 - homeguard.phases.phase_manager - ERROR - Failed to start Phase Management System: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:48,415 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:48,415 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:48,415 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 02:18:48,415 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:48,415 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 02:18:48,415 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-F', 'FORWARD']' returned non-zero exit status 4.
+2025-09-24 02:18:48,415 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 02:19:00,651 - homeguard.auth.totp - INFO - ✅ Valid TOTP code for forever duration (window validation)
+2025-09-24 02:19:18,067 - homeguard.network.traffic_monitor - INFO - ❌ Device 192.168.2.61 (MAC: d4:db:e5:a5:59:92) removed from fast path - will hit slow path blocking
+2025-09-24 02:19:18,067 - homeguard.web.app - INFO - 🔒 Revoked access and blocked traffic for device 192.168.2.61 (MAC: d4:db:e5:a5:59:92)
+2025-09-24 02:20:40,880 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.62 - likely behind NAT
+2025-09-24 02:20:40,884 - homeguard.web.routes.connectivity - INFO - ✅ Generic connectivity check: Device http:45:56:d8:ca:f3:a3 not authenticated - redirecting
+2025-09-24 02:20:40,969 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.62 - likely behind NAT
+2025-09-24 02:20:40,969 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:20:40,969 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.62 - TOTP enforcement check: True
+2025-09-24 02:20:40,969 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.62 - TOTP enforcement active
+2025-09-24 02:20:40,978 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.62 - likely behind NAT
+2025-09-24 02:20:40,978 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:20:40,978 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.62 - TOTP enforcement check: True
+2025-09-24 02:20:40,978 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.62 - TOTP enforcement active
+2025-09-24 02:20:47,049 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.62 - likely behind NAT
+2025-09-24 02:20:47,049 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:20:47,049 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.62 - TOTP enforcement check: True
+2025-09-24 02:20:47,049 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.62 - TOTP enforcement active
+2025-09-24 02:25:55,104 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.62 - likely behind NAT
+2025-09-24 02:25:55,107 - homeguard.web.routes.connectivity - INFO - ✅ Generic connectivity check: Device http:45:56:d8:ca:f3:a3 not authenticated - redirecting
+2025-09-24 02:25:55,292 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.62 - likely behind NAT
+2025-09-24 02:25:55,292 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:25:55,293 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.62 - TOTP enforcement check: True
+2025-09-24 02:25:55,293 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.62 - TOTP enforcement active
+2025-09-24 02:26:04,657 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.62 - likely behind NAT
+2025-09-24 02:26:04,657 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:26:04,657 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.62 - TOTP enforcement check: True
+2025-09-24 02:26:04,657 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.62 - TOTP enforcement active
+2025-09-24 02:26:48,367 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.52 - likely behind NAT
+2025-09-24 02:26:48,369 - homeguard.web.routes.connectivity - INFO - 📱 Android connectivity check: Device http:d2:a8:b7:2e:57:e7 not authenticated - redirecting
+2025-09-24 02:28:23,870 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:28:23,872 - homeguard.web.routes.connectivity - INFO - 📱 Android connectivity check: Device http:d9:a7:f4:ae:bf:41 authenticated - returning 204
+2025-09-24 02:29:34,209 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:29:34,211 - homeguard.web.routes.connectivity - INFO - 📱 Android connectivity check: Device http:d9:a7:f4:ae:bf:41 authenticated - returning 204
+2025-09-24 02:31:34,233 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:31:34,235 - homeguard.web.routes.connectivity - INFO - 📱 Android connectivity check: Device http:d9:a7:f4:ae:bf:41 authenticated - returning 204
+2025-09-24 02:31:58,522 - __main__ - INFO - HomeguardGuard Network Gateway starting...
+2025-09-24 02:31:58,522 - __main__ - INFO - ==================================================
+2025-09-24 02:31:58,522 - __main__ - INFO - 🔧 Configuration loaded from: /etc/homeguard/config.yaml
+2025-09-24 02:31:58,522 - __main__ - INFO - 🚀 Operational Mode: TOTP_FULL
+2025-09-24 02:31:58,522 - __main__ - INFO - 📝 Mode: TOTP FULL - All devices blocked until TOTP authentication
+2025-09-24 02:31:58,523 - __main__ - INFO - 🌐 Gateway: 192.168.2.1:8081
+2025-09-24 02:31:58,523 - __main__ - INFO - 🔧 Debug mode: False
+2025-09-24 02:31:58,523 - __main__ - INFO - 🔄 Auto recovery: True
+2025-09-24 02:31:58,523 - __main__ - INFO - ==================================================
+2025-09-24 02:31:58,523 - __main__ - INFO - Starting MyProxy services...
+2025-09-24 02:31:58,524 - __main__ - INFO - TrafficMonitor started
+2025-09-24 02:31:58,524 - __main__ - INFO - HTTP Proxy started
+2025-09-24 02:31:58,525 - __main__ - INFO - Starting web server on 0.0.0.0:8081
+2025-09-24 02:31:58,525 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:31:58,525 - homeguard.proxy.http_proxy - INFO - Starting HTTP proxy server on 0.0.0.0:8888
+2025-09-24 02:31:58,526 - homeguard.proxy.http_proxy - INFO - Blocked domains: youtube.com, www.youtube.com, m.youtube.com, youtu.be, googlevideo.com
+2025-09-24 02:31:58,545 - homeguard.web.app - INFO - Starting HomeguardGuard Web Application with gateway_mode=totp_full
+2025-09-24 02:31:58,546 - homeguard.proxy.http_proxy - INFO - ✅ HTTP proxy server started on http://0.0.0.0:8888
+2025-09-24 02:31:58,546 - homeguard.proxy.http_proxy - INFO - Configure your browser to use this as HTTP proxy for testing
+2025-09-24 02:31:58,549 - homeguard.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-24 02:31:58,554 - homeguard.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-24 02:31:58,555 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:31:58,555 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:31:58,556 - homeguard.network.traffic_monitor - INFO - Restoring service state...
+2025-09-24 02:31:58,566 - homeguard.network.traffic_monitor - INFO - Restored authorized device: http:d9:a7:f4:ae:bf:41
+2025-09-24 02:31:58,573 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:31:58,574 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:31:58,575 - homeguard.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-24 02:31:58,580 - homeguard.network.traffic_monitor - INFO - ❌ Device 192.168.2.61 (MAC: http:d9:a7:f4:ae:bf:41) removed from fast path - will hit slow path blocking
+2025-09-24 02:31:58,581 - homeguard.network.traffic_monitor - ERROR - iptables command failed: iptables -t filter -I HOMEGUARD_ACCEPT 1 -s 192.168.2.61 -j ACCEPT
+2025-09-24 02:31:58,582 - homeguard.network.traffic_monitor - ERROR - Error: Command '['iptables', '-t', 'filter', '-I', 'HOMEGUARD_ACCEPT', '1', '-s', '192.168.2.61', '-j', 'ACCEPT']' returned non-zero exit status 4.
+2025-09-24 02:31:58,582 - homeguard.network.traffic_monitor - ERROR - Failed to allow traffic for IP 192.168.2.61: Command '['iptables', '-t', 'filter', '-I', 'HOMEGUARD_ACCEPT', '1', '-s', '192.168.2.61', '-j', 'ACCEPT']' returned non-zero exit status 4.
+2025-09-24 02:31:58,582 - homeguard.network.traffic_monitor - INFO - ✅ Restored iptables rules for device http:d9:a7:f4:ae:bf:41 (IP: 192.168.2.61)
+2025-09-24 02:31:58,582 - homeguard.network.traffic_monitor - INFO - Revoked expired access for device: http:d2:a8:b7:2e:57:e7
+2025-09-24 02:31:58,592 - homeguard.network.traffic_monitor - INFO - Restored service configuration: 4 settings
+2025-09-24 02:31:58,592 - homeguard.network.traffic_monitor - INFO - ✅ State restoration complete: 1 authorized devices restored, 1 iptables rules restored
+2025-09-24 02:31:58,593 - homeguard.network.traffic_monitor - INFO - Cleaning up stale iptables rules from previous sessions...
+2025-09-24 02:31:58,594 - homeguard.network.traffic_monitor - INFO - ✅ Stale rule cleanup complete
+2025-09-24 02:31:58,594 - homeguard.network.traffic_monitor - INFO - Setting up traffic filtering for gateway_mode: totp_full
+2025-09-24 02:31:58,594 - homeguard.network.traffic_monitor - INFO - Ensuring two-chain iptables architecture...
+2025-09-24 02:31:58,598 - homeguard.network.traffic_monitor - ERROR - iptables command failed: iptables -t filter -L FORWARD -n
+2025-09-24 02:31:58,598 - homeguard.network.traffic_monitor - ERROR - Error: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:31:58,598 - homeguard.network.traffic_monitor - ERROR - Failed to ensure two-chain architecture: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:31:58,598 - homeguard.network.traffic_monitor - ERROR - Failed to setup traffic filtering: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:31:58,598 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:31:58,598 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (1/3)
+2025-09-24 02:32:03,599 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:32:03,602 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:32:03,602 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:32:03,602 - homeguard.network.traffic_monitor - INFO - Restoring service state...
+2025-09-24 02:32:03,603 - homeguard.network.traffic_monitor - INFO - Restored authorized device: http:d9:a7:f4:ae:bf:41
+2025-09-24 02:32:03,608 - homeguard.network.traffic_monitor - INFO - ❌ Device 192.168.2.61 (MAC: http:d9:a7:f4:ae:bf:41) removed from fast path - will hit slow path blocking
+2025-09-24 02:32:03,609 - homeguard.network.traffic_monitor - ERROR - iptables command failed: iptables -t filter -I HOMEGUARD_ACCEPT 1 -s 192.168.2.61 -j ACCEPT
+2025-09-24 02:32:03,609 - homeguard.network.traffic_monitor - ERROR - Error: Command '['iptables', '-t', 'filter', '-I', 'HOMEGUARD_ACCEPT', '1', '-s', '192.168.2.61', '-j', 'ACCEPT']' returned non-zero exit status 4.
+2025-09-24 02:32:03,609 - homeguard.network.traffic_monitor - ERROR - Failed to allow traffic for IP 192.168.2.61: Command '['iptables', '-t', 'filter', '-I', 'HOMEGUARD_ACCEPT', '1', '-s', '192.168.2.61', '-j', 'ACCEPT']' returned non-zero exit status 4.
+2025-09-24 02:32:03,609 - homeguard.network.traffic_monitor - INFO - ✅ Restored iptables rules for device http:d9:a7:f4:ae:bf:41 (IP: 192.168.2.61)
+2025-09-24 02:32:03,611 - homeguard.network.traffic_monitor - INFO - Restored service configuration: 4 settings
+2025-09-24 02:32:03,611 - homeguard.network.traffic_monitor - INFO - ✅ State restoration complete: 1 authorized devices restored, 1 iptables rules restored
+2025-09-24 02:32:03,612 - homeguard.network.traffic_monitor - INFO - Cleaning up stale iptables rules from previous sessions...
+2025-09-24 02:32:03,613 - homeguard.network.traffic_monitor - INFO - ✅ Stale rule cleanup complete
+2025-09-24 02:32:03,613 - homeguard.network.traffic_monitor - INFO - Setting up traffic filtering for gateway_mode: totp_full
+2025-09-24 02:32:03,613 - homeguard.network.traffic_monitor - INFO - Ensuring two-chain iptables architecture...
+2025-09-24 02:32:03,616 - homeguard.network.traffic_monitor - ERROR - iptables command failed: iptables -t filter -L FORWARD -n
+2025-09-24 02:32:03,616 - homeguard.network.traffic_monitor - ERROR - Error: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:32:03,616 - homeguard.network.traffic_monitor - ERROR - Failed to ensure two-chain architecture: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:32:03,616 - homeguard.network.traffic_monitor - ERROR - Failed to setup traffic filtering: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:32:03,616 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:32:03,616 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (2/3)
+2025-09-24 02:32:07,830 - homeguard.database.connection - ERROR - Database session error: 302: Found
+2025-09-24 02:32:08,617 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:32:08,621 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:32:08,622 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:32:08,622 - homeguard.network.traffic_monitor - INFO - Restoring service state...
+2025-09-24 02:32:08,624 - homeguard.network.traffic_monitor - INFO - Restored authorized device: http:d9:a7:f4:ae:bf:41
+2025-09-24 02:32:08,629 - homeguard.network.traffic_monitor - INFO - ❌ Device 192.168.2.61 (MAC: http:d9:a7:f4:ae:bf:41) removed from fast path - will hit slow path blocking
+2025-09-24 02:32:08,631 - homeguard.network.traffic_monitor - ERROR - iptables command failed: iptables -t filter -I HOMEGUARD_ACCEPT 1 -s 192.168.2.61 -j ACCEPT
+2025-09-24 02:32:08,631 - homeguard.network.traffic_monitor - ERROR - Error: Command '['iptables', '-t', 'filter', '-I', 'HOMEGUARD_ACCEPT', '1', '-s', '192.168.2.61', '-j', 'ACCEPT']' returned non-zero exit status 4.
+2025-09-24 02:32:08,631 - homeguard.network.traffic_monitor - ERROR - Failed to allow traffic for IP 192.168.2.61: Command '['iptables', '-t', 'filter', '-I', 'HOMEGUARD_ACCEPT', '1', '-s', '192.168.2.61', '-j', 'ACCEPT']' returned non-zero exit status 4.
+2025-09-24 02:32:08,631 - homeguard.network.traffic_monitor - INFO - ✅ Restored iptables rules for device http:d9:a7:f4:ae:bf:41 (IP: 192.168.2.61)
+2025-09-24 02:32:08,634 - homeguard.network.traffic_monitor - INFO - Restored service configuration: 4 settings
+2025-09-24 02:32:08,634 - homeguard.network.traffic_monitor - INFO - ✅ State restoration complete: 1 authorized devices restored, 1 iptables rules restored
+2025-09-24 02:32:08,634 - homeguard.network.traffic_monitor - INFO - Cleaning up stale iptables rules from previous sessions...
+2025-09-24 02:32:08,636 - homeguard.network.traffic_monitor - INFO - ✅ Stale rule cleanup complete
+2025-09-24 02:32:08,636 - homeguard.network.traffic_monitor - INFO - Setting up traffic filtering for gateway_mode: totp_full
+2025-09-24 02:32:08,636 - homeguard.network.traffic_monitor - INFO - Ensuring two-chain iptables architecture...
+2025-09-24 02:32:08,640 - homeguard.network.traffic_monitor - ERROR - iptables command failed: iptables -t filter -L FORWARD -n
+2025-09-24 02:32:08,640 - homeguard.network.traffic_monitor - ERROR - Error: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:32:08,640 - homeguard.network.traffic_monitor - ERROR - Failed to ensure two-chain architecture: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:32:08,640 - homeguard.network.traffic_monitor - ERROR - Failed to setup traffic filtering: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:32:08,640 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:32:08,641 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (3/3)
+2025-09-24 02:32:12,462 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:32:12,463 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:32:12,463 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 02:32:12,463 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 02:32:13,641 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:32:13,645 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:32:13,645 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:32:13,645 - homeguard.network.traffic_monitor - INFO - Restoring service state...
+2025-09-24 02:32:13,646 - homeguard.network.traffic_monitor - INFO - Restored authorized device: http:d9:a7:f4:ae:bf:41
+2025-09-24 02:32:13,650 - homeguard.network.traffic_monitor - INFO - ❌ Device 192.168.2.61 (MAC: http:d9:a7:f4:ae:bf:41) removed from fast path - will hit slow path blocking
+2025-09-24 02:32:13,651 - homeguard.network.traffic_monitor - ERROR - iptables command failed: iptables -t filter -I HOMEGUARD_ACCEPT 1 -s 192.168.2.61 -j ACCEPT
+2025-09-24 02:32:13,651 - homeguard.network.traffic_monitor - ERROR - Error: Command '['iptables', '-t', 'filter', '-I', 'HOMEGUARD_ACCEPT', '1', '-s', '192.168.2.61', '-j', 'ACCEPT']' returned non-zero exit status 4.
+2025-09-24 02:32:13,651 - homeguard.network.traffic_monitor - ERROR - Failed to allow traffic for IP 192.168.2.61: Command '['iptables', '-t', 'filter', '-I', 'HOMEGUARD_ACCEPT', '1', '-s', '192.168.2.61', '-j', 'ACCEPT']' returned non-zero exit status 4.
+2025-09-24 02:32:13,652 - homeguard.network.traffic_monitor - INFO - ✅ Restored iptables rules for device http:d9:a7:f4:ae:bf:41 (IP: 192.168.2.61)
+2025-09-24 02:32:13,653 - homeguard.network.traffic_monitor - INFO - Restored service configuration: 4 settings
+2025-09-24 02:32:13,654 - homeguard.network.traffic_monitor - INFO - ✅ State restoration complete: 1 authorized devices restored, 1 iptables rules restored
+2025-09-24 02:32:13,654 - homeguard.network.traffic_monitor - INFO - Cleaning up stale iptables rules from previous sessions...
+2025-09-24 02:32:13,655 - homeguard.network.traffic_monitor - INFO - ✅ Stale rule cleanup complete
+2025-09-24 02:32:13,655 - homeguard.network.traffic_monitor - INFO - Setting up traffic filtering for gateway_mode: totp_full
+2025-09-24 02:32:13,655 - homeguard.network.traffic_monitor - INFO - Ensuring two-chain iptables architecture...
+2025-09-24 02:32:13,658 - homeguard.network.traffic_monitor - ERROR - iptables command failed: iptables -t filter -L FORWARD -n
+2025-09-24 02:32:13,658 - homeguard.network.traffic_monitor - ERROR - Error: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:32:13,658 - homeguard.network.traffic_monitor - ERROR - Failed to ensure two-chain architecture: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:32:13,658 - homeguard.network.traffic_monitor - ERROR - Failed to setup traffic filtering: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:32:13,658 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:32:13,658 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:32:13,658 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 02:32:13,658 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:32:13,658 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 02:32:13,658 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:32:13,658 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 02:32:23,676 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:32:23,676 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:32:23,676 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 02:32:23,676 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 02:32:24,635 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:32:24,636 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:32:24,636 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 02:32:24,636 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 02:32:25,388 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:32:25,389 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:32:25,389 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 02:32:25,389 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 02:32:25,611 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:32:25,611 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:32:25,611 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 02:32:25,611 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 02:32:25,839 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:32:25,839 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:32:25,839 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 02:32:25,839 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 02:32:49,740 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:32:49,740 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:32:49,740 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 02:32:49,740 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 02:35:31,189 - __main__ - INFO - HomeguardGuard Network Gateway starting...
+2025-09-24 02:35:31,189 - __main__ - INFO - ==================================================
+2025-09-24 02:35:31,189 - __main__ - INFO - 🔧 Configuration loaded from: /etc/homeguard/config.yaml
+2025-09-24 02:35:31,189 - __main__ - INFO - 🚀 Operational Mode: TOTP_FULL
+2025-09-24 02:35:31,189 - __main__ - INFO - 📝 Mode: TOTP FULL - All devices blocked until TOTP authentication
+2025-09-24 02:35:31,189 - __main__ - INFO - 🌐 Gateway: 192.168.2.1:8081
+2025-09-24 02:35:31,189 - __main__ - INFO - 🔧 Debug mode: False
+2025-09-24 02:35:31,189 - __main__ - INFO - 🔄 Auto recovery: True
+2025-09-24 02:35:31,189 - __main__ - INFO - ==================================================
+2025-09-24 02:35:31,190 - __main__ - INFO - Starting MyProxy services...
+2025-09-24 02:35:31,190 - __main__ - INFO - TrafficMonitor started
+2025-09-24 02:35:31,190 - __main__ - INFO - HTTP Proxy started
+2025-09-24 02:35:31,191 - __main__ - INFO - Starting web server on 0.0.0.0:8081
+2025-09-24 02:35:31,191 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:35:31,191 - homeguard.proxy.http_proxy - INFO - Starting HTTP proxy server on 0.0.0.0:8888
+2025-09-24 02:35:31,192 - homeguard.proxy.http_proxy - INFO - Blocked domains: youtube.com, www.youtube.com, m.youtube.com, youtu.be, googlevideo.com
+2025-09-24 02:35:31,206 - homeguard.web.app - INFO - Starting HomeguardGuard Web Application with gateway_mode=totp_full
+2025-09-24 02:35:31,207 - homeguard.proxy.http_proxy - INFO - ✅ HTTP proxy server started on http://0.0.0.0:8888
+2025-09-24 02:35:31,207 - homeguard.proxy.http_proxy - INFO - Configure your browser to use this as HTTP proxy for testing
+2025-09-24 02:35:31,223 - homeguard.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-24 02:35:31,226 - homeguard.database.connection - INFO - SQLite pragmas configured for optimal performance and safety
+2025-09-24 02:35:31,245 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:35:31,245 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:35:31,245 - homeguard.network.traffic_monitor - INFO - Restoring service state...
+2025-09-24 02:35:31,252 - homeguard.database.connection - INFO - Database tables already exist - continuing
+2025-09-24 02:35:31,252 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:35:31,257 - homeguard.network.traffic_monitor - INFO - ✅ State restoration complete: 0 authorized devices restored, 0 iptables rules restored
+2025-09-24 02:35:31,257 - homeguard.network.traffic_monitor - INFO - Cleaning up stale iptables rules from previous sessions...
+2025-09-24 02:35:31,259 - homeguard.network.traffic_monitor - INFO - ✅ Stale rule cleanup complete
+2025-09-24 02:35:31,259 - homeguard.network.traffic_monitor - INFO - Setting up traffic filtering for gateway_mode: totp_full
+2025-09-24 02:35:31,259 - homeguard.network.traffic_monitor - INFO - Ensuring two-chain iptables architecture...
+2025-09-24 02:35:31,262 - homeguard.network.traffic_monitor - ERROR - iptables command failed: iptables -t filter -L FORWARD -n
+2025-09-24 02:35:31,262 - homeguard.network.traffic_monitor - ERROR - Error: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:35:31,263 - homeguard.network.traffic_monitor - ERROR - Failed to ensure two-chain architecture: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:35:31,263 - homeguard.network.traffic_monitor - ERROR - Failed to setup traffic filtering: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:35:31,263 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:35:31,263 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (1/3)
+2025-09-24 02:35:36,264 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:35:36,268 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:35:36,268 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:35:36,268 - homeguard.network.traffic_monitor - INFO - Restoring service state...
+2025-09-24 02:35:36,274 - homeguard.network.traffic_monitor - INFO - ✅ State restoration complete: 0 authorized devices restored, 0 iptables rules restored
+2025-09-24 02:35:36,274 - homeguard.network.traffic_monitor - INFO - Cleaning up stale iptables rules from previous sessions...
+2025-09-24 02:35:36,276 - homeguard.network.traffic_monitor - INFO - ✅ Stale rule cleanup complete
+2025-09-24 02:35:36,276 - homeguard.network.traffic_monitor - INFO - Setting up traffic filtering for gateway_mode: totp_full
+2025-09-24 02:35:36,276 - homeguard.network.traffic_monitor - INFO - Ensuring two-chain iptables architecture...
+2025-09-24 02:35:36,280 - homeguard.network.traffic_monitor - ERROR - iptables command failed: iptables -t filter -L FORWARD -n
+2025-09-24 02:35:36,280 - homeguard.network.traffic_monitor - ERROR - Error: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:35:36,280 - homeguard.network.traffic_monitor - ERROR - Failed to ensure two-chain architecture: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:35:36,280 - homeguard.network.traffic_monitor - ERROR - Failed to setup traffic filtering: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:35:36,280 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:35:36,280 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (2/3)
+2025-09-24 02:35:36,632 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:35:36,632 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:35:36,632 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 02:35:36,632 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 02:35:41,281 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:35:41,284 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:35:41,284 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:35:41,284 - homeguard.network.traffic_monitor - INFO - Restoring service state...
+2025-09-24 02:35:41,288 - homeguard.network.traffic_monitor - INFO - ✅ State restoration complete: 0 authorized devices restored, 0 iptables rules restored
+2025-09-24 02:35:41,288 - homeguard.network.traffic_monitor - INFO - Cleaning up stale iptables rules from previous sessions...
+2025-09-24 02:35:41,289 - homeguard.network.traffic_monitor - INFO - ✅ Stale rule cleanup complete
+2025-09-24 02:35:41,290 - homeguard.network.traffic_monitor - INFO - Setting up traffic filtering for gateway_mode: totp_full
+2025-09-24 02:35:41,290 - homeguard.network.traffic_monitor - INFO - Ensuring two-chain iptables architecture...
+2025-09-24 02:35:41,293 - homeguard.network.traffic_monitor - ERROR - iptables command failed: iptables -t filter -L FORWARD -n
+2025-09-24 02:35:41,294 - homeguard.network.traffic_monitor - ERROR - Error: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:35:41,294 - homeguard.network.traffic_monitor - ERROR - Failed to ensure two-chain architecture: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:35:41,294 - homeguard.network.traffic_monitor - ERROR - Failed to setup traffic filtering: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:35:41,294 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:35:41,294 - homeguard.network.traffic_monitor - WARNING - Attempting service restart (3/3)
+2025-09-24 02:35:46,295 - homeguard.network.traffic_monitor - INFO - Starting TrafficMonitor service...
+2025-09-24 02:35:46,298 - homeguard.database.connection - INFO - Database tables created successfully
+2025-09-24 02:35:46,298 - homeguard.database.connection - INFO - Database manager initialized
+2025-09-24 02:35:46,298 - homeguard.network.traffic_monitor - INFO - Restoring service state...
+2025-09-24 02:35:46,301 - homeguard.network.traffic_monitor - INFO - ✅ State restoration complete: 0 authorized devices restored, 0 iptables rules restored
+2025-09-24 02:35:46,301 - homeguard.network.traffic_monitor - INFO - Cleaning up stale iptables rules from previous sessions...
+2025-09-24 02:35:46,303 - homeguard.network.traffic_monitor - INFO - ✅ Stale rule cleanup complete
+2025-09-24 02:35:46,303 - homeguard.network.traffic_monitor - INFO - Setting up traffic filtering for gateway_mode: totp_full
+2025-09-24 02:35:46,303 - homeguard.network.traffic_monitor - INFO - Ensuring two-chain iptables architecture...
+2025-09-24 02:35:46,306 - homeguard.network.traffic_monitor - ERROR - iptables command failed: iptables -t filter -L FORWARD -n
+2025-09-24 02:35:46,306 - homeguard.network.traffic_monitor - ERROR - Error: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:35:46,306 - homeguard.network.traffic_monitor - ERROR - Failed to ensure two-chain architecture: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:35:46,306 - homeguard.network.traffic_monitor - ERROR - Failed to setup traffic filtering: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:35:46,306 - homeguard.network.traffic_monitor - ERROR - Failed to start TrafficMonitor: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:35:46,307 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:35:46,307 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 02:35:46,307 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:35:46,307 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 02:35:46,307 - homeguard.network.traffic_monitor - ERROR - Restart attempt 3 failed: Command '['iptables', '-t', 'filter', '-L', 'FORWARD', '-n']' returned non-zero exit status 4.
+2025-09-24 02:35:46,307 - homeguard.network.traffic_monitor - CRITICAL - Maximum restart attempts reached. Service failed permanently.
+2025-09-24 02:36:01,827 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:36:01,829 - homeguard.auth.totp - WARNING - ❌ Invalid TOTP code provided: 795 311
+2025-09-24 02:36:04,181 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:36:04,181 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:36:04,181 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 02:36:04,181 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 02:36:12,113 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:36:12,115 - homeguard.auth.totp - WARNING - ❌ Invalid TOTP code provided: 435 832
+2025-09-24 02:36:15,050 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:36:15,050 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:36:15,051 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 02:36:15,051 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 02:36:21,239 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:36:21,241 - homeguard.auth.totp - WARNING - ❌ Invalid TOTP code provided: 084 787
+2025-09-24 02:36:22,954 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:36:22,954 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:36:22,954 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 02:36:22,954 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 02:36:36,484 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:36:36,485 - homeguard.auth.totp - WARNING - ❌ Invalid TOTP code provided: 262 300
+2025-09-24 02:36:40,788 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:36:40,788 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:36:40,788 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 02:36:40,788 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 02:37:16,844 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:37:16,844 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:37:16,844 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 02:37:16,844 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 02:37:43,561 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:37:43,562 - homeguard.auth.totp - WARNING - ❌ Invalid TOTP code provided: 102 343
+2025-09-24 02:37:48,744 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:37:48,744 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:37:48,744 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 02:37:48,744 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 02:40:26,951 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:40:26,953 - homeguard.auth.totp - WARNING - ❌ Invalid TOTP code provided: 567 301
+2025-09-24 02:40:31,833 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:40:31,833 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:40:31,834 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 02:40:31,834 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 02:40:39,645 - homeguard.database.connection - ERROR - Database session error: 302: Found
+2025-09-24 02:40:51,199 - homeguard.auth.totp - INFO - ✅ Valid TOTP code for forever duration (window validation)
+2025-09-24 02:41:55,036 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:41:55,038 - homeguard.web.routes.connectivity - INFO - 📱 Android connectivity check: Device http:d9:a7:f4:ae:bf:41 not authenticated - redirecting
+2025-09-24 02:41:55,047 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:41:55,047 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:41:55,047 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 02:41:55,047 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active
+2025-09-24 02:41:55,184 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:41:55,186 - homeguard.web.routes.connectivity - INFO - 📱 Android connectivity check: Device http:d9:a7:f4:ae:bf:41 not authenticated - redirecting
+2025-09-24 02:41:55,199 - homeguard.web.utils.client_info - INFO - 🏠 Private IP detected: 192.168.2.61 - likely behind NAT
+2025-09-24 02:41:55,199 - homeguard.web.routes.captive_portal - INFO - 🔧 Current settings - gateway_mode: totp_full, testing_ip: 192.168.2.52
+2025-09-24 02:41:55,200 - homeguard.web.routes.captive_portal - INFO - 📍 Device 192.168.2.61 - TOTP enforcement check: True
+2025-09-24 02:41:55,200 - homeguard.web.routes.captive_portal - INFO - 🔐 Device 192.168.2.61 - TOTP enforcement active

@@ -57,7 +57,8 @@ class TrafficMonitor:
             await db_manager.initialize()
             
             # Initialize phase management system
-            await phase_manager.start()
+            # TEMPORARY FIX: Disable phase manager due to conflict with gateway mode
+            # await phase_manager.start()
             
             # Enhanced filter and Google Sheets integration removed from homeguard_dev
             
@@ -1147,6 +1148,190 @@ class TrafficMonitor:
             
         except Exception as e:
             logger.error(f"Error cleaning up iptables: {e}")
+
+    async def _setup_traffic_filtering(self):
+        """Set up traffic filtering using two-chain architecture based on gateway mode."""
+        try:
+            logger.info(f"Setting up traffic filtering for gateway_mode: {settings.gateway_mode}")
+
+            # Ensure two-chain architecture exists
+            await self._ensure_two_chain_architecture()
+
+            # Apply mode-specific rules
+            if settings.gateway_mode == "transparent":
+                await self._setup_transparent_mode()
+            elif settings.gateway_mode == "totp_testing":
+                await self._setup_totp_testing_mode()
+            elif settings.gateway_mode == "totp_full":
+                await self._setup_totp_full_mode()
+            else:
+                logger.warning(f"Unknown gateway mode: {settings.gateway_mode} - using transparent mode")
+                await self._setup_transparent_mode()
+
+            logger.info("✅ Traffic filtering setup complete")
+
+        except Exception as e:
+            logger.error(f"Failed to setup traffic filtering: {e}")
+            raise
+
+    async def _ensure_two_chain_architecture(self):
+        """Ensure the two-chain architecture is properly set up."""
+        try:
+            logger.info("Ensuring two-chain iptables architecture...")
+
+            # Create chains if they don't exist (ignore errors if they do exist)
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-N", "HOMEGUARD_ACCEPT"
+            ], ignore_errors=True)
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-N", "HOMEGUARD_BLOCK"
+            ], ignore_errors=True)
+
+            # Check if FORWARD chain already has our structure
+            result = await self._run_iptables_command([
+                "iptables", "-t", "filter", "-L", "FORWARD", "-n"
+            ])
+
+            has_management_rules = "dports 22,5900,8081" in result.stdout
+            has_accept_jump = "HOMEGUARD_ACCEPT" in result.stdout
+            has_block_jump = "HOMEGUARD_BLOCK" in result.stdout
+
+            if not (has_management_rules and has_accept_jump and has_block_jump):
+                logger.info("Building FORWARD chain structure...")
+
+                # Clear FORWARD chain and rebuild
+                await self._run_iptables_command([
+                    "iptables", "-t", "filter", "-F", "FORWARD"
+                ])
+
+                # Build FORWARD chain structure
+                # 1. Management access (SSH/VNC/Web)
+                await self._run_iptables_command([
+                    "iptables", "-t", "filter", "-A", "FORWARD", "-p", "tcp",
+                    "-m", "multiport", "--dports", "22,5900,8081", "-j", "ACCEPT"
+                ])
+                await self._run_iptables_command([
+                    "iptables", "-t", "filter", "-A", "FORWARD", "-p", "tcp",
+                    "-m", "multiport", "--sports", "22,5900,8081",
+                    "-m", "conntrack", "--ctstate", "RELATED,ESTABLISHED", "-j", "ACCEPT"
+                ])
+
+                # 2. Fast path for authenticated devices
+                await self._run_iptables_command([
+                    "iptables", "-t", "filter", "-A", "FORWARD", "-j", "HOMEGUARD_ACCEPT"
+                ])
+
+                # 3. Slow path for unauthenticated devices
+                await self._run_iptables_command([
+                    "iptables", "-t", "filter", "-A", "FORWARD", "-j", "HOMEGUARD_BLOCK"
+                ])
+
+                # 4. Default transparent rules (LAN→WAN traffic flow)
+                await self._run_iptables_command([
+                    "iptables", "-t", "filter", "-A", "FORWARD", "-i", "eth1", "-o", "eth0", "-j", "ACCEPT"
+                ])
+                await self._run_iptables_command([
+                    "iptables", "-t", "filter", "-A", "FORWARD", "-i", "eth0", "-o", "eth1",
+                    "-m", "conntrack", "--ctstate", "RELATED,ESTABLISHED", "-j", "ACCEPT"
+                ])
+
+                logger.info("✅ Two-chain architecture established")
+
+        except Exception as e:
+            logger.error(f"Failed to ensure two-chain architecture: {e}")
+            raise
+
+    async def _setup_transparent_mode(self):
+        """Set up transparent mode - all traffic allowed."""
+        try:
+            logger.info("🌐 Setting up transparent mode")
+
+            # Empty both chains and add RETURN rules
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-F", "HOMEGUARD_ACCEPT"
+            ])
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-F", "HOMEGUARD_BLOCK"
+            ])
+
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-A", "HOMEGUARD_ACCEPT", "-j", "RETURN"
+            ])
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-A", "HOMEGUARD_BLOCK", "-j", "RETURN"
+            ])
+
+            # Set permissive policy
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-P", "FORWARD", "ACCEPT"
+            ])
+
+            logger.info("✅ Transparent mode setup complete - all traffic allowed")
+
+        except Exception as e:
+            logger.error(f"Failed to setup transparent mode: {e}")
+            raise
+
+    async def _setup_totp_testing_mode(self):
+        """Set up TOTP testing mode - block only testing IP."""
+        try:
+            logger.info(f"🧪 Setting up TOTP testing mode for IP: {settings.testing_ip}")
+
+            # Start with transparent mode
+            await self._setup_transparent_mode()
+
+            if settings.testing_ip:
+                # Add specific rule to HOMEGUARD_BLOCK for testing IP
+                await self._run_iptables_command([
+                    "iptables", "-t", "filter", "-F", "HOMEGUARD_BLOCK"
+                ])
+                await self._run_iptables_command([
+                    "iptables", "-t", "filter", "-A", "HOMEGUARD_BLOCK",
+                    "-s", settings.testing_ip, "-j", "DROP"
+                ])
+                await self._run_iptables_command([
+                    "iptables", "-t", "filter", "-A", "HOMEGUARD_BLOCK", "-j", "RETURN"
+                ])
+
+                logger.info(f"✅ TOTP testing mode setup - only {settings.testing_ip} blocked")
+            else:
+                logger.warning("No testing_ip configured for TOTP testing mode")
+
+        except Exception as e:
+            logger.error(f"Failed to setup TOTP testing mode: {e}")
+            raise
+
+    async def _setup_totp_full_mode(self):
+        """Set up TOTP full mode - block all devices until authenticated."""
+        try:
+            logger.info("🔒 Setting up TOTP full mode")
+
+            # Empty accept chain initially (users will be added when authenticated)
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-F", "HOMEGUARD_ACCEPT"
+            ])
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-A", "HOMEGUARD_ACCEPT", "-j", "RETURN"
+            ])
+
+            # Block all in slow path - THIS IS THE KEY FIX
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-F", "HOMEGUARD_BLOCK"
+            ])
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-A", "HOMEGUARD_BLOCK", "-j", "DROP"
+            ])
+
+            # Set restrictive policy
+            await self._run_iptables_command([
+                "iptables", "-t", "filter", "-P", "FORWARD", "DROP"
+            ])
+
+            logger.info("✅ TOTP full mode setup complete - all devices blocked until authentication")
+
+        except Exception as e:
+            logger.error(f"Failed to setup TOTP full mode: {e}")
+            raise
 
 
 # Global traffic monitor instance
