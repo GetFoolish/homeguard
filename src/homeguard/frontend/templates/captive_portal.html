@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>HomeguardGuard - Network Authentication</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .portal-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 450px;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23ffffff" fill-opacity="0.1" fill-rule="nonzero"><circle cx="30" cy="30" r="4"/></g></g></svg>') repeat;
+            opacity: 0.3;
+        }
+
+        .lock-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .lock-icon svg {
+            width: 28px;
+            height: 28px;
+            fill: white;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .totp-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .totp-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .device-info {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+            border-left: 4px solid #667eea;
+        }
+
+        .device-info h4 {
+            color: #2c3e50;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .device-info-grid {
+            display: grid;
+            gap: 8px;
+        }
+
+        .device-info-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+
+        .device-info-label {
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .device-info-value {
+            color: #495057;
+            font-weight: 600;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+        }
+
+        .help-text {
+            text-align: center;
+            color: #6c757d;
+            font-size: 13px;
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+
+        .loading {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .submit-btn.loading {
+            color: transparent;
+        }
+
+        .submit-btn.loading .loading {
+            display: block;
+        }
+
+        /* Responsive design */
+        @media (max-width: 480px) {
+            .portal-container {
+                margin: 10px;
+                border-radius: 16px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .content {
+                padding: 30px 20px;
+            }
+        }
+
+        /* Auto-fill styling for password managers */
+        .totp-input:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0 30px white inset !important;
+            -webkit-text-fill-color: #2c3e50 !important;
+        }
+
+        /* Focus trap for accessibility */
+        .portal-container:focus-within .header {
+            border-color: #667eea;
+        }
+
+        /* Error states */
+        .totp-input.error {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        .totp-input.error:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="portal-container">
+        <div class="header">
+            <div class="lock-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z"/>
+                </svg>
+            </div>
+            <h1>Network Authentication</h1>
+            <p>Enter your TOTP code to access the internet</p>
+        </div>
+
+        <div class="content">
+            <form method="post" action="/authenticate" id="authForm">
+                <div class="form-group">
+                    <label for="totp_code">Authentication Code</label>
+                    <input
+                        type="text"
+                        id="totp_code"
+                        name="totp_code"
+                        class="totp-input"
+                        placeholder="000 000"
+                        maxlength="7"
+                        pattern="[0-9]{3}\s[0-9]{3}"
+                        autocomplete="one-time-code"
+                        inputmode="numeric"
+                        required
+                        autofocus
+                    >
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <span class="btn-text">Authenticate</span>
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                    </div>
+                </button>
+            </form>
+
+            <div class="device-info">
+                <h4>Device Information</h4>
+                <div class="device-info-grid">
+                    <div class="device-info-row">
+                        <span class="device-info-label">IP Address:</span>
+                        <span class="device-info-value">{{ client_ip }}</span>
+                    </div>
+                    <div class="device-info-row">
+                        <span class="device-info-label">Device Type:</span>
+                        <span class="device-info-value">{{ device_type }}</span>
+                    </div>
+                    <div class="device-info-row">
+                        <span class="device-info-label">Operating System:</span>
+                        <span class="device-info-value">{{ os }}</span>
+                    </div>
+                    <div class="device-info-row">
+                        <span class="device-info-label">Browser:</span>
+                        <span class="device-info-value">{{ browser }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="help-text">
+                Enter the 6-digit code from your authenticator app.<br>
+                Your device will automatically gain internet access upon successful authentication.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced form handling with better UX
+        const form = document.getElementById('authForm');
+        const input = document.getElementById('totp_code');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Auto-format input (add spaces for readability)
+        input.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+            if (value.length > 6) value = value.slice(0, 6); // Limit to 6 digits
+
+            // Format as XXX XXX for readability
+            if (value.length > 3) {
+                value = value.slice(0, 3) + ' ' + value.slice(3);
+            }
+
+            e.target.value = value;
+
+            // Remove error state when user starts typing
+            e.target.classList.remove('error');
+
+            // Auto-submit when 6 digits are entered
+            const digitsOnly = value.replace(/\s/g, '');
+            if (digitsOnly.length === 6) {
+                setTimeout(() => {
+                    form.submit();
+                }, 500); // Small delay for better UX
+            }
+        });
+
+        // Prevent double submission
+        let isSubmitting = false;
+
+        // Handle form submission (consolidated)
+        form.addEventListener('submit', function(e) {
+            // Prevent double submission
+            if (isSubmitting) {
+                e.preventDefault();
+                return;
+            }
+
+            // Clean the input value
+            const value = input.value.replace(/\s/g, ''); // Remove spaces
+
+            if (value.length !== 6 || !/^\d{6}$/.test(value)) {
+                e.preventDefault();
+                input.classList.add('error');
+                input.focus();
+                return;
+            }
+
+            // Set the clean value for submission
+            input.value = value;
+            isSubmitting = true;
+
+            // Show loading state
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+        });
+
+        // Handle keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Focus input on any number key
+            if (/^[0-9]$/.test(e.key) && document.activeElement !== input) {
+                input.focus();
+            }
+
+            // Clear input on Escape
+            if (e.key === 'Escape') {
+                input.value = '';
+                input.focus();
+            }
+        });
+
+        // Auto-focus and select all text when page loads
+        window.addEventListener('load', function() {
+            input.focus();
+            input.select();
+        });
+
+        // Handle paste events (for 2FA code pasting)
+        input.addEventListener('paste', function(e) {
+            setTimeout(() => {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length === 6) {
+                    // Clean the value before submitting
+                    input.value = value;
+                    form.submit();
+                }
+            }, 100);
+        });
+
+        // Progressive enhancement: update submit button text based on device
+        const isApple = /iPad|iPhone|iPod|Mac/.test(navigator.userAgent);
+        const isAndroid = /Android/.test(navigator.userAgent);
+        const isWindows = /Windows/.test(navigator.userAgent);
+
+        if (isApple) {
+            submitBtn.innerHTML = submitBtn.innerHTML.replace('Authenticate', 'Connect to Internet');
+        } else if (isAndroid) {
+            submitBtn.innerHTML = submitBtn.innerHTML.replace('Authenticate', 'Sign In to Network');
+        }
+
+        // Add ripple effect to button
+        submitBtn.addEventListener('click', function(e) {
+            if (this.disabled) return;
+
+            const ripple = document.createElement('span');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+
+            ripple.style.cssText = `
+                position: absolute;
+                width: ${size}px;
+                height: ${size}px;
+                left: ${x}px;
+                top: ${y}px;
+                background: rgba(255,255,255,0.3);
+                border-radius: 50%;
+                transform: scale(0);
+                animation: ripple 0.6s ease-out;
+                pointer-events: none;
+            `;
+
+            this.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
+        });
+
+        // Add ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(2);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

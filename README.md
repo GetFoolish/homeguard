@@ -5,8 +5,11 @@ A TOTP-based network access control system with device management capabilities.
 ## 🚀 Features
 
 - **TOTP Authentication**: Multi-duration TOTP codes for temporary network access
+- **Captive Portal**: Universal splash screen for blocked devices (works on Windows, iOS, Android, Linux, Mac)
+- **QR Code Setup**: Scan QR codes directly from admin panel to add to authenticator app
 - **Device Management**: Web-based dashboard to manage all network devices
 - **IOT Device Support**: Dedicated proxy chain for IOT devices
+- **Bidirectional Traffic**: Proper RELATED,ESTABLISHED rules for return traffic
 - **Two Modes**:
   - **Transparent Mode**: All traffic allowed (internet access for everyone)
   - **TOTP Mode**: Only authenticated devices allowed
@@ -71,6 +74,12 @@ Open browser to: `http://192.168.2.1:8081/`
    - **IOT**: Set as IOT device (permanent access)
 
 ## 📡 API Endpoints
+
+### Frontend
+- `GET /` - Device management dashboard
+- `GET /portal` - Captive portal (splash screen for blocked devices)
+- `POST /portal/authenticate` - Authenticate via captive portal
+- `GET /qr_codes` - Get QR codes for TOTP setup
 
 ### Mode Management
 - `POST /set_mode_to_transparent` - Set transparent mode

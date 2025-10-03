@@ -83,6 +83,27 @@ class TOTPManager:
             return None
         return datetime.utcnow() + timedelta(seconds=duration_seconds)
 
+    def get_provisioning_uris(self, issuer: str = "Homeguard") -> Dict[str, str]:
+        """
+        Get provisioning URIs for QR code generation.
+
+        Args:
+            issuer: The issuer name for the TOTP
+
+        Returns:
+            Dictionary mapping duration keys to provisioning URIs
+        """
+        uris = {}
+        for duration_key, totp_gen in self._totp_generators.items():
+            duration_display = duration_key.replace('_', ' ').title()
+            account_name = f"{duration_display}"
+            uri = totp_gen.provisioning_uri(
+                name=account_name,
+                issuer_name=issuer
+            )
+            uris[duration_key] = uri
+        return uris
+
 
 # Global TOTP manager instance
 totp_manager = TOTPManager()

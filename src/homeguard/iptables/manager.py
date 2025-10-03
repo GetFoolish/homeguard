@@ -115,13 +115,19 @@ class IPTablesManager:
             f"iptables -t filter -A FORWARD -d {self.gateway_ip} -j ACCEPT",
         ]
 
-        # Add IOT devices to IOT chain
+        # Add IOT devices to IOT chain (bidirectional traffic)
         for iot_ip in iot_devices:
-            commands.append(f"iptables -t filter -A IOT_DEVICE_FILTER -s {iot_ip} -j ACCEPT")
+            # Outbound traffic from IOT device
+            commands.append(f"iptables -t filter -A IOT_DEVICE_FILTER -s {iot_ip} -o {self.wan_interface} -j ACCEPT")
+            # Return traffic to IOT device
+            commands.append(f"iptables -t filter -A IOT_DEVICE_FILTER -d {iot_ip} -i {self.wan_interface} -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT")
 
-        # Add granted devices to HOMEGUARD chain
+        # Add granted devices to HOMEGUARD chain (bidirectional traffic)
         for granted_ip in granted_devices:
-            commands.append(f"iptables -t filter -A HOMEGUARD_FILTER -s {granted_ip} -j ACCEPT")
+            # Outbound traffic from granted device
+            commands.append(f"iptables -t filter -A HOMEGUARD_FILTER -s {granted_ip} -o {self.wan_interface} -j ACCEPT")
+            # Return traffic to granted device
+            commands.append(f"iptables -t filter -A HOMEGUARD_FILTER -d {granted_ip} -i {self.wan_interface} -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT")
 
         # Apply chains to FORWARD
         commands.extend([
@@ -146,28 +152,40 @@ class IPTablesManager:
         return True
 
     def grant_access_to_ip(self, ip_address: str) -> bool:
-        """Grant access to a specific IP address."""
+        """Grant access to a specific IP address (bidirectional)."""
         logger.info(f"Granting access to IP: {ip_address}")
-        cmd = f"iptables -t filter -A HOMEGUARD_FILTER -s {ip_address} -j ACCEPT"
-        return self._execute_command(cmd)
+        # Outbound traffic from device
+        cmd1 = f"iptables -t filter -A HOMEGUARD_FILTER -s {ip_address} -o {self.wan_interface} -j ACCEPT"
+        # Return traffic to device
+        cmd2 = f"iptables -t filter -A HOMEGUARD_FILTER -d {ip_address} -i {self.wan_interface} -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT"
+        return self._execute_command(cmd1) and self._execute_command(cmd2)
 
     def block_access_to_ip(self, ip_address: str) -> bool:
-        """Block access from a specific IP address."""
+        """Block access from a specific IP address (remove both directions)."""
         logger.info(f"Blocking access from IP: {ip_address}")
-        cmd = f"iptables -t filter -D HOMEGUARD_FILTER -s {ip_address} -j ACCEPT 2>/dev/null || true"
-        return self._execute_command(cmd)
+        # Remove outbound rule
+        cmd1 = f"iptables -t filter -D HOMEGUARD_FILTER -s {ip_address} -o {self.wan_interface} -j ACCEPT 2>/dev/null || true"
+        # Remove return traffic rule
+        cmd2 = f"iptables -t filter -D HOMEGUARD_FILTER -d {ip_address} -i {self.wan_interface} -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || true"
+        return self._execute_command(cmd1) and self._execute_command(cmd2)
 
     def add_iot_device(self, ip_address: str) -> bool:
-        """Add IOT device to IOT chain."""
+        """Add IOT device to IOT chain (bidirectional)."""
         logger.info(f"Adding IOT device: {ip_address}")
-        cmd = f"iptables -t filter -A IOT_DEVICE_FILTER -s {ip_address} -j ACCEPT"
-        return self._execute_command(cmd)
+        # Outbound traffic from IOT device
+        cmd1 = f"iptables -t filter -A IOT_DEVICE_FILTER -s {ip_address} -o {self.wan_interface} -j ACCEPT"
+        # Return traffic to IOT device
+        cmd2 = f"iptables -t filter -A IOT_DEVICE_FILTER -d {ip_address} -i {self.wan_interface} -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT"
+        return self._execute_command(cmd1) and self._execute_command(cmd2)
 
     def remove_iot_device(self, ip_address: str) -> bool:
-        """Remove IOT device from IOT chain."""
+        """Remove IOT device from IOT chain (both directions)."""
         logger.info(f"Removing IOT device: {ip_address}")
-        cmd = f"iptables -t filter -D IOT_DEVICE_FILTER -s {ip_address} -j ACCEPT 2>/dev/null || true"
-        return self._execute_command(cmd)
+        # Remove outbound rule
+        cmd1 = f"iptables -t filter -D IOT_DEVICE_FILTER -s {ip_address} -o {self.wan_interface} -j ACCEPT 2>/dev/null || true"
+        # Remove return traffic rule
+        cmd2 = f"iptables -t filter -D IOT_DEVICE_FILTER -d {ip_address} -i {self.wan_interface} -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || true"
+        return self._execute_command(cmd1) and self._execute_command(cmd2)
 
 
 # Global iptables manager instance

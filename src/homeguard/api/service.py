@@ -3,7 +3,7 @@
 import logging
 import asyncio
 from datetime import datetime
-from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi import FastAPI, Depends, HTTPException, Request, Form
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -464,6 +464,128 @@ async def list_devices(session: AsyncSession = Depends(get_session)):
 async def dashboard(request: Request):
     """Serve the device management dashboard."""
     return templates.TemplateResponse("dashboard.html", {"request": request})
+
+
+@app.get("/qr_codes")
+async def get_qr_codes():
+    """Generate and return QR codes for all TOTP durations."""
+    try:
+        import qrcode
+        import io
+        import base64
+
+        qr_codes = {}
+        provisioning_uris = totp_manager.get_provisioning_uris(issuer="Homeguard")
+
+        for duration_key, uri in provisioning_uris.items():
+            # Create QR code
+            qr = qrcode.QRCode(version=1, box_size=10, border=4)
+            qr.add_data(uri)
+            qr.make(fit=True)
+
+            # Create image
+            img = qr.make_image(fill_color="black", back_color="white")
+
+            # Convert to base64
+            buffer = io.BytesIO()
+            img.save(buffer, format="PNG")
+            qr_codes[duration_key] = base64.b64encode(buffer.getvalue()).decode()
+
+        return JSONResponse({"qr_codes": qr_codes})
+
+    except Exception as e:
+        logger.error(f"Error generating QR codes: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/portal", response_class=HTMLResponse)
+async def captive_portal(request: Request):
+    """Serve the captive portal for blocked devices."""
+    # Get client info
+    client_ip = request.client.host if request.client else "Unknown"
+
+    return templates.TemplateResponse("captive_portal.html", {
+        "request": request,
+        "client_ip": client_ip,
+        "gateway_ip": settings.gateway_ip
+    })
+
+
+@app.post("/portal/authenticate")
+async def portal_authenticate(
+    request: Request,
+    totp_code: str = Form(...),
+    session: AsyncSession = Depends(get_session)
+):
+    """Handle TOTP authentication from captive portal."""
+    try:
+        # Get client IP
+        client_ip = request.client.host if request.client else None
+
+        if not client_ip:
+            return JSONResponse({
+                "success": False,
+                "message": "Unable to determine client IP"
+            }, status_code=400)
+
+        # Validate TOTP
+        validation_result = totp_manager.validate_code(totp_code)
+
+        if not validation_result:
+            return JSONResponse({
+                "success": False,
+                "message": "Invalid TOTP code"
+            })
+
+        duration_key, duration_seconds = validation_result
+        expires_at = totp_manager.get_expiry_time(duration_seconds)
+
+        # Find or create device
+        result = await session.execute(select(Device).where(Device.ip_address == client_ip))
+        device = result.scalars().first()
+
+        if not device:
+            device = Device(
+                mac_address=f"portal:{client_ip}",
+                ip_address=client_ip,
+                first_seen=datetime.utcnow(),
+                last_seen=datetime.utcnow()
+            )
+            session.add(device)
+
+        # Grant access
+        device.grant_access(duration_key, expires_at)
+        device.last_seen = datetime.utcnow()
+        await session.commit()
+
+        # Add to iptables
+        iptables_manager.grant_access_to_ip(client_ip)
+
+        # Log the event
+        log_entry = AccessLog(
+            mac_address=device.mac_address,
+            ip_address=client_ip,
+            event_type="portal_auth_success",
+            event_details=f"Granted {duration_key} access via portal"
+        )
+        session.add(log_entry)
+        await session.commit()
+
+        logger.info(f"✅ Portal: Granted {duration_key} access to {client_ip}")
+
+        return JSONResponse({
+            "success": True,
+            "message": f"Access granted for {duration_key}",
+            "duration": duration_key,
+            "expires_at": expires_at.isoformat() if expires_at else None
+        })
+
+    except Exception as e:
+        logger.error(f"Portal authentication error: {e}")
+        return JSONResponse({
+            "success": False,
+            "message": "Authentication failed"
+        }, status_code=500)
 
 
 # =============================================================================

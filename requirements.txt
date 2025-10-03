@@ -11,6 +11,8 @@ greenlet==3.0.1
 
 # TOTP Authentication
 pyotp==2.9.0
+qrcode==7.4.2
+Pillow==10.1.0
 
 # Configuration
 pydantic==2.5.0

@@ -200,7 +200,10 @@ Open browser: `http://192.168.2.1:8081/`
 ### Additional Features Implemented:
 
 ✅ Network device scanner
-✅ Web dashboard UI
+✅ Web dashboard UI with device management
+✅ **Captive portal/splash screen** for blocked devices (works on all platforms)
+✅ **QR code generation** for TOTP setup in authenticator apps
+✅ **Bidirectional iptables rules** (RELATED,ESTABLISHED for return traffic)
 ✅ Auto-refresh frontend
 ✅ Comprehensive logging
 ✅ Database persistence
