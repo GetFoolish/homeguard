@@ -586,18 +586,24 @@ async def portal_authenticate(
         client_ip = request.client.host if request.client else None
 
         if not client_ip:
-            return JSONResponse({
-                "success": False,
-                "message": "Unable to determine client IP"
-            }, status_code=400)
+            return templates.TemplateResponse(
+                "auth_failure.html",
+                {
+                    "request": request,
+                    "error_message": "Unable to determine your device IP address."
+                }
+            )
 
         # Validate TOTP (includes universal passwords)
         validation_result = totp_manager.validate_code(totp_code)
         if not validation_result:
-            return JSONResponse({
-                "success": False,
-                "message": "Invalid TOTP code"
-            })
+            return templates.TemplateResponse(
+                "auth_failure.html",
+                {
+                    "request": request,
+                    "error_message": "Invalid authentication code. Please try again."
+                }
+            )
 
         duration_key, duration_seconds = validation_result
         expires_at = totp_manager.get_expiry_time(duration_seconds)
@@ -635,19 +641,29 @@ async def portal_authenticate(
 
         logger.info(f"✅ Portal: Granted {duration_key} access to {client_ip}")
 
-        return JSONResponse({
-            "success": True,
-            "message": f"Access granted for {duration_key}",
-            "duration": duration_key,
-            "expires_at": expires_at.isoformat() if expires_at else None
-        })
+        # Format duration for display
+        duration_display = duration_key.replace('_', ' ').title()
+        expires_at_str = expires_at.strftime('%Y-%m-%d %H:%M:%S UTC') if expires_at else "Never"
+
+        return templates.TemplateResponse(
+            "auth_success.html",
+            {
+                "request": request,
+                "client_ip": client_ip,
+                "duration_display": duration_display,
+                "expires_at": expires_at_str if expires_at else None
+            }
+        )
 
     except Exception as e:
         logger.error(f"Portal authentication error: {e}")
-        return JSONResponse({
-            "success": False,
-            "message": "Authentication failed"
-        }, status_code=500)
+        return templates.TemplateResponse(
+            "auth_failure.html",
+            {
+                "request": request,
+                "error_message": "An error occurred during authentication. Please try again."
+            }
+        )
 
 
 # =============================================================================
