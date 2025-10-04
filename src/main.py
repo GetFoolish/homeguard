@@ -1,5 +1,6 @@
 """Main entry point for Homeguard service."""
 
+import argparse
 import asyncio
 import logging
 import signal
@@ -28,8 +29,35 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def parse_arguments():
+    """Parse command-line arguments and override settings."""
+    parser = argparse.ArgumentParser(description="Homeguard Network Gateway")
+    parser.add_argument(
+        "--live",
+        action="store_true",
+        help="Run in LIVE mode (apply actual iptables changes)"
+    )
+    parser.add_argument(
+        "--mode",
+        choices=["transparent", "totp"],
+        help="System mode (transparent or totp)"
+    )
+    args = parser.parse_args()
+
+    # Override settings based on command-line arguments
+    if args.live:
+        settings.execution_mode = "live"
+    if args.mode:
+        settings.system_mode = args.mode
+
+    return args
+
+
 def main():
     """Main entry point."""
+    # Parse command-line arguments and override settings
+    parse_arguments()
+
     logger.info("=" * 60)
     logger.info("🛡️  HOMEGUARD NETWORK GATEWAY v4.0.0")
     logger.info("=" * 60)
@@ -42,6 +70,9 @@ def main():
     if settings.execution_mode == "testing":
         logger.warning("⚠️  TESTING MODE: No actual iptables changes will be made!")
         logger.warning("⚠️  All iptables commands will be logged only.")
+    else:
+        logger.warning("🚨 LIVE MODE: Actual iptables changes will be applied!")
+        logger.warning("🚨 This will affect network traffic routing!")
 
     logger.info("=" * 60)
 
