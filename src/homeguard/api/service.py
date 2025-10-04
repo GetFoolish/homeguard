@@ -484,18 +484,30 @@ async def scan_network(session: AsyncSession = Depends(get_session)):
 
 @app.get("/devices")
 async def list_devices(session: AsyncSession = Depends(get_session)):
-    """List all devices."""
+    """List all devices with effective access status based on system mode."""
     try:
         result = await session.execute(select(Device).order_by(Device.last_seen.desc()))
         devices = result.scalars().all()
 
         device_list = []
         for device in devices:
+            # Calculate effective access based on system mode and device status
+            if settings.system_mode == "transparent":
+                # In transparent mode, all devices have internet access by default
+                effective_access = True
+            else:  # totp mode
+                # In TOTP mode, only granted/iot devices with valid access have internet
+                effective_access = (
+                    (device.access_status == "granted" or device.access_status == "iot")
+                    and device.is_access_valid
+                )
+
             device_list.append({
                 "ip_address": device.ip_address,
                 "mac_address": device.mac_address,
                 "hostname": device.hostname,
                 "access_status": device.access_status,
+                "effective_access": effective_access,  # Reflects actual internet access
                 "last_seen": device.last_seen.isoformat() if device.last_seen else None,
                 "access_expires_at": device.access_expires_at.isoformat() if device.access_expires_at else None
             })

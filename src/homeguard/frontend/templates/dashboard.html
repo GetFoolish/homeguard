@@ -555,8 +555,8 @@
                 const statusClass = `status-${device.access_status}`;
                 const lastSeen = device.last_seen ? new Date(device.last_seen).toLocaleString() : 'Never';
 
-                // Determine if device has internet access (granted or iot)
-                const hasAccess = device.access_status === 'granted' || device.access_status === 'iot';
+                // Use effective_access from backend (reflects actual internet access based on system mode)
+                const hasAccess = device.effective_access;
                 const isIOT = device.access_status === 'iot';
 
                 // IOT button text based on current status
