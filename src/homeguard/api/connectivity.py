@@ -50,6 +50,42 @@ async def check_device_authenticated(request: Request, session: AsyncSession) ->
         return False
 
 
+async def check_device_blocked(request: Request, session: AsyncSession) -> bool:
+    """
+    Check if the device is explicitly blocked (in transparent mode).
+
+    Args:
+        request: FastAPI request object
+        session: Database session
+
+    Returns:
+        bool: True if device is blocked, False otherwise
+    """
+    try:
+        # Get client IP
+        client_ip = request.client.host if request.client else None
+        if not client_ip:
+            return False
+
+        # Look up device by IP address
+        result = await session.execute(
+            select(Device).where(Device.ip_address == client_ip)
+        )
+        device = result.scalars().first()
+
+        # Check if device exists and is blocked
+        if device and device.access_status == "blocked":
+            logger.debug(f"Device {client_ip} is BLOCKED")
+            return True
+
+        logger.debug(f"Device {client_ip} is NOT blocked")
+        return False
+
+    except Exception as e:
+        logger.error(f"Error checking if device is blocked: {e}")
+        return False
+
+
 @router.api_route("/generate_204", methods=["GET", "HEAD"])
 async def android_connectivity_check(request: Request, session: AsyncSession = Depends(get_session)):
     """
@@ -57,15 +93,19 @@ async def android_connectivity_check(request: Request, session: AsyncSession = D
     Supports both GET and HEAD methods (HEAD used for faster connectivity checks).
 
     Returns:
-        - 204 No Content if transparent mode OR device is authenticated (internet working)
-        - 302 Redirect to captive portal if TOTP mode and not authenticated
+        - 204 No Content if device has internet access (transparent mode or authenticated in TOTP mode)
+        - 302 Redirect to captive portal if device is blocked or not authenticated
     """
     client_ip = request.client.host if request.client else "unknown"
 
-    # In transparent mode, always return success (all devices have internet)
+    # In transparent mode, check if device is explicitly blocked
     if settings.system_mode == "transparent":
-        logger.info(f"📱 Android check: {client_ip} - transparent mode - returning 204")
-        return Response(status_code=204)
+        if await check_device_blocked(request, session):
+            logger.info(f"📱 Android check: {client_ip} - BLOCKED in transparent mode - redirecting to portal")
+            return RedirectResponse(url="/portal", status_code=302)
+        else:
+            logger.info(f"📱 Android check: {client_ip} - transparent mode - returning 204")
+            return Response(status_code=204)
 
     # In TOTP mode, check authentication
     if await check_device_authenticated(request, session):
@@ -83,15 +123,19 @@ async def windows_connectivity_check(request: Request, session: AsyncSession = D
     Supports both GET and HEAD methods (HEAD used for faster connectivity checks).
 
     Returns:
-        - "Microsoft Connect Test" if transparent mode OR device is authenticated
-        - 302 Redirect to captive portal if TOTP mode and not authenticated
+        - "Microsoft Connect Test" if device has internet access
+        - 302 Redirect to captive portal if device is blocked or not authenticated
     """
     client_ip = request.client.host if request.client else "unknown"
 
-    # In transparent mode, always return success (all devices have internet)
+    # In transparent mode, check if device is explicitly blocked
     if settings.system_mode == "transparent":
-        logger.info(f"💻 Windows check: {client_ip} - transparent mode - returning success")
-        return Response(content="Microsoft Connect Test", media_type="text/plain")
+        if await check_device_blocked(request, session):
+            logger.info(f"💻 Windows check: {client_ip} - BLOCKED in transparent mode - redirecting to portal")
+            return RedirectResponse(url="/portal", status_code=302)
+        else:
+            logger.info(f"💻 Windows check: {client_ip} - transparent mode - returning success")
+            return Response(content="Microsoft Connect Test", media_type="text/plain")
 
     # In TOTP mode, check authentication
     if await check_device_authenticated(request, session):
@@ -109,15 +153,19 @@ async def windows_ncsi_check(request: Request, session: AsyncSession = Depends(g
     Supports both GET and HEAD methods (HEAD used for faster connectivity checks).
 
     Returns:
-        - "Microsoft NCSI" if transparent mode OR device is authenticated
-        - 302 Redirect to captive portal if TOTP mode and not authenticated
+        - "Microsoft NCSI" if device has internet access
+        - 302 Redirect to captive portal if device is blocked or not authenticated
     """
     client_ip = request.client.host if request.client else "unknown"
 
-    # In transparent mode, always return success (all devices have internet)
+    # In transparent mode, check if device is explicitly blocked
     if settings.system_mode == "transparent":
-        logger.info(f"💻 Windows NCSI: {client_ip} - transparent mode - returning Microsoft NCSI")
-        return Response(content="Microsoft NCSI", media_type="text/plain")
+        if await check_device_blocked(request, session):
+            logger.info(f"💻 Windows NCSI: {client_ip} - BLOCKED in transparent mode - redirecting to portal")
+            return RedirectResponse(url="/portal", status_code=302)
+        else:
+            logger.info(f"💻 Windows NCSI: {client_ip} - transparent mode - returning Microsoft NCSI")
+            return Response(content="Microsoft NCSI", media_type="text/plain")
 
     # In TOTP mode, check authentication
     if await check_device_authenticated(request, session):
@@ -135,15 +183,19 @@ async def apple_connectivity_check(request: Request, session: AsyncSession = Dep
     Supports both GET and HEAD methods (HEAD used for faster connectivity checks).
 
     Returns:
-        - Success HTML if transparent mode OR device is authenticated
-        - 302 Redirect to captive portal if TOTP mode and not authenticated
+        - Success HTML if device has internet access
+        - 302 Redirect to captive portal if device is blocked or not authenticated
     """
     client_ip = request.client.host if request.client else "unknown"
 
-    # In transparent mode, always return success (all devices have internet)
+    # In transparent mode, check if device is explicitly blocked
     if settings.system_mode == "transparent":
-        logger.info(f"🍎 Apple check: {client_ip} - transparent mode - returning Success")
-        return HTMLResponse("""<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>""")
+        if await check_device_blocked(request, session):
+            logger.info(f"🍎 Apple check: {client_ip} - BLOCKED in transparent mode - redirecting to portal")
+            return RedirectResponse(url="/portal", status_code=302)
+        else:
+            logger.info(f"🍎 Apple check: {client_ip} - transparent mode - returning Success")
+            return HTMLResponse("""<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>""")
 
     # In TOTP mode, check authentication
     if await check_device_authenticated(request, session):
@@ -161,15 +213,19 @@ async def apple_legacy_check(request: Request, session: AsyncSession = Depends(g
     Supports both GET and HEAD methods (HEAD used for faster connectivity checks).
 
     Returns:
-        - Success HTML if transparent mode OR device is authenticated
-        - 302 Redirect to captive portal if TOTP mode and not authenticated
+        - Success HTML if device has internet access
+        - 302 Redirect to captive portal if device is blocked or not authenticated
     """
     client_ip = request.client.host if request.client else "unknown"
 
-    # In transparent mode, always return success (all devices have internet)
+    # In transparent mode, check if device is explicitly blocked
     if settings.system_mode == "transparent":
-        logger.info(f"🍎 Apple legacy: {client_ip} - transparent mode - returning Success")
-        return HTMLResponse("""<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>""")
+        if await check_device_blocked(request, session):
+            logger.info(f"🍎 Apple legacy: {client_ip} - BLOCKED in transparent mode - redirecting to portal")
+            return RedirectResponse(url="/portal", status_code=302)
+        else:
+            logger.info(f"🍎 Apple legacy: {client_ip} - transparent mode - returning Success")
+            return HTMLResponse("""<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>""")
 
     # In TOTP mode, check authentication
     if await check_device_authenticated(request, session):
@@ -187,15 +243,19 @@ async def generic_success_check(request: Request, session: AsyncSession = Depend
     Supports both GET and HEAD methods (HEAD used for faster connectivity checks).
 
     Returns:
-        - "success" if transparent mode OR device is authenticated
-        - 302 Redirect to captive portal if TOTP mode and not authenticated
+        - "success" if device has internet access
+        - 302 Redirect to captive portal if device is blocked or not authenticated
     """
     client_ip = request.client.host if request.client else "unknown"
 
-    # In transparent mode, always return success (all devices have internet)
+    # In transparent mode, check if device is explicitly blocked
     if settings.system_mode == "transparent":
-        logger.info(f"✅ Generic check: {client_ip} - transparent mode - returning success")
-        return Response(content="success", media_type="text/plain")
+        if await check_device_blocked(request, session):
+            logger.info(f"✅ Generic check: {client_ip} - BLOCKED in transparent mode - redirecting to portal")
+            return RedirectResponse(url="/portal", status_code=302)
+        else:
+            logger.info(f"✅ Generic check: {client_ip} - transparent mode - returning success")
+            return Response(content="success", media_type="text/plain")
 
     # In TOTP mode, check authentication
     if await check_device_authenticated(request, session):
