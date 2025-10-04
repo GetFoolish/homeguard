@@ -582,6 +582,9 @@ async def portal_authenticate(
 ):
     """Handle TOTP authentication from captive portal."""
     try:
+        # Strip whitespace from TOTP code (form formats with spaces for readability)
+        totp_code = totp_code.strip().replace(" ", "")
+
         # Get client IP
         client_ip = request.client.host if request.client else None
 
