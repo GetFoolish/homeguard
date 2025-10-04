@@ -103,8 +103,9 @@ def main():
 
     except Exception as e:
         logger.error(f"❌ Homeguard failed to start: {e}", exc_info=True)
+        iptables_manager.set_transparent_mode()
+        logger.info("✅ Homeguard shutdown complete")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()
