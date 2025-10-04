@@ -386,7 +386,7 @@ async def grant_access_to_iot(
 
 @app.post("/remove_iot_device")
 async def remove_iot_device(
-    ip_address: str,
+    ip_address: str = Form(...),
     session: AsyncSession = Depends(get_session)
 ):
     """Remove device from IOT proxy."""
@@ -457,14 +457,14 @@ async def scan_network(session: AsyncSession = Depends(get_session)):
                 if scanned_dev.get('mac_address'):
                     device.mac_address = scanned_dev['mac_address']
             else:
-                # Create new device with blocked status
+                # Create new device with discovered status
                 device = Device(
                     mac_address=scanned_dev['mac_address'],
                     ip_address=scanned_dev['ip_address'],
                     hostname=scanned_dev.get('hostname'),
                     first_seen=datetime.utcnow(),
                     last_seen=datetime.utcnow(),
-                    access_status="blocked"
+                    access_status="discovered"
                 )
                 session.add(device)
 
@@ -493,8 +493,8 @@ async def list_devices(session: AsyncSession = Depends(get_session)):
         for device in devices:
             # Calculate effective access based on system mode and device status
             if settings.system_mode == "transparent":
-                # In transparent mode, all devices have internet access by default
-                effective_access = True
+                # In transparent mode, all devices have internet EXCEPT explicitly blocked ones
+                effective_access = device.access_status != "blocked"
             else:  # totp mode
                 # In TOTP mode, only granted/iot devices with valid access have internet
                 effective_access = (

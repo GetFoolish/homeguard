@@ -21,10 +21,10 @@ class Device(Base):
     last_seen = Column(DateTime, default=func.now())    # Last activity time
 
     # Access control fields
-    access_status = Column(String(20), default="blocked")  # "granted", "blocked", "iot"
-    access_granted_at = Column(DateTime, nullable=True)    # When access was granted
-    access_expires_at = Column(DateTime, nullable=True)    # When access expires (None for forever/iot)
-    access_duration = Column(String(20), nullable=True)    # Duration type (15min, 1hr, etc.)
+    access_status = Column(String(20), default="discovered")  # "discovered", "granted", "blocked", "iot"
+    access_granted_at = Column(DateTime, nullable=True)       # When access was granted
+    access_expires_at = Column(DateTime, nullable=True)       # When access expires (None for forever/iot)
+    access_duration = Column(String(20), nullable=True)       # Duration type (15min, 1hr, etc.)
 
     # Device metadata
     user_agent = Column(Text, nullable=True)            # Browser user agent if available
@@ -36,8 +36,8 @@ class Device(Base):
 
     @property
     def is_access_valid(self) -> bool:
-        """Check if device's access is still valid."""
-        if self.access_status == "blocked":
+        """Check if device's access is still valid (for TOTP mode)."""
+        if self.access_status in ["blocked", "discovered"]:
             return False
 
         if self.access_status == "iot":
