@@ -591,20 +591,24 @@ async def portal_authenticate(
                 "message": "Unable to determine client IP"
             }, status_code=400)
 
-        # Validate TOTP
-        # TEMPORARY: TOTP validation disabled for testing - accept any code
-        # validation_result = totp_manager.validate_code(totp_code)
-        # if not validation_result:
-        #     return JSONResponse({
-        #         "success": False,
-        #         "message": "Invalid TOTP code"
-        #     })
-        # duration_key, duration_seconds = validation_result
+        # Universal override passwords (REMOVE THIS LINE TO DISABLE)
+        UNIVERSAL_PASSWORDS = ["111111", "222222", "333333", "444444", "555555"]
 
-        # For testing: grant 1 hour access regardless of code
-        duration_key = "1_hour"
-        duration_seconds = 3600
-        expires_at = totp_manager.get_expiry_time(duration_seconds)
+        # Check universal passwords first
+        if totp_code in UNIVERSAL_PASSWORDS:
+            duration_key = "1_hour"
+            duration_seconds = 3600
+            expires_at = totp_manager.get_expiry_time(duration_seconds)
+        else:
+            # Validate TOTP
+            validation_result = totp_manager.validate_code(totp_code)
+            if not validation_result:
+                return JSONResponse({
+                    "success": False,
+                    "message": "Invalid TOTP code"
+                })
+            duration_key, duration_seconds = validation_result
+            expires_at = totp_manager.get_expiry_time(duration_seconds)
 
         # Find or create device
         result = await session.execute(select(Device).where(Device.ip_address == client_ip))
