@@ -13,10 +13,28 @@ class IPTablesManager:
 
     def __init__(self):
         """Initialize iptables manager."""
-        self.execution_mode = settings.execution_mode
-        self.lan_interface = settings.lan_interface
-        self.wan_interface = settings.wan_interface
-        self.gateway_ip = settings.gateway_ip
+        # Don't cache settings - read dynamically to support command-line arg overrides
+        pass
+
+    @property
+    def execution_mode(self) -> str:
+        """Get current execution mode from settings (supports runtime changes)."""
+        return settings.execution_mode
+
+    @property
+    def lan_interface(self) -> str:
+        """Get LAN interface from settings."""
+        return settings.lan_interface
+
+    @property
+    def wan_interface(self) -> str:
+        """Get WAN interface from settings."""
+        return settings.wan_interface
+
+    @property
+    def gateway_ip(self) -> str:
+        """Get gateway IP from settings."""
+        return settings.gateway_ip
 
     def _execute_command(self, command: str) -> bool:
         """Execute a command or print it in testing mode."""
