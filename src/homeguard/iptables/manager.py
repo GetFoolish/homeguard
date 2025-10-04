@@ -172,8 +172,11 @@ class IPTablesManager:
             # Return traffic to granted device
             commands.append(f"iptables -t filter -I HOMEGUARD_ACCEPT 2 -d {granted_ip} -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT")
 
-        # Add catch-all DROP to HOMEGUARD_BLOCK (blocks all non-authenticated traffic)
-        commands.append("iptables -t filter -A HOMEGUARD_BLOCK -j DROP")
+        # Add HTTPS reject rule for fast failure (prevents 60-second timeout on connectivity checks)
+        commands.append("iptables -t filter -A HOMEGUARD_BLOCK -p tcp --dport 443 -j REJECT --reject-with tcp-reset")
+
+        # Add catch-all REJECT to HOMEGUARD_BLOCK (blocks all non-authenticated traffic with fast failure)
+        commands.append("iptables -t filter -A HOMEGUARD_BLOCK -j REJECT --reject-with tcp-reset")
 
         for cmd in commands:
             if not self._execute_command(cmd):
@@ -187,7 +190,9 @@ class IPTablesManager:
         logger.info(f"Granting access to IP: {ip_address}")
 
         # Remove from block list first (if in transparent mode and was blocked)
+        # Try both DROP and REJECT for backward compatibility
         self._execute_command(f"iptables -t filter -D HOMEGUARD_BLOCK -s {ip_address} -j DROP 2>/dev/null || true")
+        self._execute_command(f"iptables -t filter -D HOMEGUARD_BLOCK -s {ip_address} -j REJECT --reject-with tcp-reset 2>/dev/null || true")
 
         # Add to fast path using INSERT (positions 1 and 2 for O(1) performance)
         # Outbound traffic from device
@@ -206,10 +211,11 @@ class IPTablesManager:
         self._execute_command(cmd1)
         self._execute_command(cmd2)
 
-        # In transparent mode, add explicit DROP rule to HOMEGUARD_BLOCK
-        # In TOTP mode, this is unnecessary (default policy is DROP)
+        # In transparent mode, add explicit REJECT rule to HOMEGUARD_BLOCK for fast failure
+        # In TOTP mode, this is unnecessary (default policy already rejects)
         if settings.system_mode == "transparent":
-            cmd3 = f"iptables -t filter -A HOMEGUARD_BLOCK -s {ip_address} -j DROP"
+            # Reject all traffic from this IP (including HTTPS) with tcp-reset for fast failure
+            cmd3 = f"iptables -t filter -A HOMEGUARD_BLOCK -s {ip_address} -j REJECT --reject-with tcp-reset"
             return self._execute_command(cmd3)
 
         return True
@@ -219,7 +225,9 @@ class IPTablesManager:
         logger.info(f"Adding IOT device: {ip_address}")
 
         # Remove from block list first (if in transparent mode and was blocked)
+        # Try both DROP and REJECT for backward compatibility
         self._execute_command(f"iptables -t filter -D HOMEGUARD_BLOCK -s {ip_address} -j DROP 2>/dev/null || true")
+        self._execute_command(f"iptables -t filter -D HOMEGUARD_BLOCK -s {ip_address} -j REJECT --reject-with tcp-reset 2>/dev/null || true")
 
         # Add to fast path using INSERT (positions 1 and 2 for O(1) performance)
         # Outbound traffic from IOT device
