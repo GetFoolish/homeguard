@@ -215,8 +215,9 @@ class IPTablesManager:
         # In transparent mode, add explicit REJECT rule to HOMEGUARD_BLOCK for fast failure
         # In TOTP mode, this is unnecessary (default policy already rejects)
         if settings.system_mode == "transparent":
-            # Reject all traffic from this IP (including HTTPS) with tcp-reset for fast failure
-            cmd3 = f"iptables -t filter -A HOMEGUARD_BLOCK -s {ip_address} -j REJECT --reject-with tcp-reset"
+            # Reject all traffic from this IP (including HTTPS) with icmp-port-unreachable for fast failure
+            # Note: tcp-reset requires -p tcp flag, icmp-port-unreachable works for all protocols
+            cmd3 = f"iptables -t filter -A HOMEGUARD_BLOCK -s {ip_address} -j REJECT --reject-with icmp-port-unreachable"
             return self._execute_command(cmd3)
 
         return True
