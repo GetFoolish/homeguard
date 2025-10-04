@@ -8,6 +8,7 @@ from sqlalchemy import select
 
 from ..database.connection import get_session
 from ..database.models import Device
+from ..config.settings import settings
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -55,11 +56,17 @@ async def android_connectivity_check(request: Request, session: AsyncSession = D
     Android/Chrome connectivity check.
 
     Returns:
-        - 204 No Content if device is authenticated (internet working)
-        - 302 Redirect to captive portal if not authenticated
+        - 204 No Content if transparent mode OR device is authenticated (internet working)
+        - 302 Redirect to captive portal if TOTP mode and not authenticated
     """
     client_ip = request.client.host if request.client else "unknown"
 
+    # In transparent mode, always return success (all devices have internet)
+    if settings.system_mode == "transparent":
+        logger.info(f"📱 Android check: {client_ip} - transparent mode - returning 204")
+        return Response(status_code=204)
+
+    # In TOTP mode, check authentication
     if await check_device_authenticated(request, session):
         logger.info(f"📱 Android check: {client_ip} authenticated - returning 204")
         return Response(status_code=204)
@@ -74,11 +81,17 @@ async def windows_connectivity_check(request: Request, session: AsyncSession = D
     Windows connectivity check.
 
     Returns:
-        - "Microsoft Connect Test" if device is authenticated
-        - 302 Redirect to captive portal if not authenticated
+        - "Microsoft Connect Test" if transparent mode OR device is authenticated
+        - 302 Redirect to captive portal if TOTP mode and not authenticated
     """
     client_ip = request.client.host if request.client else "unknown"
 
+    # In transparent mode, always return success (all devices have internet)
+    if settings.system_mode == "transparent":
+        logger.info(f"💻 Windows check: {client_ip} - transparent mode - returning success")
+        return Response(content="Microsoft Connect Test", media_type="text/plain")
+
+    # In TOTP mode, check authentication
     if await check_device_authenticated(request, session):
         logger.info(f"💻 Windows check: {client_ip} authenticated - returning success")
         return Response(content="Microsoft Connect Test", media_type="text/plain")
@@ -93,11 +106,17 @@ async def windows_ncsi_check(request: Request, session: AsyncSession = Depends(g
     Windows Network Connectivity Status Indicator (NCSI) check.
 
     Returns:
-        - "Microsoft NCSI" if device is authenticated
-        - 302 Redirect to captive portal if not authenticated
+        - "Microsoft NCSI" if transparent mode OR device is authenticated
+        - 302 Redirect to captive portal if TOTP mode and not authenticated
     """
     client_ip = request.client.host if request.client else "unknown"
 
+    # In transparent mode, always return success (all devices have internet)
+    if settings.system_mode == "transparent":
+        logger.info(f"💻 Windows NCSI: {client_ip} - transparent mode - returning Microsoft NCSI")
+        return Response(content="Microsoft NCSI", media_type="text/plain")
+
+    # In TOTP mode, check authentication
     if await check_device_authenticated(request, session):
         logger.info(f"💻 Windows NCSI: {client_ip} authenticated - returning Microsoft NCSI")
         return Response(content="Microsoft NCSI", media_type="text/plain")
@@ -112,11 +131,17 @@ async def apple_connectivity_check(request: Request, session: AsyncSession = Dep
     Apple iOS/macOS connectivity check.
 
     Returns:
-        - Success HTML if device is authenticated
-        - 302 Redirect to captive portal if not authenticated
+        - Success HTML if transparent mode OR device is authenticated
+        - 302 Redirect to captive portal if TOTP mode and not authenticated
     """
     client_ip = request.client.host if request.client else "unknown"
 
+    # In transparent mode, always return success (all devices have internet)
+    if settings.system_mode == "transparent":
+        logger.info(f"🍎 Apple check: {client_ip} - transparent mode - returning Success")
+        return HTMLResponse("""<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>""")
+
+    # In TOTP mode, check authentication
     if await check_device_authenticated(request, session):
         logger.info(f"🍎 Apple check: {client_ip} authenticated - returning Success")
         return HTMLResponse("""<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>""")
@@ -131,11 +156,17 @@ async def apple_legacy_check(request: Request, session: AsyncSession = Depends(g
     Apple legacy connectivity check endpoint.
 
     Returns:
-        - Success HTML if device is authenticated
-        - 302 Redirect to captive portal if not authenticated
+        - Success HTML if transparent mode OR device is authenticated
+        - 302 Redirect to captive portal if TOTP mode and not authenticated
     """
     client_ip = request.client.host if request.client else "unknown"
 
+    # In transparent mode, always return success (all devices have internet)
+    if settings.system_mode == "transparent":
+        logger.info(f"🍎 Apple legacy: {client_ip} - transparent mode - returning Success")
+        return HTMLResponse("""<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>""")
+
+    # In TOTP mode, check authentication
     if await check_device_authenticated(request, session):
         logger.info(f"🍎 Apple legacy: {client_ip} authenticated - returning Success")
         return HTMLResponse("""<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>""")
@@ -150,11 +181,17 @@ async def generic_success_check(request: Request, session: AsyncSession = Depend
     Generic success endpoint for various OS connectivity checks.
 
     Returns:
-        - "success" if device is authenticated
-        - 302 Redirect to captive portal if not authenticated
+        - "success" if transparent mode OR device is authenticated
+        - 302 Redirect to captive portal if TOTP mode and not authenticated
     """
     client_ip = request.client.host if request.client else "unknown"
 
+    # In transparent mode, always return success (all devices have internet)
+    if settings.system_mode == "transparent":
+        logger.info(f"✅ Generic check: {client_ip} - transparent mode - returning success")
+        return Response(content="success", media_type="text/plain")
+
+    # In TOTP mode, check authentication
     if await check_device_authenticated(request, session):
         logger.info(f"✅ Generic check: {client_ip} authenticated - returning success")
         return Response(content="success", media_type="text/plain")

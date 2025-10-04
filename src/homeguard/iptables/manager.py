@@ -176,7 +176,8 @@ class IPTablesManager:
         commands.append("iptables -t filter -A HOMEGUARD_BLOCK -p tcp --dport 443 -j REJECT --reject-with tcp-reset")
 
         # Add catch-all REJECT to HOMEGUARD_BLOCK (blocks all non-authenticated traffic with fast failure)
-        commands.append("iptables -t filter -A HOMEGUARD_BLOCK -j REJECT --reject-with tcp-reset")
+        # Use icmp-port-unreachable for non-TCP traffic (tcp-reset requires -p tcp flag)
+        commands.append("iptables -t filter -A HOMEGUARD_BLOCK -j REJECT --reject-with icmp-port-unreachable")
 
         for cmd in commands:
             if not self._execute_command(cmd):

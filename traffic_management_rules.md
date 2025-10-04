@@ -58,8 +58,8 @@ Policy: ACCEPT
 ```bash
 HOMEGUARD_ACCEPT: RETURN (empty - no authenticated users)
 HOMEGUARD_BLOCK:
-  1. REJECT tcp --dport 443 --reject-with tcp-reset  # Fast HTTPS rejection
-  2. REJECT --reject-with tcp-reset                   # Fast rejection for all other traffic
+  1. REJECT tcp --dport 443 --reject-with tcp-reset      # Fast HTTPS rejection
+  2. REJECT --reject-with icmp-port-unreachable          # Fast rejection for all other traffic
 Policy: DROP
 ```
 
@@ -77,8 +77,8 @@ HOMEGUARD_ACCEPT:
   3. RETURN
 
 HOMEGUARD_BLOCK:
-  1. REJECT tcp --dport 443 --reject-with tcp-reset  # Fast HTTPS rejection
-  2. REJECT --reject-with tcp-reset                   # Fast rejection for all other traffic
+  1. REJECT tcp --dport 443 --reject-with tcp-reset      # Fast HTTPS rejection
+  2. REJECT --reject-with icmp-port-unreachable          # Fast rejection for all other traffic
 ```
 
 **Traffic Flow:** 192.168.2.61 traffic hits fast path rules and gets accepted immediately. Other devices hit HOMEGUARD_BLOCK and get rejected with tcp-reset for fast failure.
@@ -124,7 +124,7 @@ sudo iptables -t filter -F HOMEGUARD_ACCEPT
 sudo iptables -t filter -F HOMEGUARD_BLOCK
 sudo iptables -t filter -A HOMEGUARD_ACCEPT -j RETURN  # Empty initially
 sudo iptables -t filter -A HOMEGUARD_BLOCK -p tcp --dport 443 -j REJECT --reject-with tcp-reset  # Fast HTTPS rejection
-sudo iptables -t filter -A HOMEGUARD_BLOCK -j REJECT --reject-with tcp-reset  # Fast rejection for all traffic
+sudo iptables -t filter -A HOMEGUARD_BLOCK -j REJECT --reject-with icmp-port-unreachable  # Fast rejection for all traffic
 sudo iptables -t filter -P FORWARD DROP
 ```
 
@@ -191,7 +191,7 @@ def apply_totp_full_mode(self):
     run_iptables(["-t", "filter", "-A", "HOMEGUARD_ACCEPT", "-j", "RETURN"])
     # Fast HTTPS rejection to prevent 60-second captive portal delay
     run_iptables(["-t", "filter", "-A", "HOMEGUARD_BLOCK", "-p", "tcp", "--dport", "443", "-j", "REJECT", "--reject-with", "tcp-reset"])
-    run_iptables(["-t", "filter", "-A", "HOMEGUARD_BLOCK", "-j", "REJECT", "--reject-with", "tcp-reset"])
+    run_iptables(["-t", "filter", "-A", "HOMEGUARD_BLOCK", "-j", "REJECT", "--reject-with", "icmp-port-unreachable"])
     run_iptables(["-t", "filter", "-P", "FORWARD", "DROP"])
 ```
 
