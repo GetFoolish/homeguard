@@ -18,6 +18,7 @@ from ..auth.totp import totp_manager
 from ..iptables.manager import iptables_manager
 from ..config.settings import settings, save_config_file
 from ..network.scanner import device_scanner
+from .connectivity import router as connectivity_router
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,9 @@ app = FastAPI(
     description="TOTP-based network access control system",
     version="4.0.0"
 )
+
+# Include connectivity check router for automatic captive portal detection
+app.include_router(connectivity_router)
 
 # Setup templates
 templates_dir = Path(__file__).parent.parent / "frontend" / "templates"
