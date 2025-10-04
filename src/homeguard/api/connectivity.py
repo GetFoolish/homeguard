@@ -50,10 +50,11 @@ async def check_device_authenticated(request: Request, session: AsyncSession) ->
         return False
 
 
-@router.get("/generate_204")
+@router.api_route("/generate_204", methods=["GET", "HEAD"])
 async def android_connectivity_check(request: Request, session: AsyncSession = Depends(get_session)):
     """
     Android/Chrome connectivity check.
+    Supports both GET and HEAD methods (HEAD used for faster connectivity checks).
 
     Returns:
         - 204 No Content if transparent mode OR device is authenticated (internet working)
@@ -75,10 +76,11 @@ async def android_connectivity_check(request: Request, session: AsyncSession = D
         return RedirectResponse(url="/portal", status_code=302)
 
 
-@router.get("/connecttest.txt")
+@router.api_route("/connecttest.txt", methods=["GET", "HEAD"])
 async def windows_connectivity_check(request: Request, session: AsyncSession = Depends(get_session)):
     """
     Windows connectivity check.
+    Supports both GET and HEAD methods (HEAD used for faster connectivity checks).
 
     Returns:
         - "Microsoft Connect Test" if transparent mode OR device is authenticated
@@ -100,10 +102,11 @@ async def windows_connectivity_check(request: Request, session: AsyncSession = D
         return RedirectResponse(url="/portal", status_code=302)
 
 
-@router.get("/ncsi.txt")
+@router.api_route("/ncsi.txt", methods=["GET", "HEAD"])
 async def windows_ncsi_check(request: Request, session: AsyncSession = Depends(get_session)):
     """
     Windows Network Connectivity Status Indicator (NCSI) check.
+    Supports both GET and HEAD methods (HEAD used for faster connectivity checks).
 
     Returns:
         - "Microsoft NCSI" if transparent mode OR device is authenticated
@@ -125,10 +128,11 @@ async def windows_ncsi_check(request: Request, session: AsyncSession = Depends(g
         return RedirectResponse(url="/portal", status_code=302)
 
 
-@router.get("/hotspot-detect.html")
+@router.api_route("/hotspot-detect.html", methods=["GET", "HEAD"])
 async def apple_connectivity_check(request: Request, session: AsyncSession = Depends(get_session)):
     """
     Apple iOS/macOS connectivity check.
+    Supports both GET and HEAD methods (HEAD used for faster connectivity checks).
 
     Returns:
         - Success HTML if transparent mode OR device is authenticated
@@ -150,10 +154,11 @@ async def apple_connectivity_check(request: Request, session: AsyncSession = Dep
         return RedirectResponse(url="/portal", status_code=302)
 
 
-@router.get("/library/test/success.html")
+@router.api_route("/library/test/success.html", methods=["GET", "HEAD"])
 async def apple_legacy_check(request: Request, session: AsyncSession = Depends(get_session)):
     """
     Apple legacy connectivity check endpoint.
+    Supports both GET and HEAD methods (HEAD used for faster connectivity checks).
 
     Returns:
         - Success HTML if transparent mode OR device is authenticated
@@ -175,10 +180,11 @@ async def apple_legacy_check(request: Request, session: AsyncSession = Depends(g
         return RedirectResponse(url="/portal", status_code=302)
 
 
-@router.get("/success.txt")
+@router.api_route("/success.txt", methods=["GET", "HEAD"])
 async def generic_success_check(request: Request, session: AsyncSession = Depends(get_session)):
     """
     Generic success endpoint for various OS connectivity checks.
+    Supports both GET and HEAD methods (HEAD used for faster connectivity checks).
 
     Returns:
         - "success" if transparent mode OR device is authenticated
