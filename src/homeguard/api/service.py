@@ -384,6 +384,53 @@ async def grant_access_to_iot(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.post("/remove_iot_device")
+async def remove_iot_device(
+    ip_address: str,
+    session: AsyncSession = Depends(get_session)
+):
+    """Remove device from IOT proxy."""
+    try:
+        # Find device
+        result = await session.execute(select(Device).where(Device.ip_address == ip_address))
+        device = result.scalars().first()
+
+        if not device:
+            return JSONResponse({
+                "status": "error",
+                "message": "Device not found"
+            }, status_code=404)
+
+        # Block access (sets status to blocked)
+        device.block_access()
+        await session.commit()
+
+        # Remove from iptables IOT chain
+        iptables_manager.remove_iot_device(ip_address)
+
+        # Log the event
+        log_entry = AccessLog(
+            mac_address=device.mac_address,
+            ip_address=ip_address,
+            event_type="iot_removed",
+            event_details="Device removed from IOT proxy"
+        )
+        session.add(log_entry)
+        await session.commit()
+
+        logger.info(f"🔌 Removed {ip_address} from IOT proxy")
+
+        return JSONResponse({
+            "status": "success",
+            "message": "Device removed from IOT proxy",
+            "ip_address": ip_address
+        })
+
+    except Exception as e:
+        logger.error(f"Error removing IOT device {ip_address}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # =============================================================================
 # DEVICE LISTING AND SCANNING ENDPOINTS
 # =============================================================================

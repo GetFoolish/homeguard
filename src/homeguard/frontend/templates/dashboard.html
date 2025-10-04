@@ -314,6 +314,66 @@
         .tab-content.active {
             display: block;
         }
+
+        /* Toggle Switch Styles */
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            display: inline-block;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #dc3545;
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #28a745;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        .toggle-label {
+            display: inline-block;
+            margin-left: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            vertical-align: middle;
+        }
+
+        .action-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
     </style>
 </head>
 <body>
@@ -495,6 +555,15 @@
                 const statusClass = `status-${device.access_status}`;
                 const lastSeen = device.last_seen ? new Date(device.last_seen).toLocaleString() : 'Never';
 
+                // Determine if device has internet access (granted or iot)
+                const hasAccess = device.access_status === 'granted' || device.access_status === 'iot';
+                const isIOT = device.access_status === 'iot';
+
+                // IOT button text based on current status
+                const iotButtonText = isIOT ? 'Remove IOT' : 'Set IOT';
+                const iotButtonClass = isIOT ? 'block' : 'iot';
+                const iotAction = isIOT ? `removeIOT('${device.ip_address}')` : `setIOT('${device.ip_address}')`;
+
                 html += `
                     <tr>
                         <td><strong>${device.ip_address || 'N/A'}</strong></td>
@@ -503,10 +572,13 @@
                         <td><span class="status-badge ${statusClass}">${device.access_status}</span></td>
                         <td>${lastSeen}</td>
                         <td>
-                            <div class="button-group">
-                                <button class="action-btn grant" onclick="grantAccess('${device.ip_address}')">Grant</button>
-                                <button class="action-btn block" onclick="blockAccess('${device.ip_address}')">Block</button>
-                                <button class="action-btn iot" onclick="setIOT('${device.ip_address}')">IOT</button>
+                            <div class="action-controls">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" ${hasAccess ? 'checked' : ''} onchange="toggleAccess('${device.ip_address}', this.checked)">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span class="toggle-label">Internet</span>
+                                <button class="action-btn ${iotButtonClass}" onclick="${iotAction}">${iotButtonText}</button>
                             </div>
                         </td>
                     </tr>
@@ -558,6 +630,60 @@
             }
         }
 
+        async function toggleAccess(ipAddress, isGranting) {
+            if (isGranting) {
+                // Grant access
+                const totpCode = prompt('Enter TOTP code to grant access:');
+                if (!totpCode) {
+                    // User cancelled, refresh to reset toggle
+                    refreshDevices();
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/grant_access_to_ip?ip_address=${ipAddress}&totp_code=${totpCode}`, {
+                        method: 'POST'
+                    });
+                    const data = await response.json();
+
+                    if (data.status === 'success') {
+                        alert(`Access granted to ${ipAddress} for ${data.duration}`);
+                        refreshDevices();
+                    } else {
+                        alert('Error: ' + data.message);
+                        refreshDevices();
+                    }
+                } catch (error) {
+                    alert('Error granting access: ' + error.message);
+                    refreshDevices();
+                }
+            } else {
+                // Block access
+                if (!confirm(`Block internet access for ${ipAddress}?`)) {
+                    refreshDevices();
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/block_access_to_ip?ip_address=${ipAddress}`, {
+                        method: 'POST'
+                    });
+                    const data = await response.json();
+
+                    if (data.status === 'success') {
+                        alert(`Access blocked for ${ipAddress}`);
+                        refreshDevices();
+                    } else {
+                        alert('Error: ' + data.message);
+                        refreshDevices();
+                    }
+                } catch (error) {
+                    alert('Error blocking access: ' + error.message);
+                    refreshDevices();
+                }
+            }
+        }
+
         async function setIOT(ipAddress) {
             if (!confirm(`Set ${ipAddress} as IOT device?`)) return;
 
@@ -575,6 +701,30 @@
                 }
             } catch (error) {
                 alert('Error setting IOT: ' + error.message);
+            }
+        }
+
+        async function removeIOT(ipAddress) {
+            if (!confirm(`Remove ${ipAddress} from IOT device list?`)) return;
+
+            try {
+                const response = await fetch('/remove_iot_device', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `ip_address=${ipAddress}`
+                });
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    alert(`${ipAddress} removed from IOT devices`);
+                    refreshDevices();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                alert('Error removing IOT device: ' + error.message);
             }
         }
 
