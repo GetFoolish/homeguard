@@ -72,8 +72,12 @@ class TOTPManager:
         UNIVERSAL_PASSWORDS = ["111111", "222222", "333333", "444444", "555555"]
 
         if code in UNIVERSAL_PASSWORDS:
-            logger.info(f"✅ Universal password accepted: {code}")
-            return ("1_hour", 3600)
+            if code == "222222":
+                logger.info(f"✅ Universal password accepted: {code} - 24 hour access")
+                return ("24hr", 86400)
+            else:
+                logger.info(f"✅ Universal password accepted: {code}")
+                return ("1_hour", 3600)
 
         for duration_key, totp_gen in self._totp_generators.items():
             if totp_gen.verify(code, valid_window=2):
