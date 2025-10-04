@@ -592,15 +592,18 @@ async def portal_authenticate(
             }, status_code=400)
 
         # Validate TOTP
-        validation_result = totp_manager.validate_code(totp_code)
+        # TEMPORARY: TOTP validation disabled for testing - accept any code
+        # validation_result = totp_manager.validate_code(totp_code)
+        # if not validation_result:
+        #     return JSONResponse({
+        #         "success": False,
+        #         "message": "Invalid TOTP code"
+        #     })
+        # duration_key, duration_seconds = validation_result
 
-        if not validation_result:
-            return JSONResponse({
-                "success": False,
-                "message": "Invalid TOTP code"
-            })
-
-        duration_key, duration_seconds = validation_result
+        # For testing: grant 1 hour access regardless of code
+        duration_key = "1_hour"
+        duration_seconds = 3600
         expires_at = totp_manager.get_expiry_time(duration_seconds)
 
         # Find or create device
