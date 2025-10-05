@@ -534,18 +534,32 @@ async def scan_network(session: AsyncSession = Depends(get_session)):
 
         # Update database with scanned devices
         for scanned_dev in scanned_devices:
-            result = await session.execute(
+            # First check if device exists by MAC address (primary key)
+            mac_result = await session.execute(
+                select(Device).where(Device.mac_address == scanned_dev['mac_address'])
+            )
+            device_by_mac = mac_result.scalars().first()
+
+            # Also check by IP address
+            ip_result = await session.execute(
                 select(Device).where(Device.ip_address == scanned_dev['ip_address'])
             )
-            device = result.scalars().first()
+            device_by_ip = ip_result.scalars().first()
 
-            if device:
-                # Update existing device
-                device.last_seen = datetime.utcnow()
+            if device_by_mac:
+                # Device exists with this MAC, update it
+                device_by_mac.last_seen = datetime.utcnow()
+                device_by_mac.ip_address = scanned_dev['ip_address']  # Update IP if it changed
                 if scanned_dev.get('hostname'):
-                    device.hostname = scanned_dev['hostname']
-                if scanned_dev.get('mac_address'):
-                    device.mac_address = scanned_dev['mac_address']
+                    device_by_mac.hostname = scanned_dev['hostname']
+            elif device_by_ip:
+                # Device exists with this IP but different MAC
+                # Only update if the existing MAC looks like a placeholder
+                if device_by_ip.mac_address.startswith(('unknown:', 'portal:', 'iot:')):
+                    device_by_ip.mac_address = scanned_dev['mac_address']
+                device_by_ip.last_seen = datetime.utcnow()
+                if scanned_dev.get('hostname'):
+                    device_by_ip.hostname = scanned_dev['hostname']
             else:
                 # Create new device with discovered status
                 device = Device(

@@ -55,6 +55,9 @@ class IPTablesManager:
         logger.info("Setting iptables to TRANSPARENT mode...")
 
         commands = [
+            # Enable IP forwarding
+            "sysctl -w net.ipv4.ip_forward=1",
+
             # Flush all rules
             "iptables -t filter -F",
             "iptables -t nat -F PREROUTING",
@@ -121,6 +124,9 @@ class IPTablesManager:
             granted_devices = []
 
         commands = [
+            # Enable IP forwarding
+            "sysctl -w net.ipv4.ip_forward=1",
+
             # Flush all rules
             "iptables -t filter -F",
             "iptables -t nat -F PREROUTING",
