@@ -71,6 +71,61 @@ async def require_admin_session(request: Request, admin_session: str = Cookie(de
         return RedirectResponse(url="/admin/login", status_code=302)
     return admin_session
 
+# User-agent parsing for device detection
+def parse_user_agent(user_agent: str) -> dict:
+    """Parse user-agent string to extract device type, OS, and browser."""
+    device_type = "Unknown"
+    browser = "Unknown"
+    os = "Unknown"
+
+    # Detect device type
+    if "Mobile" in user_agent or "Android" in user_agent or "iPhone" in user_agent:
+        device_type = "Mobile"
+    elif "iPad" in user_agent or "Tablet" in user_agent:
+        device_type = "Tablet"
+    elif "Windows" in user_agent or "Mac" in user_agent or "Linux" in user_agent:
+        device_type = "Desktop/Laptop"
+
+    # Parse browser info
+    if "Chrome" in user_agent and "Safari" in user_agent:
+        if "Edg" in user_agent:
+            browser = "Microsoft Edge"
+        elif "OPR" in user_agent or "Opera" in user_agent:
+            browser = "Opera"
+        else:
+            browser = "Chrome"
+    elif "Firefox" in user_agent:
+        browser = "Firefox"
+    elif "Safari" in user_agent and "Chrome" not in user_agent:
+        browser = "Safari"
+
+    # Parse OS info
+    if "Windows NT" in user_agent:
+        if "Windows NT 10.0" in user_agent:
+            os = "Windows 10/11"
+        elif "Windows NT 6.3" in user_agent:
+            os = "Windows 8.1"
+        elif "Windows NT 6.2" in user_agent:
+            os = "Windows 8"
+        elif "Windows NT 6.1" in user_agent:
+            os = "Windows 7"
+        else:
+            os = "Windows"
+    elif "Mac OS X" in user_agent or "macOS" in user_agent:
+        os = "macOS"
+    elif "Linux" in user_agent and "Android" not in user_agent:
+        os = "Linux"
+    elif "Android" in user_agent:
+        os = "Android"
+    elif "iOS" in user_agent or "iPhone OS" in user_agent:
+        os = "iOS"
+
+    return {
+        "device_type": device_type,
+        "os": os,
+        "browser": browser
+    }
+
 # Background task for access expiration
 async def check_expired_devices():
     """Background task that runs every 30 seconds to check for expired devices."""
@@ -672,10 +727,17 @@ async def captive_portal(request: Request):
     """Serve the captive portal for blocked devices."""
     # Get client info
     client_ip = request.client.host if request.client else "Unknown"
+    user_agent = request.headers.get("user-agent", "")
+
+    # Parse user-agent for device detection
+    device_info = parse_user_agent(user_agent)
 
     return templates.TemplateResponse("captive_portal.html", {
         "request": request,
         "client_ip": client_ip,
+        "device_type": device_info["device_type"],
+        "os": device_info["os"],
+        "browser": device_info["browser"],
         "gateway_ip": settings.gateway_ip
     })
 
