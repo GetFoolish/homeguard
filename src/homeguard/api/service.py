@@ -40,17 +40,30 @@ templates = Jinja2Templates(directory=str(templates_dir))
 # Admin session management
 ADMIN_SESSION_SECRET = secrets.token_urlsafe(32)
 ADMIN_SESSION_TIMEOUT = 900  # 15 minutes in seconds
+active_admin_sessions = {}  # token -> expiry_time
 
 def create_admin_session_token() -> str:
     """Create a signed session token for admin access."""
-    return secrets.token_urlsafe(32)
+    token = secrets.token_urlsafe(32)
+    expiry = datetime.utcnow() + timedelta(seconds=ADMIN_SESSION_TIMEOUT)
+    active_admin_sessions[token] = expiry
+    return token
 
 def verify_admin_session(admin_session: str = Cookie(default=None)) -> bool:
     """Verify admin session cookie."""
     if not admin_session:
         return False
-    # Simple token validation - in production, you'd verify signature/expiry
-    return len(admin_session) > 0
+
+    # Check if token exists and is not expired
+    if admin_session in active_admin_sessions:
+        expiry = active_admin_sessions[admin_session]
+        if datetime.utcnow() < expiry:
+            return True
+        else:
+            # Token expired, remove it
+            del active_admin_sessions[admin_session]
+
+    return False
 
 async def require_admin_session(request: Request, admin_session: str = Cookie(default=None)):
     """Dependency to require valid admin session."""
@@ -594,8 +607,12 @@ async def admin_login(request: Request, totp_code: str = Form(...)):
 
 
 @app.get("/admin/logout")
-async def admin_logout():
+async def admin_logout(admin_session: str = Cookie(default=None)):
     """Handle admin logout."""
+    # Remove session token from active sessions
+    if admin_session and admin_session in active_admin_sessions:
+        del active_admin_sessions[admin_session]
+
     response = RedirectResponse(url="/admin/login", status_code=302)
     response.delete_cookie("admin_session")
     logger.info("Admin logged out")
