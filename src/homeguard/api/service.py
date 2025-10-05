@@ -578,9 +578,9 @@ async def admin_login(request: Request, totp_code: str = Form(...)):
             status_code=302
         )
 
-    # Create session token and redirect to dashboard
+    # Create session token and redirect to admin dashboard
     session_token = create_admin_session_token()
-    response = RedirectResponse(url="/", status_code=302)
+    response = RedirectResponse(url="/admin", status_code=302)
     response.set_cookie(
         key="admin_session",
         value=session_token,
@@ -603,8 +603,14 @@ async def admin_logout():
 
 
 @app.get("/", response_class=HTMLResponse)
+async def root(request: Request):
+    """Root URL - serve captive portal for devices."""
+    return RedirectResponse(url="/portal", status_code=302)
+
+
+@app.get("/admin", response_class=HTMLResponse)
 async def dashboard(request: Request, admin_session: str = Cookie(default=None)):
-    """Serve the device management dashboard (requires admin auth)."""
+    """Serve the admin dashboard (requires admin auth)."""
     # Check admin session
     if not verify_admin_session(admin_session):
         return RedirectResponse(url="/admin/login", status_code=302)
