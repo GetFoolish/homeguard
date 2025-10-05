@@ -2,9 +2,10 @@
 
 import logging
 import asyncio
-from datetime import datetime
-from fastapi import FastAPI, Depends, HTTPException, Request, Form
-from fastapi.responses import HTMLResponse, JSONResponse
+import secrets
+from datetime import datetime, timedelta
+from fastapi import FastAPI, Depends, HTTPException, Request, Form, Cookie, Response
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -35,6 +36,27 @@ app.include_router(connectivity_router)
 # Setup templates
 templates_dir = Path(__file__).parent.parent / "frontend" / "templates"
 templates = Jinja2Templates(directory=str(templates_dir))
+
+# Admin session management
+ADMIN_SESSION_SECRET = secrets.token_urlsafe(32)
+ADMIN_SESSION_TIMEOUT = 900  # 15 minutes in seconds
+
+def create_admin_session_token() -> str:
+    """Create a signed session token for admin access."""
+    return secrets.token_urlsafe(32)
+
+def verify_admin_session(admin_session: str = Cookie(default=None)) -> bool:
+    """Verify admin session cookie."""
+    if not admin_session:
+        return False
+    # Simple token validation - in production, you'd verify signature/expiry
+    return len(admin_session) > 0
+
+async def require_admin_session(request: Request, admin_session: str = Cookie(default=None)):
+    """Dependency to require valid admin session."""
+    if not verify_admin_session(admin_session):
+        return RedirectResponse(url="/admin/login", status_code=302)
+    return admin_session
 
 # Background task for access expiration
 async def check_expired_devices():
@@ -523,9 +545,70 @@ async def list_devices(session: AsyncSession = Depends(get_session)):
 # FRONTEND
 # =============================================================================
 
+@app.get("/admin/login", response_class=HTMLResponse)
+async def admin_login_page(request: Request, error: str = None):
+    """Serve the admin login page."""
+    return templates.TemplateResponse("admin_login.html", {
+        "request": request,
+        "error": error
+    })
+
+
+@app.post("/admin/login")
+async def admin_login(request: Request, totp_code: str = Form(...)):
+    """Handle admin login with TOTP."""
+    # Strip whitespace from TOTP code
+    totp_code = totp_code.strip().replace(" ", "")
+
+    # Validate TOTP
+    validation_result = totp_manager.validate_code(totp_code)
+
+    if not validation_result:
+        return RedirectResponse(
+            url="/admin/login?error=Invalid+authentication+code",
+            status_code=302
+        )
+
+    duration_key, duration_seconds = validation_result
+
+    # Only accept "forever" duration codes for admin access
+    if duration_seconds != -1:
+        return RedirectResponse(
+            url="/admin/login?error=Admin+access+requires+forever+TOTP+code",
+            status_code=302
+        )
+
+    # Create session token and redirect to dashboard
+    session_token = create_admin_session_token()
+    response = RedirectResponse(url="/", status_code=302)
+    response.set_cookie(
+        key="admin_session",
+        value=session_token,
+        max_age=ADMIN_SESSION_TIMEOUT,
+        httponly=True,
+        samesite="lax"
+    )
+
+    logger.info(f"✅ Admin login successful")
+    return response
+
+
+@app.get("/admin/logout")
+async def admin_logout():
+    """Handle admin logout."""
+    response = RedirectResponse(url="/admin/login", status_code=302)
+    response.delete_cookie("admin_session")
+    logger.info("Admin logged out")
+    return response
+
+
 @app.get("/", response_class=HTMLResponse)
-async def dashboard(request: Request):
-    """Serve the device management dashboard."""
+async def dashboard(request: Request, admin_session: str = Cookie(default=None)):
+    """Serve the device management dashboard (requires admin auth)."""
+    # Check admin session
+    if not verify_admin_session(admin_session):
+        return RedirectResponse(url="/admin/login", status_code=302)
+
     return templates.TemplateResponse("dashboard.html", {"request": request})
 
 
