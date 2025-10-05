@@ -97,12 +97,13 @@ async def android_connectivity_check(request: Request, session: AsyncSession = D
         - 302 Redirect to captive portal if device is blocked or not authenticated
     """
     client_ip = request.client.host if request.client else "unknown"
+    portal_url = f"http://{settings.gateway_ip}:{settings.web_port}/portal"
 
     # In transparent mode, check if device is explicitly blocked
     if settings.system_mode == "transparent":
         if await check_device_blocked(request, session):
             logger.info(f"📱 Android check: {client_ip} - BLOCKED in transparent mode - redirecting to portal")
-            return RedirectResponse(url="/portal", status_code=302)
+            return RedirectResponse(url=portal_url, status_code=302)
         else:
             logger.info(f"📱 Android check: {client_ip} - transparent mode - returning 204")
             return Response(status_code=204)
@@ -113,7 +114,7 @@ async def android_connectivity_check(request: Request, session: AsyncSession = D
         return Response(status_code=204)
     else:
         logger.info(f"📱 Android check: {client_ip} not authenticated - redirecting to portal")
-        return RedirectResponse(url="/portal", status_code=302)
+        return RedirectResponse(url=portal_url, status_code=302)
 
 
 @router.api_route("/connecttest.txt", methods=["GET", "HEAD"])
@@ -127,12 +128,13 @@ async def windows_connectivity_check(request: Request, session: AsyncSession = D
         - 302 Redirect to captive portal if device is blocked or not authenticated
     """
     client_ip = request.client.host if request.client else "unknown"
+    portal_url = f"http://{settings.gateway_ip}:{settings.web_port}/portal"
 
     # In transparent mode, check if device is explicitly blocked
     if settings.system_mode == "transparent":
         if await check_device_blocked(request, session):
             logger.info(f"💻 Windows check: {client_ip} - BLOCKED in transparent mode - redirecting to portal")
-            return RedirectResponse(url="/portal", status_code=302)
+            return RedirectResponse(url=portal_url, status_code=302)
         else:
             logger.info(f"💻 Windows check: {client_ip} - transparent mode - returning success")
             return Response(content="Microsoft Connect Test", media_type="text/plain")
@@ -143,7 +145,7 @@ async def windows_connectivity_check(request: Request, session: AsyncSession = D
         return Response(content="Microsoft Connect Test", media_type="text/plain")
     else:
         logger.info(f"💻 Windows check: {client_ip} not authenticated - redirecting to portal")
-        return RedirectResponse(url="/portal", status_code=302)
+        return RedirectResponse(url=portal_url, status_code=302)
 
 
 @router.api_route("/ncsi.txt", methods=["GET", "HEAD"])
@@ -157,12 +159,13 @@ async def windows_ncsi_check(request: Request, session: AsyncSession = Depends(g
         - 302 Redirect to captive portal if device is blocked or not authenticated
     """
     client_ip = request.client.host if request.client else "unknown"
+    portal_url = f"http://{settings.gateway_ip}:{settings.web_port}/portal"
 
     # In transparent mode, check if device is explicitly blocked
     if settings.system_mode == "transparent":
         if await check_device_blocked(request, session):
             logger.info(f"💻 Windows NCSI: {client_ip} - BLOCKED in transparent mode - redirecting to portal")
-            return RedirectResponse(url="/portal", status_code=302)
+            return RedirectResponse(url=portal_url, status_code=302)
         else:
             logger.info(f"💻 Windows NCSI: {client_ip} - transparent mode - returning Microsoft NCSI")
             return Response(content="Microsoft NCSI", media_type="text/plain")
@@ -173,7 +176,7 @@ async def windows_ncsi_check(request: Request, session: AsyncSession = Depends(g
         return Response(content="Microsoft NCSI", media_type="text/plain")
     else:
         logger.info(f"💻 Windows NCSI: {client_ip} not authenticated - redirecting to portal")
-        return RedirectResponse(url="/portal", status_code=302)
+        return RedirectResponse(url=portal_url, status_code=302)
 
 
 @router.api_route("/hotspot-detect.html", methods=["GET", "HEAD"])
@@ -187,12 +190,13 @@ async def apple_connectivity_check(request: Request, session: AsyncSession = Dep
         - 302 Redirect to captive portal if device is blocked or not authenticated
     """
     client_ip = request.client.host if request.client else "unknown"
+    portal_url = f"http://{settings.gateway_ip}:{settings.web_port}/portal"
 
     # In transparent mode, check if device is explicitly blocked
     if settings.system_mode == "transparent":
         if await check_device_blocked(request, session):
             logger.info(f"🍎 Apple check: {client_ip} - BLOCKED in transparent mode - redirecting to portal")
-            return RedirectResponse(url="/portal", status_code=302)
+            return RedirectResponse(url=portal_url, status_code=302)
         else:
             logger.info(f"🍎 Apple check: {client_ip} - transparent mode - returning Success")
             return HTMLResponse("""<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>""")
@@ -203,7 +207,7 @@ async def apple_connectivity_check(request: Request, session: AsyncSession = Dep
         return HTMLResponse("""<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>""")
     else:
         logger.info(f"🍎 Apple check: {client_ip} not authenticated - redirecting to portal")
-        return RedirectResponse(url="/portal", status_code=302)
+        return RedirectResponse(url=portal_url, status_code=302)
 
 
 @router.api_route("/library/test/success.html", methods=["GET", "HEAD"])
@@ -217,12 +221,13 @@ async def apple_legacy_check(request: Request, session: AsyncSession = Depends(g
         - 302 Redirect to captive portal if device is blocked or not authenticated
     """
     client_ip = request.client.host if request.client else "unknown"
+    portal_url = f"http://{settings.gateway_ip}:{settings.web_port}/portal"
 
     # In transparent mode, check if device is explicitly blocked
     if settings.system_mode == "transparent":
         if await check_device_blocked(request, session):
             logger.info(f"🍎 Apple legacy: {client_ip} - BLOCKED in transparent mode - redirecting to portal")
-            return RedirectResponse(url="/portal", status_code=302)
+            return RedirectResponse(url=portal_url, status_code=302)
         else:
             logger.info(f"🍎 Apple legacy: {client_ip} - transparent mode - returning Success")
             return HTMLResponse("""<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>""")
@@ -233,7 +238,7 @@ async def apple_legacy_check(request: Request, session: AsyncSession = Depends(g
         return HTMLResponse("""<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>""")
     else:
         logger.info(f"🍎 Apple legacy: {client_ip} not authenticated - redirecting to portal")
-        return RedirectResponse(url="/portal", status_code=302)
+        return RedirectResponse(url=portal_url, status_code=302)
 
 
 @router.api_route("/success.txt", methods=["GET", "HEAD"])
@@ -247,12 +252,13 @@ async def generic_success_check(request: Request, session: AsyncSession = Depend
         - 302 Redirect to captive portal if device is blocked or not authenticated
     """
     client_ip = request.client.host if request.client else "unknown"
+    portal_url = f"http://{settings.gateway_ip}:{settings.web_port}/portal"
 
     # In transparent mode, check if device is explicitly blocked
     if settings.system_mode == "transparent":
         if await check_device_blocked(request, session):
             logger.info(f"✅ Generic check: {client_ip} - BLOCKED in transparent mode - redirecting to portal")
-            return RedirectResponse(url="/portal", status_code=302)
+            return RedirectResponse(url=portal_url, status_code=302)
         else:
             logger.info(f"✅ Generic check: {client_ip} - transparent mode - returning success")
             return Response(content="success", media_type="text/plain")
@@ -263,7 +269,7 @@ async def generic_success_check(request: Request, session: AsyncSession = Depend
         return Response(content="success", media_type="text/plain")
     else:
         logger.info(f"✅ Generic check: {client_ip} not authenticated - redirecting to portal")
-        return RedirectResponse(url="/portal", status_code=302)
+        return RedirectResponse(url=portal_url, status_code=302)
 
 
 @router.get("/favicon.ico")
