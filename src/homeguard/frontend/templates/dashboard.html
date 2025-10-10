@@ -120,12 +120,13 @@
         }
 
         .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
             border-radius: 12px;
             font-size: 12px;
             font-weight: 600;
-            text-transform: uppercase;
         }
 
         .status-granted {
@@ -141,6 +142,45 @@
         .status-iot {
             background: #d1ecf1;
             color: #0c5460;
+        }
+
+        .status-discovered {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status-dot.green {
+            background: #28a745;
+        }
+
+        .status-dot.red {
+            background: #dc3545;
+        }
+
+        .status-dot.yellow {
+            background: #ffc107;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .countdown-timer {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            font-weight: 700;
+            margin-left: 4px;
         }
 
         .button-group {
@@ -564,12 +604,63 @@
                 const iotButtonClass = isIOT ? 'block' : 'iot';
                 const iotAction = isIOT ? `removeIOT('${device.ip_address}')` : `setIOT('${device.ip_address}')`;
 
+                // Build status display
+                let statusDisplay = '';
+                if (device.access_status === 'granted' && device.access_expires_at) {
+                    // Show green bubble with countdown
+                    const expiresAt = new Date(device.access_expires_at);
+                    const now = new Date();
+                    const timeLeft = Math.max(0, Math.floor((expiresAt - now) / 1000)); // seconds
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                    statusDisplay = `
+                        <span class="status-badge ${statusClass}">
+                            <span class="status-dot green"></span>
+                            <span>Granted</span>
+                            <span class="countdown-timer" data-expires="${device.access_expires_at}">${timeStr}</span>
+                        </span>
+                    `;
+                } else if (device.access_status === 'granted') {
+                    // Forever access
+                    statusDisplay = `
+                        <span class="status-badge ${statusClass}">
+                            <span class="status-dot green"></span>
+                            <span>Granted (Forever)</span>
+                        </span>
+                    `;
+                } else if (device.access_status === 'iot') {
+                    statusDisplay = `
+                        <span class="status-badge ${statusClass}">
+                            <span class="status-dot green"></span>
+                            <span>IOT</span>
+                        </span>
+                    `;
+                } else if (device.access_status === 'blocked') {
+                    statusDisplay = `
+                        <span class="status-badge ${statusClass}">
+                            <span class="status-dot red"></span>
+                            <span>Blocked</span>
+                        </span>
+                    `;
+                } else if (device.access_status === 'discovered') {
+                    statusDisplay = `
+                        <span class="status-badge ${statusClass}">
+                            <span class="status-dot yellow"></span>
+                            <span>Discovered</span>
+                        </span>
+                    `;
+                } else {
+                    statusDisplay = `<span class="status-badge ${statusClass}">${device.access_status}</span>`;
+                }
+
                 html += `
                     <tr>
                         <td><strong>${device.ip_address || 'N/A'}</strong></td>
                         <td><code>${device.mac_address}</code></td>
                         <td>${device.hostname || 'Unknown'}</td>
-                        <td><span class="status-badge ${statusClass}">${device.access_status}</span></td>
+                        <td>${statusDisplay}</td>
                         <td>${lastSeen}</td>
                         <td>
                             <div class="action-controls">
@@ -752,6 +843,34 @@
             } catch (error) {
                 alert('Error setting TOTP mode: ' + error.message);
             }
+        }
+
+        // Update countdown timers every second
+        setInterval(updateCountdowns, 1000);
+
+        function updateCountdowns() {
+            const timers = document.querySelectorAll('.countdown-timer');
+            timers.forEach(timer => {
+                const expiresAt = new Date(timer.getAttribute('data-expires'));
+                const now = new Date();
+                const timeLeft = Math.max(0, Math.floor((expiresAt - now) / 1000));
+
+                if (timeLeft === 0) {
+                    // Access expired, refresh to update UI
+                    refreshDevices();
+                    return;
+                }
+
+                const hours = Math.floor(timeLeft / 3600);
+                const minutes = Math.floor((timeLeft % 3600) / 60);
+                const seconds = timeLeft % 60;
+
+                if (hours > 0) {
+                    timer.textContent = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                } else {
+                    timer.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                }
+            });
         }
 
         // Auto-refresh every 30 seconds
