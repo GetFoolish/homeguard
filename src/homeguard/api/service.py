@@ -4,6 +4,7 @@ import logging
 import asyncio
 import secrets
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from fastapi import FastAPI, Depends, HTTPException, Request, Form, Cookie, Response
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -12,6 +13,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import List, Optional
 from pathlib import Path
+
+# Set timezone to Toronto/EST
+TIMEZONE = ZoneInfo("America/Toronto")
 
 from ..database.connection import get_session, db_manager
 from ..database.models import Device, AccessLog
@@ -45,7 +49,7 @@ active_admin_sessions = {}  # token -> expiry_time
 def create_admin_session_token() -> str:
     """Create a signed session token for admin access."""
     token = secrets.token_urlsafe(32)
-    expiry = datetime.utcnow() + timedelta(seconds=ADMIN_SESSION_TIMEOUT)
+    expiry = datetime.now(TIMEZONE) + timedelta(seconds=ADMIN_SESSION_TIMEOUT)
     active_admin_sessions[token] = expiry
     return token
 
@@ -57,7 +61,7 @@ def verify_admin_session(admin_session: str = Cookie(default=None)) -> bool:
     # Check if token exists and is not expired
     if admin_session in active_admin_sessions:
         expiry = active_admin_sessions[admin_session]
-        if datetime.utcnow() < expiry:
+        if datetime.now(TIMEZONE) < expiry:
             return True
         else:
             # Token expired, remove it
@@ -337,14 +341,14 @@ async def grant_access_to_ip(
             device = Device(
                 mac_address=f"unknown:{ip_address}",
                 ip_address=ip_address,
-                first_seen=datetime.utcnow(),
-                last_seen=datetime.utcnow()
+                first_seen=datetime.now(TIMEZONE),
+                last_seen=datetime.now(TIMEZONE)
             )
             session.add(device)
 
         # Grant access
         device.grant_access(duration_key, expires_at)
-        device.last_seen = datetime.utcnow()
+        device.last_seen = datetime.now(TIMEZONE)
         await session.commit()
 
         # Add to iptables
@@ -438,14 +442,14 @@ async def grant_access_to_iot(
             device = Device(
                 mac_address=f"iot:{ip_address}",
                 ip_address=ip_address,
-                first_seen=datetime.utcnow(),
-                last_seen=datetime.utcnow()
+                first_seen=datetime.now(TIMEZONE),
+                last_seen=datetime.now(TIMEZONE)
             )
             session.add(device)
 
         # Set as IOT device
         device.set_iot()
-        device.last_seen = datetime.utcnow()
+        device.last_seen = datetime.now(TIMEZONE)
         await session.commit()
 
         # Add to iptables IOT chain
@@ -548,7 +552,7 @@ async def scan_network(session: AsyncSession = Depends(get_session)):
 
             if device_by_mac:
                 # Device exists with this MAC, update it
-                device_by_mac.last_seen = datetime.utcnow()
+                device_by_mac.last_seen = datetime.now(TIMEZONE)
                 device_by_mac.ip_address = scanned_dev['ip_address']  # Update IP if it changed
                 if scanned_dev.get('hostname'):
                     device_by_mac.hostname = scanned_dev['hostname']
@@ -557,18 +561,18 @@ async def scan_network(session: AsyncSession = Depends(get_session)):
                 # Only update if the existing MAC looks like a placeholder
                 if device_by_ip.mac_address.startswith(('unknown:', 'portal:', 'iot:')):
                     device_by_ip.mac_address = scanned_dev['mac_address']
-                device_by_ip.last_seen = datetime.utcnow()
+                device_by_ip.last_seen = datetime.now(TIMEZONE)
                 if scanned_dev.get('hostname'):
                     device_by_ip.hostname = scanned_dev['hostname']
             else:
-                # Create new device with discovered status
+                # Create new device with blocked status (default)
                 device = Device(
                     mac_address=scanned_dev['mac_address'],
                     ip_address=scanned_dev['ip_address'],
                     hostname=scanned_dev.get('hostname'),
-                    first_seen=datetime.utcnow(),
-                    last_seen=datetime.utcnow(),
-                    access_status="discovered"
+                    first_seen=datetime.now(TIMEZONE),
+                    last_seen=datetime.now(TIMEZONE),
+                    access_status="blocked"
                 )
                 session.add(device)
 
@@ -653,10 +657,10 @@ async def admin_login(request: Request, totp_code: str = Form(...)):
 
     duration_key, duration_seconds = validation_result
 
-    # Only accept "forever" duration codes for admin access
-    if duration_seconds != -1:
+    # Only accept 15min duration codes for admin access
+    if duration_key != "15_min":
         return RedirectResponse(
-            url="/admin/login?error=Admin+access+requires+forever+TOTP+code",
+            url="/admin/login?error=Admin+access+requires+15min+TOTP+code",
             status_code=302
         )
 
@@ -801,14 +805,14 @@ async def portal_authenticate(
             device = Device(
                 mac_address=f"portal:{client_ip}",
                 ip_address=client_ip,
-                first_seen=datetime.utcnow(),
-                last_seen=datetime.utcnow()
+                first_seen=datetime.now(TIMEZONE),
+                last_seen=datetime.now(TIMEZONE)
             )
             session.add(device)
 
         # Grant access
         device.grant_access(duration_key, expires_at)
-        device.last_seen = datetime.utcnow()
+        device.last_seen = datetime.now(TIMEZONE)
         await session.commit()
 
         # Add to iptables

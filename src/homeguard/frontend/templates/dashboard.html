@@ -607,7 +607,7 @@
                 // Build status display
                 let statusDisplay = '';
                 if (device.access_status === 'granted' && device.access_expires_at) {
-                    // Show green bubble with countdown
+                    // Show green bubble with countdown - Granted: [timer]
                     const expiresAt = new Date(device.access_expires_at);
                     const now = new Date();
                     const timeLeft = Math.max(0, Math.floor((expiresAt - now) / 1000)); // seconds
@@ -618,16 +618,16 @@
                     statusDisplay = `
                         <span class="status-badge ${statusClass}">
                             <span class="status-dot green"></span>
-                            <span>Granted</span>
+                            <span>Granted: </span>
                             <span class="countdown-timer" data-expires="${device.access_expires_at}">${timeStr}</span>
                         </span>
                     `;
                 } else if (device.access_status === 'granted') {
-                    // Forever access
+                    // Forever access - Granted: -1
                     statusDisplay = `
                         <span class="status-badge ${statusClass}">
                             <span class="status-dot green"></span>
-                            <span>Granted (Forever)</span>
+                            <span>Granted: -1</span>
                         </span>
                     `;
                 } else if (device.access_status === 'iot') {
@@ -637,18 +637,20 @@
                             <span>IOT</span>
                         </span>
                     `;
+                } else if (device.access_status === 'blocked' && hasAccess) {
+                    // In transparent mode, blocked devices that have access show as "Granted: Transparent"
+                    statusDisplay = `
+                        <span class="status-badge status-granted">
+                            <span class="status-dot green"></span>
+                            <span>Granted: Transparent</span>
+                        </span>
+                    `;
                 } else if (device.access_status === 'blocked') {
+                    // Blocked
                     statusDisplay = `
                         <span class="status-badge ${statusClass}">
                             <span class="status-dot red"></span>
                             <span>Blocked</span>
-                        </span>
-                    `;
-                } else if (device.access_status === 'discovered') {
-                    statusDisplay = `
-                        <span class="status-badge ${statusClass}">
-                            <span class="status-dot yellow"></span>
-                            <span>Discovered</span>
                         </span>
                     `;
                 } else {

@@ -6,10 +6,14 @@ import json
 from datetime import datetime, timedelta
 from typing import Optional, Tuple, Dict
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from ..config.settings import settings
 
 logger = logging.getLogger(__name__)
+
+# Set timezone to Toronto/EST
+TIMEZONE = ZoneInfo("America/Toronto")
 
 
 class TOTPManager:
@@ -92,7 +96,7 @@ class TOTPManager:
         """Calculate expiry time for a given duration."""
         if duration_seconds == -1:  # Forever access
             return None
-        return datetime.utcnow() + timedelta(seconds=duration_seconds)
+        return datetime.now(TIMEZONE) + timedelta(seconds=duration_seconds)
 
     def get_provisioning_uris(self, issuer: str = "Homeguard") -> Dict[str, str]:
         """

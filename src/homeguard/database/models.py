@@ -5,6 +5,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 from datetime import datetime
 from typing import Optional
+from zoneinfo import ZoneInfo
+
+# Set timezone to Toronto/EST
+TIMEZONE = ZoneInfo("America/Toronto")
 
 Base = declarative_base()
 
@@ -21,7 +25,7 @@ class Device(Base):
     last_seen = Column(DateTime, default=func.now())    # Last activity time
 
     # Access control fields
-    access_status = Column(String(20), default="discovered")  # "discovered", "granted", "blocked", "iot"
+    access_status = Column(String(20), default="blocked")  # "granted", "blocked", "iot"
     access_granted_at = Column(DateTime, nullable=True)       # When access was granted
     access_expires_at = Column(DateTime, nullable=True)       # When access expires (None for forever/iot)
     access_duration = Column(String(20), nullable=True)       # Duration type (15min, 1hr, etc.)
@@ -37,7 +41,7 @@ class Device(Base):
     @property
     def is_access_valid(self) -> bool:
         """Check if device's access is still valid (for TOTP mode)."""
-        if self.access_status in ["blocked", "discovered"]:
+        if self.access_status == "blocked":
             return False
 
         if self.access_status == "iot":
@@ -46,14 +50,14 @@ class Device(Base):
         if self.access_status == "granted":
             if self.access_expires_at is None:  # Forever access
                 return True
-            return datetime.utcnow() < self.access_expires_at
+            return datetime.now(TIMEZONE) < self.access_expires_at
 
         return False
 
     def grant_access(self, duration_key: str, expires_at: Optional[datetime]):
         """Grant access to the device."""
         self.access_status = "granted"
-        self.access_granted_at = datetime.utcnow()
+        self.access_granted_at = datetime.now(TIMEZONE)
         self.access_expires_at = expires_at
         self.access_duration = duration_key
 
@@ -67,7 +71,7 @@ class Device(Base):
     def set_iot(self):
         """Set device as IOT device."""
         self.access_status = "iot"
-        self.access_granted_at = datetime.utcnow()
+        self.access_granted_at = datetime.now(TIMEZONE)
         self.access_expires_at = None
         self.access_duration = None
 
