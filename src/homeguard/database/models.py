@@ -50,7 +50,13 @@ class Device(Base):
         if self.access_status == "granted":
             if self.access_expires_at is None:  # Forever access
                 return True
-            return datetime.now(TIMEZONE) < self.access_expires_at
+            # Make comparison timezone-aware
+            now = datetime.now(TIMEZONE)
+            expires = self.access_expires_at
+            # If expires_at is naive, make it timezone-aware
+            if expires.tzinfo is None:
+                expires = expires.replace(tzinfo=TIMEZONE)
+            return now < expires
 
         return False
 

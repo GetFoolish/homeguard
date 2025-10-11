@@ -658,7 +658,7 @@ async def admin_login(request: Request, totp_code: str = Form(...)):
     duration_key, duration_seconds = validation_result
 
     # Only accept 15min duration codes for admin access
-    if duration_key != "15_min":
+    if duration_key != "15min":
         return RedirectResponse(
             url="/admin/login?error=Admin+access+requires+15min+TOTP+code",
             status_code=302
