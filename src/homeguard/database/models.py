@@ -96,3 +96,17 @@ class AccessLog(Base):
 
     def __repr__(self):
         return f"<AccessLog(mac={self.mac_address}, event={self.event_type}, time={self.timestamp})>"
+
+
+class TotpAttempt(Base):
+    """Model for tracking TOTP authentication attempts for rate limiting."""
+
+    __tablename__ = "totp_attempts"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    ip_address = Column(String(15), nullable=False, index=True)  # IP address making the attempt
+    attempted_at = Column(DateTime, default=func.now(), nullable=False)  # When the attempt was made
+    success = Column(Boolean, default=False)  # Whether the attempt succeeded
+
+    def __repr__(self):
+        return f"<TotpAttempt(ip={self.ip_address}, time={self.attempted_at}, success={self.success})>"

@@ -18,7 +18,7 @@ from pathlib import Path
 TIMEZONE = ZoneInfo("America/Toronto")
 
 from ..database.connection import get_session, db_manager
-from ..database.models import Device, AccessLog
+from ..database.models import Device, AccessLog, TotpAttempt
 from ..auth.totp import totp_manager
 from ..iptables.manager import iptables_manager
 from ..config.settings import settings, save_config_file
@@ -74,6 +74,56 @@ async def require_admin_session(request: Request, admin_session: str = Cookie(de
     if not verify_admin_session(admin_session):
         return RedirectResponse(url="/admin/login", status_code=302)
     return admin_session
+
+# TOTP Rate Limiting (5 attempts per hour per IP)
+RATE_LIMIT_MAX_ATTEMPTS = 5
+RATE_LIMIT_WINDOW_SECONDS = 3600  # 1 hour
+
+async def check_rate_limit(ip_address: str, session: AsyncSession) -> tuple[bool, int, int]:
+    """
+    Check if an IP address has exceeded the rate limit for TOTP attempts.
+    
+    Returns:
+        tuple[bool, int, int]: (is_allowed, attempts_used, time_until_reset_seconds)
+    """
+    # Get all attempts from this IP in the last hour
+    one_hour_ago = datetime.now(TIMEZONE) - timedelta(seconds=RATE_LIMIT_WINDOW_SECONDS)
+    
+    result = await session.execute(
+        select(TotpAttempt)
+        .where(TotpAttempt.ip_address == ip_address)
+        .where(TotpAttempt.attempted_at >= one_hour_ago)
+        .order_by(TotpAttempt.attempted_at.asc())
+    )
+    attempts = result.scalars().all()
+    
+    attempts_count = len(attempts)
+    
+    # If we haven't hit the limit yet, allow the attempt
+    if attempts_count < RATE_LIMIT_MAX_ATTEMPTS:
+        return (True, attempts_count, 0)
+    
+    # We've hit the limit - calculate time until oldest attempt expires
+    oldest_attempt = attempts[0]
+    oldest_time = oldest_attempt.attempted_at
+    # Handle timezone compatibility (like in Device model)
+    if oldest_time.tzinfo is None:
+        oldest_time = oldest_time.replace(tzinfo=TIMEZONE)
+    
+    time_since_oldest = datetime.now(TIMEZONE) - oldest_time
+    time_until_reset = RATE_LIMIT_WINDOW_SECONDS - int(time_since_oldest.total_seconds())
+    
+    return (False, attempts_count, max(0, time_until_reset))
+
+async def record_totp_attempt(ip_address: str, success: bool, session: AsyncSession):
+    """Record a TOTP attempt for rate limiting."""
+    attempt = TotpAttempt(
+        ip_address=ip_address,
+        attempted_at=datetime.now(TIMEZONE),
+        success=success
+    )
+    session.add(attempt)
+    await session.commit()
 
 # User-agent parsing for device detection
 def parse_user_agent(user_agent: str) -> dict:
@@ -171,14 +221,50 @@ async def check_expired_devices():
             logger.error(f"Error in expired device check: {e}")
 
 
+# Background task for cleaning up old TOTP attempts
+async def cleanup_old_totp_attempts():
+    """Background task that runs daily to clean up TOTP attempts older than 72 hours."""
+    while True:
+        try:
+            # Run once per day (86400 seconds)
+            await asyncio.sleep(86400)
+            logger.info("Cleaning up old TOTP attempts...")
+
+            async with db_manager.get_session() as session:
+                # Delete attempts older than 72 hours
+                cutoff_time = datetime.now(TIMEZONE) - timedelta(hours=72)
+                
+                # Get count before deletion for logging
+                count_result = await session.execute(
+                    select(TotpAttempt).where(TotpAttempt.attempted_at < cutoff_time)
+                )
+                old_attempts = count_result.scalars().all()
+                count = len(old_attempts)
+                
+                # Delete old attempts
+                for attempt in old_attempts:
+                    await session.delete(attempt)
+                
+                await session.commit()
+                
+                if count > 0:
+                    logger.info(f"🗑️  Deleted {count} TOTP attempt(s) older than 72 hours")
+                else:
+                    logger.debug("No old TOTP attempts to clean up")
+
+        except Exception as e:
+            logger.error(f"Error in TOTP attempts cleanup: {e}")
+
+
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup."""
     logger.info("Starting Homeguard API service...")
     await db_manager.initialize()
 
-    # Start background task for expiration checking
+    # Start background tasks
     asyncio.create_task(check_expired_devices())
+    asyncio.create_task(cleanup_old_totp_attempts())
 
     # Set mode based on config
     if settings.system_mode == "transparent":
@@ -641,8 +727,29 @@ async def admin_login_page(request: Request, error: str = None):
 
 
 @app.post("/admin/login")
-async def admin_login(request: Request, totp_code: str = Form(...)):
+async def admin_login(
+    request: Request, 
+    totp_code: str = Form(...),
+    session: AsyncSession = Depends(get_session)
+):
     """Handle admin login with TOTP."""
+    # Get client IP for rate limiting
+    client_ip = request.client.host if request.client else "unknown"
+    
+    # Check rate limit
+    is_allowed, attempts_used, time_until_reset = await check_rate_limit(client_ip, session)
+    
+    if not is_allowed:
+        minutes = time_until_reset // 60
+        seconds = time_until_reset % 60
+        time_msg = f"{minutes}min {seconds}s" if minutes > 0 else f"{seconds}s"
+        
+        logger.warning(f"🚫 Admin login rate limit exceeded for IP {client_ip}")
+        return RedirectResponse(
+            url=f"/admin/login?error=Too+many+attempts.+Wait+{time_msg}",
+            status_code=302
+        )
+    
     # Strip whitespace from TOTP code
     totp_code = totp_code.strip().replace(" ", "")
 
@@ -650,6 +757,9 @@ async def admin_login(request: Request, totp_code: str = Form(...)):
     validation_result = totp_manager.validate_code(totp_code)
 
     if not validation_result:
+        # Record failed attempt
+        await record_totp_attempt(client_ip, success=False, session=session)
+        
         return RedirectResponse(
             url="/admin/login?error=Invalid+authentication+code",
             status_code=302
@@ -659,10 +769,16 @@ async def admin_login(request: Request, totp_code: str = Form(...)):
 
     # Only accept 15min duration codes for admin access
     if duration_key != "15min":
+        # Record failed attempt (wrong duration)
+        await record_totp_attempt(client_ip, success=False, session=session)
+        
         return RedirectResponse(
             url="/admin/login?error=Admin+access+requires+15min+TOTP+code",
             status_code=302
         )
+
+    # Record successful attempt
+    await record_totp_attempt(client_ip, success=True, session=session)
 
     # Create session token and redirect to admin dashboard
     session_token = create_admin_session_token()
@@ -675,7 +791,7 @@ async def admin_login(request: Request, totp_code: str = Form(...)):
         samesite="lax"
     )
 
-    logger.info(f"✅ Admin login successful")
+    logger.info(f"✅ Admin login successful from {client_ip}")
     return response
 
 
@@ -783,16 +899,45 @@ async def portal_authenticate(
                 }
             )
 
-        # Validate TOTP (includes universal passwords)
-        validation_result = totp_manager.validate_code(totp_code)
-        if not validation_result:
+        # Check rate limit BEFORE validating the TOTP
+        is_allowed, attempts_used, time_until_reset = await check_rate_limit(client_ip, session)
+        
+        if not is_allowed:
+            # Calculate minutes and seconds for user-friendly message
+            minutes = time_until_reset // 60
+            seconds = time_until_reset % 60
+            time_msg = f"{minutes} minute{'s' if minutes != 1 else ''}" if minutes > 0 else f"{seconds} second{'s' if seconds != 1 else ''}"
+            
+            logger.warning(f"🚫 Rate limit exceeded for IP {client_ip}: {attempts_used} attempts in last hour")
             return templates.TemplateResponse(
                 "auth_failure.html",
                 {
                     "request": request,
-                    "error_message": "Invalid authentication code. Please try again."
+                    "error_message": f"Too many authentication attempts. You have used {attempts_used} of {RATE_LIMIT_MAX_ATTEMPTS} allowed attempts per hour. Please wait {time_msg} before trying again."
                 }
             )
+
+        # Validate TOTP (includes universal passwords)
+        validation_result = totp_manager.validate_code(totp_code)
+        
+        if not validation_result:
+            # Record failed attempt
+            await record_totp_attempt(client_ip, success=False, session=session)
+            
+            # Calculate remaining attempts
+            remaining_attempts = RATE_LIMIT_MAX_ATTEMPTS - (attempts_used + 1)
+            attempts_msg = f"You have {remaining_attempts} attempt{'s' if remaining_attempts != 1 else ''} remaining in the next hour." if remaining_attempts > 0 else ""
+            
+            return templates.TemplateResponse(
+                "auth_failure.html",
+                {
+                    "request": request,
+                    "error_message": f"Invalid authentication code. Please try again. {attempts_msg}"
+                }
+            )
+
+        # Record successful attempt
+        await record_totp_attempt(client_ip, success=True, session=session)
 
         duration_key, duration_seconds = validation_result
         expires_at = totp_manager.get_expiry_time(duration_seconds)
