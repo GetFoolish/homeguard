@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Admin Login - HomeguardGuard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 450px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .lock-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .lock-icon svg {
+            width: 28px;
+            height: 28px;
+            fill: white;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .totp-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .totp-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            background: #fff5f5;
+            border: 1px solid #feb2b2;
+            color: #c53030;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .help-text {
+            text-align: center;
+            color: #6c757d;
+            font-size: 13px;
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+
+        .totp-input.error {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        /* Responsive design */
+        @media (max-width: 480px) {
+            .login-container {
+                margin: 10px;
+                border-radius: 16px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .content {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="header">
+            <div class="lock-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z"/>
+                </svg>
+            </div>
+            <h1>Admin Access</h1>
+            <p>Enter your TOTP code to continue</p>
+        </div>
+
+        <div class="content">
+            {% if error %}
+            <div class="error-message show">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="post" action="/admin/login" id="loginForm">
+                <div class="form-group">
+                    <label for="totp_code">Authentication Code</label>
+                    <input
+                        type="text"
+                        id="totp_code"
+                        name="totp_code"
+                        class="totp-input"
+                        placeholder="000 000"
+                        maxlength="7"
+                        autocomplete="one-time-code"
+                        inputmode="numeric"
+                        required
+                        autofocus
+                    >
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    Access Dashboard
+                </button>
+            </form>
+
+            <div class="help-text">
+                Enter the 6-digit code from your authenticator app.<br>
+                Only "forever" access codes are accepted for admin login.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('loginForm');
+        const input = document.getElementById('totp_code');
+
+        // Auto-format input (add spaces for readability)
+        input.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+            if (value.length > 6) value = value.slice(0, 6); // Limit to 6 digits
+
+            // Format as XXX XXX for readability
+            if (value.length > 3) {
+                value = value.slice(0, 3) + ' ' + value.slice(3);
+            }
+
+            e.target.value = value;
+
+            // Remove error state when user starts typing
+            e.target.classList.remove('error');
+        });
+
+        // Handle keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Focus input on any number key
+            if (/^[0-9]$/.test(e.key) && document.activeElement !== input) {
+                input.focus();
+            }
+
+            // Clear input on Escape
+            if (e.key === 'Escape') {
+                input.value = '';
+                input.focus();
+            }
+        });
+
+        // Auto-focus and select all text when page loads
+        window.addEventListener('load', function() {
+            input.focus();
+            input.select();
+        });
+    </script>
+</body>
+</html>

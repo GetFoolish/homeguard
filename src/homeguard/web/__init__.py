@@ -1,1 +1,0 @@
-"""Web interface module for captive portal and admin panel."""

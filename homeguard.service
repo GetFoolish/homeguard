@@ -1,0 +1,16 @@
+[Unit]
+Description=Homeguard Network Gateway
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/rp/CODE_STUFF/homeguard
+ExecStart=/home/rp/CODE_STUFF/homeguard/venv/bin/python src/main.py --live
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

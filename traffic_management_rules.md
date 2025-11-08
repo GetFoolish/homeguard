@@ -18,7 +18,7 @@ This document specifies the new high-performance two-chain iptables architecture
 1. Management access rules (SSH/VNC/Web)
 2. HOMEGUARD_ACCEPT jump (fast path for authenticated devices)
 3. HOMEGUARD_BLOCK jump (slow path for unauthenticated devices)
-4. Default transparent rules (LAN”WAN traffic flow)
+4. Default transparent rules (LANï¿½WAN traffic flow)
 ```
 
 ### Custom Chains
@@ -33,20 +33,22 @@ This document specifies the new high-performance two-chain iptables architecture
 ```bash
 1. ACCEPT tcp multiport dports 22,5900,8081                    # Management inbound
 2. ACCEPT tcp multiport sports 22,5900,8081 ctstate ESTABLISHED # Management return
-3. HOMEGUARD_ACCEPT ’ RETURN                                    # Fast path (empty)
-4. HOMEGUARD_BLOCK ’ RETURN                                     # Slow path (empty)
-5. ACCEPT -i eth1 -o eth0                                       # LAN ’ WAN traffic
-6. ACCEPT -i eth0 -o eth1 ctstate ESTABLISHED                   # WAN ’ LAN return
+3. HOMEGUARD_ACCEPT ï¿½ RETURN                                    # Fast path (empty)
+4. HOMEGUARD_BLOCK ï¿½ RETURN                                     # Slow path (empty)
+5. ACCEPT -i eth1 -o eth0                                       # LAN ï¿½ WAN traffic
+6. ACCEPT -i eth0 -o eth1 ctstate ESTABLISHED                   # WAN ï¿½ LAN return
 ```
 
 **Chain Contents:**
 ```bash
-HOMEGUARD_ACCEPT: RETURN (empty)
-HOMEGUARD_BLOCK:  RETURN (empty)
+HOMEGUARD_ACCEPT: RETURN (empty - no fast-path needed in transparent mode)
+HOMEGUARD_BLOCK:  (individual REJECT rules for manually blocked devices)
 Policy: ACCEPT
 ```
 
-**Traffic Flow:** All traffic flows freely through rules 5-6 after empty chain returns.
+**Traffic Flow:** All traffic flows freely through rules 5-6 after empty chain returns, EXCEPT for devices with explicit REJECT rules in HOMEGUARD_BLOCK.
+
+**Blocking in Transparent Mode:** When "block access" is clicked for a device, a REJECT rule with tcp-reset is added to HOMEGUARD_BLOCK for that specific IP, preventing its traffic (including HTTPS) even in transparent mode. REJECT is used instead of DROP for fast failure (milliseconds instead of 60-second timeout).
 
 ### TOTP_FULL Mode (No Users Authenticated)
 
@@ -55,11 +57,13 @@ Policy: ACCEPT
 **Chain Contents:**
 ```bash
 HOMEGUARD_ACCEPT: RETURN (empty - no authenticated users)
-HOMEGUARD_BLOCK:  DROP (blocks all non-management traffic)
+HOMEGUARD_BLOCK:
+  1. REJECT tcp --dport 443 --reject-with tcp-reset      # Fast HTTPS rejection
+  2. REJECT --reject-with icmp-port-unreachable          # Fast rejection for all other traffic
 Policy: DROP
 ```
 
-**Traffic Flow:** Non-management traffic hits HOMEGUARD_BLOCK and gets dropped.
+**Traffic Flow:** Non-management traffic hits HOMEGUARD_BLOCK and gets rejected immediately with tcp-reset (prevents 60-second captive portal detection delay).
 
 ### TOTP_FULL Mode (User 192.168.2.61 Authenticated)
 
@@ -72,10 +76,12 @@ HOMEGUARD_ACCEPT:
   2. ACCEPT -d 192.168.2.61 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
   3. RETURN
 
-HOMEGUARD_BLOCK: DROP
+HOMEGUARD_BLOCK:
+  1. REJECT tcp --dport 443 --reject-with tcp-reset      # Fast HTTPS rejection
+  2. REJECT --reject-with icmp-port-unreachable          # Fast rejection for all other traffic
 ```
 
-**Traffic Flow:** 192.168.2.61 traffic hits fast path rules and gets accepted immediately. Other devices hit HOMEGUARD_BLOCK and get dropped.
+**Traffic Flow:** 192.168.2.61 traffic hits fast path rules and gets accepted immediately. Other devices hit HOMEGUARD_BLOCK and get rejected with tcp-reset for fast failure.
 
 ## Implementation Commands
 
@@ -117,7 +123,8 @@ sudo iptables -t filter -P FORWARD ACCEPT
 sudo iptables -t filter -F HOMEGUARD_ACCEPT
 sudo iptables -t filter -F HOMEGUARD_BLOCK
 sudo iptables -t filter -A HOMEGUARD_ACCEPT -j RETURN  # Empty initially
-sudo iptables -t filter -A HOMEGUARD_BLOCK -j DROP    # Block all
+sudo iptables -t filter -A HOMEGUARD_BLOCK -p tcp --dport 443 -j REJECT --reject-with tcp-reset  # Fast HTTPS rejection
+sudo iptables -t filter -A HOMEGUARD_BLOCK -j REJECT --reject-with icmp-port-unreachable  # Fast rejection for all traffic
 sudo iptables -t filter -P FORWARD DROP
 ```
 
@@ -132,9 +139,19 @@ sudo iptables -t filter -I HOMEGUARD_ACCEPT 2 -d {DEVICE_IP} -m conntrack --ctst
 
 #### Revoke Device Access (Block Internet)
 ```bash
-# Remove device from fast path
-sudo iptables -t filter -D HOMEGUARD_ACCEPT -s {DEVICE_IP} -j ACCEPT
-sudo iptables -t filter -D HOMEGUARD_ACCEPT -d {DEVICE_IP} -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+# Remove device from fast path (if exists)
+sudo iptables -t filter -D HOMEGUARD_ACCEPT -s {DEVICE_IP} -j ACCEPT 2>/dev/null || true
+sudo iptables -t filter -D HOMEGUARD_ACCEPT -d {DEVICE_IP} -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || true
+
+# In transparent mode: add explicit reject to HOMEGUARD_BLOCK (fast failure)
+# (In TOTP mode, this is unnecessary as default policy already rejects)
+sudo iptables -t filter -A HOMEGUARD_BLOCK -s {DEVICE_IP} -j REJECT --reject-with tcp-reset
+```
+
+#### Unblock Device (Remove Manual Block in Transparent Mode)
+```bash
+# Remove explicit reject from HOMEGUARD_BLOCK
+sudo iptables -t filter -D HOMEGUARD_BLOCK -s {DEVICE_IP} -j REJECT --reject-with tcp-reset 2>/dev/null || true
 ```
 
 ## Code Integration Requirements
@@ -168,11 +185,13 @@ def apply_transparent_mode(self):
 
 def apply_totp_full_mode(self):
     """Configure chains for TOTP full blocking mode"""
-    # Empty accept chain, add block rule
+    # Empty accept chain, add reject rules for fast failure
     run_iptables(["-t", "filter", "-F", "HOMEGUARD_ACCEPT"])
     run_iptables(["-t", "filter", "-F", "HOMEGUARD_BLOCK"])
     run_iptables(["-t", "filter", "-A", "HOMEGUARD_ACCEPT", "-j", "RETURN"])
-    run_iptables(["-t", "filter", "-A", "HOMEGUARD_BLOCK", "-j", "DROP"])
+    # Fast HTTPS rejection to prevent 60-second captive portal delay
+    run_iptables(["-t", "filter", "-A", "HOMEGUARD_BLOCK", "-p", "tcp", "--dport", "443", "-j", "REJECT", "--reject-with", "tcp-reset"])
+    run_iptables(["-t", "filter", "-A", "HOMEGUARD_BLOCK", "-j", "REJECT", "--reject-with", "icmp-port-unreachable"])
     run_iptables(["-t", "filter", "-P", "FORWARD", "DROP"])
 ```
 

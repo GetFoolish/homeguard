@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>HomeguardGuard - Connected</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .success-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            overflow: hidden;
+            text-align: center;
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 50px 30px;
+            position: relative;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            position: relative;
+            z-index: 1;
+            animation: successPulse 2s ease-in-out infinite;
+        }
+
+        .success-icon svg {
+            width: 40px;
+            height: 40px;
+            fill: white;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #d4edda;
+            color: #155724;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #28a745;
+            border-radius: 50%;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .access-info {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #28a745;
+        }
+
+        .access-info h3 {
+            color: #2c3e50;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .info-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .info-value {
+            color: #28a745;
+            font-weight: 700;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+        }
+
+        .network-ready {
+            background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+            border: 2px solid #2196f3;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #0d47a1;
+        }
+
+        .network-ready h4 {
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .network-ready p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .actions {
+            margin-top: 30px;
+        }
+
+        .continue-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .continue-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+        }
+
+        @keyframes successPulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* Responsive design */
+        @media (max-width: 480px) {
+            .success-container {
+                margin: 10px;
+                border-radius: 16px;
+            }
+
+            .header {
+                padding: 40px 20px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .content {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="success-container">
+        <div class="header">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z"/>
+                </svg>
+            </div>
+            <h1>✅ Connected!</h1>
+            <p>You now have full internet access</p>
+        </div>
+
+        <div class="content">
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                Internet Access Active
+            </div>
+
+            <div class="access-info">
+                <h3>Access Details</h3>
+                <div class="info-grid">
+                    <div class="info-row">
+                        <span class="info-label">Access Level:</span>
+                        <span class="info-value">{{ duration_display }}</span>
+                    </div>
+                    {% if expires_at %}
+                    <div class="info-row">
+                        <span class="info-label">Valid Until:</span>
+                        <span class="info-value">{{ expires_at }}</span>
+                    </div>
+                    {% else %}
+                    <div class="info-row">
+                        <span class="info-label">Valid Until:</span>
+                        <span class="info-value">Permanent</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="network-ready">
+                <h4>🌐 Network Status</h4>
+                <p>Your device is now connected to the internet. You can close this window and continue browsing.</p>
+            </div>
+
+            <div class="actions">
+                <button class="continue-btn" onclick="handleContinue()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19,7H22V9H19V12H17V9H14V7H17V4H19V7M17,17V19H19V21H17C15.89,21 15,20.1 15,19V17H13V15H15V13H17V15H19V17M11,7H2V5H11V7M11,11H2V9H11V11M8,15H2V13H8V15M11,19H2V17H11V19Z"/>
+                    </svg>
+                    Continue Browsing
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function handleContinue() {
+            // Try to detect if this is a captive portal popup
+            const isCaptivePortal = window.name === '' && (window.outerHeight - window.innerHeight) < 100;
+
+            if (isCaptivePortal || navigator.userAgent.includes('CaptiveNetworkSupport')) {
+                // This is likely a captive portal popup, close it
+                window.close();
+            } else {
+                // Regular browser window, redirect to a known good URL
+                window.location.href = 'http://www.google.com/';
+            }
+        }
+
+        // Auto-close after a delay for better UX
+        setTimeout(() => {
+            // Only auto-close if this appears to be a captive portal popup
+            if (window.name === '' && (window.outerHeight - window.innerHeight) < 100) {
+                window.close();
+            }
+        }, 3000); // 3 seconds delay
+
+        // Inform the OS that the captive portal is complete
+        if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.captivePortal) {
+            window.webkit.messageHandlers.captivePortal.postMessage('success');
+        }
+
+        // For Android WebView
+        if (window.Android && window.Android.captivePortalComplete) {
+            window.Android.captivePortalComplete();
+        }
+    </script>
+</body>
+</html>

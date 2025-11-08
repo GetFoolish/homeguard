@@ -1,1 +1,1 @@
-"""Authentication module for TOTP-based access control."""
+"""Authentication package for Homeguard."""

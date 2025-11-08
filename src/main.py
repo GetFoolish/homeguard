@@ -1,5 +1,6 @@
-"""Main application entry point for HomeguardGuard."""
+"""Main entry point for Homeguard service."""
 
+import argparse
 import asyncio
 import logging
 import signal
@@ -10,108 +11,101 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from homeguard.config.settings import settings
-from homeguard.network.traffic_monitor import traffic_monitor
-from homeguard.web.app import app
-from homeguard.proxy.http_proxy import proxy_server
+from homeguard.api.service import app
+from homeguard.iptables.manager import iptables_manager
 import uvicorn
 
 # Configure logging
+log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 logging.basicConfig(
     level=getattr(logging, settings.log_level.upper()),
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format=log_format,
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler('myproxy.log') if not settings.debug else logging.NullHandler()
+        logging.FileHandler(settings.log_file)
     ]
 )
 
 logger = logging.getLogger(__name__)
 
 
-async def start_services():
-    """Start all MyProxy services."""
-    logger.info("Starting MyProxy services...")
-    
-    shutdown_event = asyncio.Event()
-    
-    def signal_handler():
-        logger.info("Received shutdown signal")
-        shutdown_event.set()
-    
-    # Set up signal handlers
-    for sig in [signal.SIGTERM, signal.SIGINT]:
-        asyncio.get_event_loop().add_signal_handler(sig, signal_handler)
-    
+def parse_arguments():
+    """Parse command-line arguments and override settings."""
+    parser = argparse.ArgumentParser(description="Homeguard Network Gateway")
+    parser.add_argument(
+        "--live",
+        action="store_true",
+        help="Run in LIVE mode (apply actual iptables changes)"
+    )
+    parser.add_argument(
+        "--mode",
+        choices=["transparent", "totp"],
+        help="System mode (transparent or totp)"
+    )
+    args = parser.parse_args()
+
+    # Override settings based on command-line arguments
+    if args.live:
+        settings.execution_mode = "live"
+    if args.mode:
+        settings.system_mode = args.mode
+
+    return args
+
+
+def main():
+    """Main entry point."""
+    # Parse command-line arguments and override settings
+    parse_arguments()
+
+    logger.info("=" * 60)
+    logger.info("🛡️  HOMEGUARD NETWORK GATEWAY v4.0.0")
+    logger.info("=" * 60)
+    logger.info(f"🔧 System Mode: {settings.system_mode.upper()}")
+    logger.info(f"🧪 Execution Mode: {settings.execution_mode.upper()}")
+    logger.info(f"🌐 Gateway: {settings.gateway_ip}:{settings.web_port}")
+    logger.info(f"📊 Database: {settings.database_url}")
+    logger.info(f"📝 Log File: {settings.log_file}")
+
+    if settings.execution_mode == "testing":
+        logger.warning("⚠️  TESTING MODE: No actual iptables changes will be made!")
+        logger.warning("⚠️  All iptables commands will be logged only.")
+    else:
+        logger.warning("🚨 LIVE MODE: Actual iptables changes will be applied!")
+        logger.warning("🚨 This will affect network traffic routing!")
+
+    logger.info("=" * 60)
+
     try:
-        # Start the traffic monitor in the background
-        monitor_task = asyncio.create_task(traffic_monitor.start())
-        logger.info("TrafficMonitor started")
-        
-        # Start the HTTP proxy server
-        proxy_task = asyncio.create_task(proxy_server.start())
-        logger.info("HTTP Proxy started")
-        
-        # Start the web server
+        # Start the uvicorn server
         config = uvicorn.Config(
             app=app,
             host=settings.web_host,
             port=settings.web_port,
             log_level=settings.log_level.lower(),
-            reload=settings.debug
+            access_log=True
         )
         server = uvicorn.Server(config)
-        
-        logger.info(f"Starting web server on {settings.web_host}:{settings.web_port}")
-        
-        # Start server in background
-        server_task = asyncio.create_task(server.serve())
-        
-        # Wait for shutdown signal
-        await shutdown_event.wait()
-        
-        # Graceful shutdown
-        logger.info("Shutting down services...")
-        await traffic_monitor.stop()
-        await proxy_server.stop()
-        server.should_exit = True
-        
-        # Wait for tasks to complete
-        await asyncio.gather(monitor_task, proxy_task, server_task, return_exceptions=True)
-        
-    except Exception as e:
-        logger.error(f"Service startup failed: {e}")
-        raise
 
+        logger.info(f"🚀 Starting web server on {settings.web_host}:{settings.web_port}")
+        logger.info(f"📱 Dashboard: http://{settings.gateway_ip}:{settings.web_port}/")
+        logger.info("=" * 60)
 
-def main():
-    """Main entry point."""
-    logger.info("HomeguardGuard Network Gateway starting...")
-    logger.info("=" * 50)
-    logger.info(f"🔧 Configuration loaded from: /etc/homeguard/config.yaml")
-    logger.info(f"🚀 Operational Mode: {settings.gateway_mode.upper()}")
+        # Run the server
+        server.run()
 
-    if settings.gateway_mode == "transparent":
-        logger.info("📝 Mode: TRANSPARENT - All traffic allowed through without filtering")
-    elif settings.gateway_mode == "totp_testing":
-        logger.info(f"📝 Mode: TOTP TESTING - Only blocking {settings.testing_ip}")
-    elif settings.gateway_mode == "totp_full":
-        logger.info("📝 Mode: TOTP FULL - All devices blocked until TOTP authentication")
-    else:
-        logger.warning(f"⚠️  Unknown mode: {settings.gateway_mode}")
-
-    logger.info(f"🌐 Gateway: {settings.gateway_ip}:{settings.web_port}")
-    logger.info(f"🔧 Debug mode: {settings.debug}")
-    logger.info(f"🔄 Auto recovery: {settings.auto_recovery}")
-    logger.info("=" * 50)
-
-    try:
-        asyncio.run(start_services())
     except KeyboardInterrupt:
-        logger.info("HomeguardGuard shutdown complete")
-    except Exception as e:
-        logger.error(f"HomeguardGuard failed to start: {e}")
-        sys.exit(1)
+        logger.info("🛑 Received shutdown signal...")
+        # Set to transparent mode on shutdown
+        logger.info("🔓 Setting system to transparent mode before shutdown...")
+        iptables_manager.set_transparent_mode()
+        logger.info("✅ Homeguard shutdown complete")
 
+    except Exception as e:
+        logger.error(f"❌ Homeguard failed to start: {e}", exc_info=True)
+        iptables_manager.set_transparent_mode()
+        logger.info("✅ Homeguard shutdown complete")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

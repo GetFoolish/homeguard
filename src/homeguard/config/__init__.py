@@ -1,1 +1,1 @@
-"""Configuration management module."""
+"""Configuration package for Homeguard."""

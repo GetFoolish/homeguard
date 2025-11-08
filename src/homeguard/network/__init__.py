@@ -1,1 +1,1 @@
-"""Network traffic monitoring and control module."""
+"""Network utilities package for Homeguard."""
